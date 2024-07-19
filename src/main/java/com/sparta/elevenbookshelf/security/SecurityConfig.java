@@ -3,7 +3,6 @@ package com.sparta.elevenbookshelf.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationEntryPoint;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationFilter;
-import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
 import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -34,7 +32,7 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -81,19 +79,22 @@ public class SecurityConfig {
                                                    .requestMatchers("/auth/reissue").permitAll()
                                                    .requestMatchers(HttpMethod.GET, "/boards/**").permitAll()
                                                    .requestMatchers(HttpMethod.GET,  "/comments/**").permitAll()
-                                                   .requestMatchers("login.html").permitAll()
+                                                   .requestMatchers("/login.html").permitAll()
                                                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                   .anyRequest().authenticated());
-
-
-        http.addFilterAt(jwtAuthenticationFilter(), BasicAuthenticationFilter.class);
-
-        http.oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
-                .loginPage("/templates/login.html")
-//                .successHandler(oAuth2AuthenticationSuccessHandler())
+                                                   .anyRequest().authenticated()
         );
 
-        return http.build();
+        http.sessionManagement(sessionManagement -> sessionManagement
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        );
 
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+/*        http.oauth2Login(oauth2Login -> oauth2Login
+                                 .loginPage("/templates/login.html")
+                         // .successHandler(oAuth2AuthenticationSuccessHandler()) // OAuth2 인증 성공 핸들러 설정 (필요에 따라 주석 해제)
+        );*/
+
+        return http.build();
     }
 }

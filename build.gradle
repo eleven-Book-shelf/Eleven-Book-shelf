@@ -65,6 +65,7 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
+
     // java-faker 설정
     implementation ('com.github.javafaker:javafaker:1.0.2') {
         exclude module: 'org.yaml'
