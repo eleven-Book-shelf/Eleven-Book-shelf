@@ -74,8 +74,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(request ->
                                            request
                                                    .requestMatchers("/auth/login").permitAll()
-                                                   .requestMatchers("/users/signup").permitAll()
-                                                   .requestMatchers("/users/email/**").permitAll()
+                                                   .requestMatchers("/user/signup").permitAll()
+                                                   .requestMatchers("/user/email/**").permitAll()
                                                    .requestMatchers("/auth/reissue").permitAll()
                                                    .requestMatchers(HttpMethod.GET, "/boards/**").permitAll()
                                                    .requestMatchers(HttpMethod.GET,  "/comments/**").permitAll()
