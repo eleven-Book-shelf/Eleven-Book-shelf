@@ -26,7 +26,6 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Override
@@ -34,13 +33,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        log.info("doFilterInternal 실행");
         String accessToken = request.getHeader("Authorization");
+        log.info("doFilterInternal accessToken 가져오기 : " + accessToken);
         validateToken(accessToken);
         filterChain.doFilter(request, response);
-
     }
 
     private void validateToken(String token) {
+
+        log.info("validateToken 메서드 실행. 받은 토큰 : " + token);
         if (jwtUtil.isTokenValidate(token)){
             Claims claims = jwtUtil.extractAllClaims(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
@@ -49,6 +51,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
+            log.info("doFilterInternal accessToken validateToken 검사 끝 : " + token);
         }
     }
+
 }

@@ -31,6 +31,7 @@ public class JwtUtil {
     }
 
     public boolean isTokenValidate(String token) {
+        log.info("isTokenValidate 메서드 실행. 검사할 토큰 : " + token);
         try { Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
@@ -42,6 +43,7 @@ public class JwtUtil {
         } catch (IllegalArgumentException e) {
             log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
         }
+        log.info("isValidate 메서드 성공. 통과된 토큰 : " + token);
         return false;
     }
 

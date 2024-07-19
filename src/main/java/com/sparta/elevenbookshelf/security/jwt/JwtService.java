@@ -37,20 +37,21 @@ public class JwtService {
 
     // 엑세스 토큰
     public String generateAccessToken(String username) {
+        log.info("generateAccessToken 메서드 실행");
         return createToken(username, accessExpireTime);
 
     }
 
     // 리프레쉬 토큰
     public String generateRefreshToken(String username) {
-
+        log.info("generateRefreshToken 메서드 실행");
         return createToken(username, refreshExpireTime);
 
     }
 
     // 토큰 생성
     private String createToken(String username, Long expirationTime) {
-
+        log.info("createToken 메서드 실행");
         Date now = new Date();
         String token = Jwts.builder()
                 .setSubject(username)
@@ -59,10 +60,8 @@ public class JwtService {
                 .signWith(key, signatureAlgorithm)
                 .compact();
 
-        log.info("CreateToken 메서드로 생성된 토큰 : " + token);
+        log.info("createToken 메서드로 생성된 토큰 : " + token);
         return token;
     }
-
-
 
 }
