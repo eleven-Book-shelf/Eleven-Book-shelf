@@ -3,21 +3,20 @@ package com.sparta.elevenbookshelf.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationEntryPoint;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationFilter;
+import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
+import com.sparta.elevenbookshelf.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -29,15 +28,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        log.info("@Bean passwordEncoder 실행");
-        return new BCryptPasswordEncoder();
+    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
+        return new OAuth2AuthenticationSuccessHandler(jwtService, objectMapper);
     }
 
     @Bean
@@ -73,15 +72,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
-                                                   .requestMatchers("/auth/login").permitAll()
-                                                   .requestMatchers("/users/signup").permitAll()
-                                                   .requestMatchers("/users/email/**").permitAll()
-                                                   .requestMatchers("/auth/reissue").permitAll()
-                                                   .requestMatchers(HttpMethod.GET, "/boards/**").permitAll()
-                                                   .requestMatchers(HttpMethod.GET,  "/comments/**").permitAll()
-                                                   .requestMatchers("/login.html").permitAll()
-                                                   .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                   .anyRequest().authenticated()
+                                                   .anyRequest().permitAll()
         );
 
         http.sessionManagement(sessionManagement -> sessionManagement
@@ -90,10 +81,10 @@ public class SecurityConfig {
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-/*        http.oauth2Login(oauth2Login -> oauth2Login
+        http.oauth2Login(oauth2Login -> oauth2Login
                                  .loginPage("/templates/login.html")
-                         // .successHandler(oAuth2AuthenticationSuccessHandler()) // OAuth2 인증 성공 핸들러 설정 (필요에 따라 주석 해제)
-        );*/
+                          .successHandler(oAuth2AuthenticationSuccessHandler()) // OAuth2 인증 성공 핸들러 설정 (필요에 따라 주석 해제)
+        );
 
         return http.build();
     }
