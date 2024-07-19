@@ -1,0 +1,123 @@
+package com.sparta.elevenbookshelf.controller;
+
+import com.sparta.elevenbookshelf.dto.BoardRequestDto;
+import com.sparta.elevenbookshelf.dto.BoardResponseDto;
+import com.sparta.elevenbookshelf.dto.PostRequestDto;
+import com.sparta.elevenbookshelf.dto.PostResponseDto;
+import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
+import com.sparta.elevenbookshelf.service.BoardService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/boards")
+public class BoardController {
+    private final BoardService boardService;
+
+    //:::::::::::::::::// board //::::::::::::::::://
+
+    @PostMapping
+    public ResponseEntity<BoardResponseDto> createBoard(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestBody BoardRequestDto req
+            ) {
+
+        BoardResponseDto res = boardService.createBoard(userPrincipal.getUser(), req);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<BoardResponseDto>> readBoards() {
+
+        List<BoardResponseDto> res = boardService.readBoards();
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @GetMapping("/{boardId}")
+    public ResponseEntity<List<PostResponseDto>> readBoard(
+            @PathVariable Long boardId,
+            @RequestParam int offset,
+            @RequestParam int pagesize) {
+
+        List<PostResponseDto> res = boardService.readBoard(boardId, offset, pagesize);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @PutMapping("/{boardId}")
+    public ResponseEntity<BoardResponseDto> updateBoard(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long boardId,
+            @RequestBody BoardRequestDto req) {
+
+        BoardResponseDto res = boardService.updateBoard(userPrincipal.getUser(), boardId, req);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<?> deleteBoard(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long boardId
+                                         ) {
+
+        boardService.deleteBoard(userPrincipal.getUser(), boardId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
+    //:::::::::::::::::// post //::::::::::::::::://
+
+    @PostMapping("/{boardId}")
+    public ResponseEntity<PostResponseDto> createPost(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long boardId,
+            @RequestBody PostRequestDto req) {
+
+        PostResponseDto res = boardService.createPost(userPrincipal.getUser(), boardId, req);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    }
+
+    @GetMapping("/{boardId}/{postId}")
+    public ResponseEntity<PostResponseDto> readPost(
+            @PathVariable Long boardId,
+            @PathVariable Long postId) {
+
+        PostResponseDto res = boardService.readPost(boardId, postId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @PutMapping("/{boardId}/{postId}")
+    public ResponseEntity<PostResponseDto> updatePost(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long boardId,
+            @PathVariable Long postId,
+            @RequestBody PostRequestDto req) {
+
+        PostResponseDto res = boardService.updatePost(userPrincipal.getUser(), boardId, postId, req);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @DeleteMapping("/{boardId}/{postId}")
+    public ResponseEntity<?> deletePost(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long boardId,
+            @PathVariable Long postId) {
+
+        boardService.deletePost(userPrincipal.getUser(), boardId, postId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+}
