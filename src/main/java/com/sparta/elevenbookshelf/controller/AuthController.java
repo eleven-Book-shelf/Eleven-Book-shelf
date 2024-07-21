@@ -16,11 +16,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-    AuthService authService;
+    private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
-        return ResponseEntity.status(HttpStatus.OK).header(HttpHeaders.AUTHORIZATION,authService.login(loginRequestDto)).body(null);
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
+        return ResponseEntity.status(HttpStatus.OK).header(HttpHeaders.AUTHORIZATION,authService.login(loginRequestDto))
+                .body("null");
     }
 
     @PatchMapping("/logout")

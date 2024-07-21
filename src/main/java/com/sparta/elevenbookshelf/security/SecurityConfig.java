@@ -7,6 +7,7 @@ import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
 import com.sparta.elevenbookshelf.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
+import com.sparta.elevenbookshelf.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +30,7 @@ public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final JwtService jwtService;
+    private final UserService userService;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
@@ -36,7 +38,8 @@ public class SecurityConfig {
 
     @Bean
     public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
-        return new OAuth2AuthenticationSuccessHandler(jwtService, objectMapper);
+        log.info("@Bean OAuth2AuthenticationSuccessHandler 실행");
+        return new OAuth2AuthenticationSuccessHandler(jwtService, objectMapper,userService);
     }
 
     @Bean
@@ -75,15 +78,11 @@ public class SecurityConfig {
                                                    .anyRequest().permitAll()
         );
 
-        http.sessionManagement(sessionManagement -> sessionManagement
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
-
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        http.oauth2Login(oauth2Login -> oauth2Login
-                                 .loginPage("/templates/login.html")
-                          .successHandler(oAuth2AuthenticationSuccessHandler()) // OAuth2 인증 성공 핸들러 설정 (필요에 따라 주석 해제)
+        http.oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
+                .loginPage("/login.html")
+                .successHandler(oAuth2AuthenticationSuccessHandler())
         );
 
         return http.build();
