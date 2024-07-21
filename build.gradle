@@ -71,6 +71,10 @@ dependencies {
     // WebDriverManager
     implementation 'io.github.bonigarcia:webdrivermanager:5.7.0'
 
+    // Jsoup
+    implementation 'org.jsoup:jsoup:1.18.1'
+
+
     // java-faker 설정
     implementation ('com.github.javafaker:javafaker:1.0.2') {
         exclude module: 'org.yaml'
