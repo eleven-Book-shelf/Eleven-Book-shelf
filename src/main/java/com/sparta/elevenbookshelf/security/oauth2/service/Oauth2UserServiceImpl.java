@@ -1,11 +1,10 @@
 package com.sparta.elevenbookshelf.security.oauth2.service;
 
 
-
-
 import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import com.sparta.elevenbookshelf.security.config.PasswordEncorderConfig;
+import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.oauth2.userinfo.GoogleOAuth2UserInfo;
 import com.sparta.elevenbookshelf.security.oauth2.userinfo.KakaoOAuth2UserInfo;
 import com.sparta.elevenbookshelf.security.oauth2.userinfo.NaverOAuth2UserInfo;
@@ -18,7 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -27,13 +25,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
 
-    private final UserDetailsServiceImpl userDetailsService;
+    private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final UserDetailsServiceImpl userDetailsService;
     private final PasswordEncorderConfig encoder;
 
     @Override
@@ -68,7 +67,9 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
                     .role(User.Role.USER)
                     .status(User.Status.NORMAL)
                     .build();
+
             userRepository.save(user);
+            user.addRefreshToken(jwtService.generateRefreshToken(provider + "_" + socialId));
         }
         else {
             user = optionalUser.get();
