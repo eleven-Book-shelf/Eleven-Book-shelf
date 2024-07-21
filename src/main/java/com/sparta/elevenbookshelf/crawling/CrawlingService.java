@@ -71,23 +71,37 @@ public class CrawlingService {
         return false;
     }
 
+    // 페이지 로딩을 기다리는 메서드.
+    private void waitForPage() {
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
+        wait.until(webDriver
+                -> ((JavascriptExecutor) webDriver)
+                .executeScript("return document.readyState")
+                .equals("complete"));
+    }
+
+    // 복수 : css 로딩을 기다리는 메서드.
+    private List<WebElement> waitForElements(By locator, int timeoutSeconds) {
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(timeoutSeconds));
+        return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+    }
+
+    // 단수 : css 로딩을 기다리는 메서드.
+    private WebElement waitForElement(By locator, int timeoutSeconds) {
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(timeoutSeconds));
+        return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+    }
+
     public void performGoogleSearch() {
 
         log.info("크롤링 시작.");
         webDriver.get(kCrawlingPage);
         log.info("크롤링 할 페이지 : " + webDriver.getCurrentUrl());
 
-        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
-
         try {
             while (true) {
-                wait.until(webDriver
-                        -> ((JavascriptExecutor) webDriver)
-                        .executeScript("return document.readyState")
-                        .equals("complete"));
-
-                List<WebElement> linkElements = wait.until(ExpectedConditions
-                        .presenceOfAllElementsLocatedBy(By.cssSelector(pageArtLink)));
+                waitForPage();
+                List<WebElement> linkElements = waitForElements(By.cssSelector(pageArtLink), 10);
                 log.info("찾은 링크 개수 {}: ", linkElements.size());
 
                 //
@@ -121,10 +135,9 @@ public class CrawlingService {
 
                         webDriver.get(artUrl);
                         log.info("찾은 링크로 이동 {}: ", artUrl);
+                        waitForPage();
 
-                        wait.until(webDriver1
-                                -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
-
+                        // 연령제한이 있는 페이지의 경우 로그인이 필요함. 로그인 페이지를 넘기기 위한 메서드.
 //                        if (checkTheLoginPage()) {
 //                            log.info("로그인이 필요한 페이지입니다. 링크 건너뛰고 다음으로 이동 : {}", artUrl);
 //                            webDriver.navigate().back();
@@ -133,34 +146,30 @@ public class CrawlingService {
 //                            continue;
 //                        }
 
-                        WebElement titleElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(artTitle)));
+                        WebElement titleElement = waitForElement(By.cssSelector(artTitle), 10);
                         String title = titleElement.getText();
                         log.info("제목 찾기 : {}", title);
 
                         webDriver.navigate().back();
                         log.info("이전 페이지로 돌아갑니다.");
+                        waitForPage();
 
-                        wait.until(webDriver
-                                -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
-
+                        // 하나의 데이터를 얻어온 후 2초간 쓰레드 정지. (표적 사이트 서버의 부하를 줄이기 위한 조치.)
                         Thread.sleep(2000);
 
                     } catch (NoSuchElementException e) {
                         log.error("요소를 찾을 수 없습니다: {}", e.getMessage(), e);
-                        webDriver.quit();
 
                     } catch (TimeoutException e) {
                         // 페이지 리소스 파일 검사하여 로그인 페이지를 넘기는 메서드가 동작하지 않기에 타임아웃 발생 = 로그인 페이지 로 가정하고 다음 반복으로 넘어가게끔 설정.
                         log.error("요소를 찾는 시간 초과: {}", e.getMessage(), e);
                         webDriver.navigate().back();
-                        wait.until(webDriver
-                                -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+                        waitForPage();
 
                     } catch (Exception e) {
                         log.error("catch : 링크 처리중 오류 발생 : {}", e.getMessage(), e);
                         webDriver.navigate().back();
-                        wait.until(webDriver
-                                -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+                        waitForPage();
 
                     }
 
