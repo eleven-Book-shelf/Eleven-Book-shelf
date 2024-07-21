@@ -12,6 +12,7 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #D9CBBA;
         }
         .header {
             display: flex;
@@ -23,6 +24,7 @@
         .header img {
             width: 150px; /* 로고 이미지 크기 조정 */
             margin-bottom: 10px;
+            opacity: .6;
         }
         .login-buttons {
             display: flex;
@@ -38,16 +40,17 @@
             border-radius: 8px;
             text-decoration: none;
             color: #333;
-            transition: background-color 0.3s;
+            transition: all 0.2s;
             font-weight: bold;
             font-size: 18px; /* 버튼 폰트 크기 조정 */
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.7);
         }
         .login-button:hover {
-            background-color: #f0f0f0;
+            box-shadow: 0 0 0 black;
         }
         .google {
             background-color: #fff;
-            border-color: #db4437;
+            border-color: #ffffff;
         }
         .naver {
             background-color: #1ec800;
@@ -55,7 +58,7 @@
             color: #fff;
         }
         .kakao {
-            background-color: #fee500;
+            background-color: #FFDC00;
             border-color: #fee500;
             color: #000;
         }
@@ -68,7 +71,7 @@
 <body>
 
 <div class="header">
-    <img src="code3line_logo.png" alt="Code3Line 로고">
+    <img src="logo.png" alt="로고">
 </div>
 
 <div class="login-buttons">
