@@ -1,10 +1,9 @@
 package com.sparta.elevenbookshelf.dto;
 
 import com.sparta.elevenbookshelf.entity.Board;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 public class BoardResponseDto {
 
     private Long id;

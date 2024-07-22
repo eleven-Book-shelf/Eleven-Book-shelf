@@ -1,8 +1,8 @@
 package com.sparta.elevenbookshelf.dto;
 
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 public class BoardRequestDto {
 
     private String title;
