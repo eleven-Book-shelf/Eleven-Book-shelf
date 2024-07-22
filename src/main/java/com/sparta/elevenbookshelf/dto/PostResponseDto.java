@@ -2,9 +2,10 @@ package com.sparta.elevenbookshelf.dto;
 
 import com.sparta.elevenbookshelf.entity.Post;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 
-@Getter
+@Data
 public class PostResponseDto {
 
     private Long id;
