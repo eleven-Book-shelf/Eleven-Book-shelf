@@ -1,8 +1,9 @@
 package com.sparta.elevenbookshelf.dto;
 
+import lombok.Data;
 import lombok.Getter;
 
-@Getter
+@Data
 public class UserRequestDto {
 
     private String username;

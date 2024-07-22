@@ -1,9 +1,9 @@
 package com.sparta.elevenbookshelf.dto;
 
 import com.sparta.elevenbookshelf.entity.Post;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 public class PostRequestDto {
 
     private Post.PostType postType;

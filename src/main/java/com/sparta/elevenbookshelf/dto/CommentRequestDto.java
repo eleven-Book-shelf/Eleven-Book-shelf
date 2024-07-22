@@ -3,7 +3,7 @@ package com.sparta.elevenbookshelf.dto;
 import lombok.Data;
 
 @Data
-public class BoardRequestDto {
+public class CommentRequestDto {
 
-    private String title;
+    private String contents;
 }

@@ -36,12 +36,8 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
-        return  UserResponseDto.builder()
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .status(user.getStatus())
-                .build();
+
+        return new UserResponseDto(user);
     }
 
     @Transactional
