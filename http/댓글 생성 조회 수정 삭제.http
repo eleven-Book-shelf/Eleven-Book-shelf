@@ -1,0 +1,29 @@
+### 댓글 생성
+POST http://localhost:8080/1/comments
+Content-Type: application/json
+Authorization:{{access_token}}
+
+{
+  "contents": "content"
+}
+
+
+### 댓글 전체 조회
+GET http://localhost:8080/1/comments
+Content-Type: application/json
+Authorization:{{access_token}}
+
+### 댓글 수정
+PUT http://localhost:8080/1/comments/1
+Content-Type: application/json
+Authorization:{{access_token}}
+
+{
+  "contents": "content2"
+}
+
+### 댓글 삭제
+DELETE http://localhost:8080/1/comments/1
+Content-Type: application/json
+Authorization:{{access_token}}
+
