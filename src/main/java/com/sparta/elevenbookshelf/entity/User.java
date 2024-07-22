@@ -3,6 +3,8 @@ package com.sparta.elevenbookshelf.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -29,6 +31,9 @@ public class User extends Timestamp {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy ="user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts;
 
     @Builder
     public User(String username, String password,String email,String socialId ,Status status, Role role) {

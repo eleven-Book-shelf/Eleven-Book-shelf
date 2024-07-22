@@ -19,9 +19,11 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
-        return ResponseEntity.status(HttpStatus.OK).header(HttpHeaders.AUTHORIZATION,authService.login(loginRequestDto))
-                .body("null");
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto req) {
+
+        LoginResponseDto res = authService.login(req);
+
+        return ResponseEntity.status(HttpStatus.OK).header(HttpHeaders.AUTHORIZATION,res.getAccessToken()).body(res);
     }
 
     @PatchMapping("/logout")

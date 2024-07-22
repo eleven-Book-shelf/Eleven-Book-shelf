@@ -16,12 +16,13 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버에서 오류가 발생했습니다."),
 
     // Entity Not Found
-    USERNAME_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
-    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
+    BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "게시판을 찾을 수 없습니다."),
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시물을 찾을 수 없습니다."),
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
 
     //Token
-    NOT_FOUNT_TOKEN(HttpStatus.NOT_FOUND, "토큰이 없습니다."),
+    NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND, "토큰이 없습니다."),
     TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "토큰이 만료 되었습니다."),
     TOKEN_INVALID(HttpStatus.BAD_REQUEST, "토큰이 유효하지 않습니다."),
 
@@ -34,9 +35,6 @@ public enum ErrorCode {
     //Like
     ALREADY_LIKE(HttpStatus.BAD_REQUEST, "이미 좋아요를 했습니다."),
     NOT_LIKE(HttpStatus.BAD_REQUEST, "좋아요를 하지 않았습니다."),
-
-    //Board
-    NOT_AUTHORIZED(HttpStatus.BAD_REQUEST, "해당 게시물에 대한 권한이 없습니다."),
 
             ;
 
