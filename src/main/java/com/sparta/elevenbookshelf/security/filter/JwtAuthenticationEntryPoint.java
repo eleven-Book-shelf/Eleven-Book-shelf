@@ -1,6 +1,7 @@
 package com.sparta.elevenbookshelf.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sparta.elevenbookshelf.common.CommonErrorResponse;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
 import jakarta.servlet.ServletException;
@@ -29,6 +30,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
          response.setStatus(HttpStatus.FORBIDDEN.value());
          response.setContentType(MediaType.APPLICATION_JSON_VALUE);
          response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+
+         objectMapper.registerModule(new JavaTimeModule());
 
          response.getWriter().write(objectMapper.writeValueAsString(
                  CommonErrorResponse.builder()

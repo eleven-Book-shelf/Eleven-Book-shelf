@@ -29,13 +29,11 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
-    // yml
-    implementation 'org.yaml:snakeyaml:1.33'
-
     // JSON
     implementation 'org.json:json:20231013'
 
     // Spring Boot 스타터
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -43,6 +41,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     // Spring Security 6용 Thymeleaf 확장
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
@@ -73,12 +72,6 @@ dependencies {
 
     // Jsoup
     implementation 'org.jsoup:jsoup:1.18.1'
-
-
-    // java-faker 설정
-    implementation ('com.github.javafaker:javafaker:1.0.2') {
-        exclude module: 'org.yaml'
-    }
 
 }
 

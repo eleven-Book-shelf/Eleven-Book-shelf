@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -34,25 +35,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         log.info("doFilterInternal 실행");
-        String accessToken = request.getHeader("Authorization");
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         log.info("doFilterInternal accessToken 가져오기 : " + accessToken);
-        validateToken(accessToken);
+        if (accessToken != null) {
+            validateToken(accessToken);
+        }
         filterChain.doFilter(request, response);
     }
 
     private void validateToken(String token) {
 
         log.info("validateToken 메서드 실행. 받은 토큰 : " + token);
-        if (jwtUtil.isTokenValidate(token)){
-            Claims claims = jwtUtil.extractAllClaims(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
-            Authentication authentication =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            SecurityContext context = SecurityContextHolder.createEmptyContext();
-            context.setAuthentication(authentication);
-            SecurityContextHolder.setContext(context);
-            log.info("doFilterInternal accessToken validateToken 검사 끝 : " + token);
+        if(!jwtUtil.isTokenValidate(token)){
+
         }
+        Claims claims = jwtUtil.extractAllClaims(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        log.info("doFilterInternal accessToken validateToken 검사 끝 : " + token);
     }
 
 }

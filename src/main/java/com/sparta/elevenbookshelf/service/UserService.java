@@ -6,7 +6,11 @@ import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,12 +43,20 @@ public class UserService {
                 .status(user.getStatus())
                 .build();
     }
-    
+
+    @Transactional
+    public void OAuth2login(HttpServletResponse response, Long userId,String accessToken ,String refreshJwt) {
+        response.addHeader(HttpHeaders.AUTHORIZATION, accessToken);
+        User user = getUser(userId);
+        user.addRefreshToken(refreshJwt);
+    }
+
+
     //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
 
     private User getUser(Long userId){
         return userRepository.findById(userId).orElseThrow(
-                () -> new BusinessException(ErrorCode.USERNAME_NOT_FOUND)
+                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
 
