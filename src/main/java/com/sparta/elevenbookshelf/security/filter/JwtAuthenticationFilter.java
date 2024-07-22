@@ -1,8 +1,8 @@
 package com.sparta.elevenbookshelf.security.filter;
 
-import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
 import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
+import com.sparta.elevenbookshelf.service.AuthService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -37,18 +38,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("doFilterInternal 실행");
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         log.info("doFilterInternal accessToken 가져오기 : " + accessToken);
-        if (accessToken != null) {
-            validateToken(accessToken);
+
+        if (!StringUtils.hasText(accessToken)) {
+            filterChain.doFilter(request, response);
+            return;
         }
-        filterChain.doFilter(request, response);
+
+        if (!jwtUtil.isTokenValidate(accessToken)) {
+            filterChain.doFilter(request, response);
+        }
+
+        validateToken(accessToken);
     }
 
     private void validateToken(String token) {
-
         log.info("validateToken 메서드 실행. 받은 토큰 : " + token);
-        if(!jwtUtil.isTokenValidate(token)){
-
-        }
         Claims claims = jwtUtil.extractAllClaims(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
         Authentication authentication =
