@@ -16,7 +16,7 @@ import java.util.Date;
 @Slf4j(topic = "JwtService")
 public class JwtService {
 
-    @Value("${jwt.secret-key}")
+    @Value("${JWT_SECRET_KEY}")
     private String SecretKey;
 
     @Value("${jwt.access-expire-time}")

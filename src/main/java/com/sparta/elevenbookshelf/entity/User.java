@@ -24,6 +24,8 @@ public class User extends Timestamp {
 
     private String refreshToken;
 
+    private String socialId;
+
     @Enumerated(EnumType.STRING)
     private Status status;
 
@@ -34,10 +36,11 @@ public class User extends Timestamp {
     private List<Post> posts;
 
     @Builder
-    public User(String username, String password,String email, Status status, Role role) {
+    public User(String username, String password,String email,String socialId ,Status status, Role role) {
         this.username = username;
         this.password = password;
         this.email = email;
+        this.socialId = socialId;
         this.status = status;
         this.role = role;
     }

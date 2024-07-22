@@ -7,16 +7,28 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Slf4j(topic = "UserPrincipal")
 @RequiredArgsConstructor
-public class UserPrincipal implements UserDetails {
+public class UserPrincipal implements UserDetails , OAuth2User {
 
     private final User user;
+
+    @Override
+    public <A> A getAttribute(String name) {
+        return OAuth2User.super.getAttribute(name);
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return Map.of();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -53,5 +65,10 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return user.isActivity();
+    }
+
+    @Override
+    public String getName() {
+        return "";
     }
 }
