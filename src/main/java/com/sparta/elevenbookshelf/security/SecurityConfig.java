@@ -34,11 +34,6 @@ public class SecurityConfig {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        log.info("@Bean passwordEncoder 실행");
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
@@ -81,7 +76,7 @@ public class SecurityConfig {
                                                    .requestMatchers(HttpMethod.GET,  "/comments/**").permitAll()
                                                    .requestMatchers("/login.html").permitAll()
                                                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                   .anyRequest().authenticated()
+                                                   .anyRequest().permitAll()
         );
 
         http.sessionManagement(sessionManagement -> sessionManagement
