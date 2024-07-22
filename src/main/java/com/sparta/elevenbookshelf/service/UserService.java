@@ -36,12 +36,8 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
-        return  UserResponseDto.builder()
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .status(user.getStatus())
-                .build();
+
+        return new UserResponseDto(user);
     }
 
     @Transactional
@@ -56,7 +52,7 @@ public class UserService {
 
     private User getUser(Long userId){
         return userRepository.findById(userId).orElseThrow(
-                () -> new BusinessException(ErrorCode.USERNAME_NOT_FOUND)
+                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
 

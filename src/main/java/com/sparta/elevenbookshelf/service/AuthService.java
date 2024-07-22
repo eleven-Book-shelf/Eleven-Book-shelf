@@ -28,7 +28,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public String login(LoginRequestDto loginRequestDto) {
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequestDto.getUsername(),
@@ -38,8 +38,12 @@ public class AuthService {
         );
 
         User user = getUsername(loginRequestDto);
-        user.addRefreshToken(jwtService.generateRefreshToken(user.getUsername()));
-        return jwtService.generateAccessToken(user.getUsername());
+
+        String accessToken = jwtService.generateAccessToken(user.getUsername());
+        String refeshToken = jwtService.generateRefreshToken(user.getUsername());
+
+        user.addRefreshToken(refeshToken);
+        return new LoginResponseDto(accessToken, refeshToken);
     }
 
     public void logout(User userid){
@@ -64,7 +68,7 @@ public class AuthService {
 
     private User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
-                () -> new BusinessException(ErrorCode.USERNAME_NOT_FOUND)
+                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
 
@@ -76,7 +80,7 @@ public class AuthService {
 
     private User getUsername(LoginRequestDto loginRequestDto) {
         return userRepository.findByUsername(loginRequestDto.getUsername()).orElseThrow(
-                () -> new BusinessException(ErrorCode.USERNAME_NOT_FOUND)
+                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
 

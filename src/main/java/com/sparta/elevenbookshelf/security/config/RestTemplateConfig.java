@@ -13,7 +13,6 @@ import java.time.Duration;
 @Configuration
 public class RestTemplateConfig {
 
-
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
         return restTemplateBuilder
@@ -21,14 +20,4 @@ public class RestTemplateConfig {
                 .setConnectTimeout(Duration.ofSeconds(3))
                 .build();
     }
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-
-    @Bean
-    public JPAQueryFactory jpaQueryFactory() {
-        return new JPAQueryFactory(entityManager);
-    }
-
 }
