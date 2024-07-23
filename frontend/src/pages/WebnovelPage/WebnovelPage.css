@@ -1,0 +1,96 @@
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+.webnovel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+.webnovel-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+.webnovel-card:hover {
+    transform: translateY(-5px);
+}
+.webnovel-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.webnovel-author {
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+.webnovel-rating {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #f39c12;
+    margin-bottom: 0.5rem;
+}
+.webnovel-rating::before {
+    content: "★";
+    margin-right: 0.25rem;
+}
+.genre-filter {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+.genre-button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #4285f4;
+    border-radius: 20px;
+    background-color: #fff;
+    color: #4285f4;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+.genre-button:hover, .genre-button.active {
+    background-color: #4285f4;
+    color: #fff;
+}
+.ranking-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.ranking-tab {
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: #e8f0fe;
+    color: #4285f4;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s, color 0.3s;
+}
+.ranking-tab.active {
+    background-color: #4285f4;
+    color: #fff;
+}
+.webnovel-rank {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #4285f4;
+    margin-right: 0.5rem;
+}
+.webnovel-description {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+.webnovel-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.5rem;
+}
