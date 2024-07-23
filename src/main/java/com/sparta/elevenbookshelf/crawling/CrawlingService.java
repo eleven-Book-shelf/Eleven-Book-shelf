@@ -143,6 +143,11 @@ public class CrawlingService {
                     crawlingTest.setReleaseDay(releaseDay);
                     log.info("연재 요일 : {}", releaseDay);
 
+                    waitForPage();
+                    String contentType = bodyData("//*[@id=\"__next\"]/div/div[2]/div[1]/div[1]/div[1]/div/div[2]/a/div/div[1]/div[1]/div/span[2]");
+                    crawlingTest.setContentType(contentType);
+                    log.info("장르 : {}", contentType);
+
                     try {
                         waitForPage();
                         String ratingData = bodyData("//*[@id=\"__next\"]/div/div[2]/div[1]/div[1]/div[1]/div/div[2]/a/div/div[1]/div[3]/span");

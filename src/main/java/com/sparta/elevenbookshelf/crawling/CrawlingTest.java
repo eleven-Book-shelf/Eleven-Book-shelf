@@ -32,4 +32,6 @@ public class CrawlingTest {
 
     private String releaseDay;
 
+    private String contentType;
+
 }
