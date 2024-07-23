@@ -3,7 +3,7 @@ package com.sparta.elevenbookshelf.security.oauth2.service;
 
 import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
-import com.sparta.elevenbookshelf.security.config.PasswordEncorderConfig;
+import com.sparta.elevenbookshelf.security.SecurityConfig;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.oauth2.userinfo.GoogleOAuth2UserInfo;
 import com.sparta.elevenbookshelf.security.oauth2.userinfo.KakaoOAuth2UserInfo;
@@ -33,7 +33,7 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final UserDetailsServiceImpl userDetailsService;
-    private final PasswordEncorderConfig encoder;
+    private final SecurityConfig encoder;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
