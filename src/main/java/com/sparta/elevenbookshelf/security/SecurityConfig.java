@@ -3,21 +3,21 @@ package com.sparta.elevenbookshelf.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationEntryPoint;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationFilter;
-import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
-import com.sparta.elevenbookshelf.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
-import com.sparta.elevenbookshelf.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -29,17 +29,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
-    private final JwtService jwtService;
-    private final UserService userService;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Bean
-    public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
-        log.info("@Bean OAuth2AuthenticationSuccessHandler 실행");
-        return new OAuth2AuthenticationSuccessHandler(jwtService, objectMapper,userService);
+    public PasswordEncoder passwordEncoder() {
+        log.info("@Bean passwordEncoder 실행");
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -75,7 +73,6 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
-
                                                    .requestMatchers("/auth/login").permitAll()
                                                    .requestMatchers("/user/signup").permitAll()
                                                    .requestMatchers("/user/email/**").permitAll()
@@ -89,17 +86,14 @@ public class SecurityConfig {
 
         http.sessionManagement(sessionManagement -> sessionManagement
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-
-                                                   .anyRequest().permitAll()
-
         );
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        http.oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
-                .loginPage("/login.html")
-                .successHandler(oAuth2AuthenticationSuccessHandler())
-        );
+/*        http.oauth2Login(oauth2Login -> oauth2Login
+                                 .loginPage("/templates/login.html")
+                         // .successHandler(oAuth2AuthenticationSuccessHandler()) // OAuth2 인증 성공 핸들러 설정 (필요에 따라 주석 해제)
+        );*/
 
         return http.build();
     }
