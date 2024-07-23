@@ -23,29 +23,44 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
 
+    //:::::::::::::::::// comment //::::::::::::::::://
+
     public CommentResponseDto createComment(Long boardId, UserPrincipal userPrincipal, CommentRequestDto commentRequestDto){
+
         Board board = boardRepository.findById(boardId).orElseThrow(
                 () -> new BusinessException(ErrorCode.BOARD_NOT_FOUND)
         );
+
         User user = userPrincipal.getUser();
+        Comment parentComment = null;
+
+        if(commentRequestDto.getParentId() != null){
+            parentComment = commentRepository.findById(commentRequestDto.getParentId()).orElseThrow(
+                    ()-> new BusinessException(ErrorCode.COMMENT_NOT_FOUND)
+            );
+        }
+
         Comment comment = Comment.builder()
                 .user(user)
                 .board(board)
                 .contents(commentRequestDto.getContents())
+                .parent(parentComment)
                 .build();
-        Comment savedComment =commentRepository.save(comment);
+
+        Comment savedComment = commentRepository.save(comment);
+
         return new CommentResponseDto(savedComment);
     }
 
-    public List<CommentResponseDto> readComments(Long BoardId){
+    public List<CommentResponseDto> readComments(Long boardId){
 
-        List<Comment> comments = commentRepository.findAllByBoardId(BoardId).orElse(null);
+        List<Comment> comments = commentRepository.findAllByBoardIdAndParentIsNull(boardId).orElse(new ArrayList<>());
         List<CommentResponseDto> commentResponseDto = new ArrayList<>();
 
-        if(comments != null){
-            for (Comment comment : comments){
-                commentResponseDto.add(new CommentResponseDto(comment));
-            }
+        for (Comment comment : comments){
+
+                commentResponseDto.add(convertToResponseDto(comment));
+
         }
 
         return commentResponseDto;
@@ -71,10 +86,7 @@ public class CommentService {
     }
 
 
-
-
-
-
+    //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
 
     private Comment getComment(Long boardId, Long commentId, User user) {
 
@@ -93,5 +105,15 @@ public class CommentService {
         return comment;
     }
 
+    private CommentResponseDto convertToResponseDto(Comment comment){
+
+        CommentResponseDto responseDto = new CommentResponseDto(comment);
+
+        for (Comment child : comment.getChildren()){
+            responseDto.getChildren().add(convertToResponseDto(child));
+        }
+
+        return responseDto;
+    }
 
 }
