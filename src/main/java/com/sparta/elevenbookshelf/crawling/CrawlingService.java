@@ -19,6 +19,7 @@ import java.util.*;
 public class CrawlingService {
 
     private final WebDriver webDriver;
+    private final CrawlingTestRepository crawlingTestRepository;
     private Set<String> disAllowedLink;
 
     @Value("${CRAWLING_PAGE}")
@@ -107,6 +108,18 @@ public class CrawlingService {
         return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
     }
 
+    // header 에 meta 데이터에서 추출하는 메서드. 로그인이 필요한 페이지여도 추출이 가능함.
+    private String metaData(String xPath, String attributeName) {
+        WebElement element = waitForElement(By.xpath(xPath), 10);
+        return element.getAttribute(attributeName);
+    }
+
+    // body 에서 데이터를 추출하는 메서드.
+    private String bodyData(String xPath) {
+        WebElement element = waitForElement(By.xpath(xPath),10);
+        return element.getText();
+    }
+
     // 크롤링 메서드
     public void performGoogleSearch() {
 
@@ -116,7 +129,7 @@ public class CrawlingService {
 
         try {
             waitForPage();
-            scrollToEndOfPage();
+//            scrollToEndOfPage();
 
             List<WebElement> linkElements = waitForElements(By.cssSelector(pageArtLink), 10);
             log.info("찾은 링크 개수 {}: ", linkElements.size());
@@ -126,7 +139,7 @@ public class CrawlingService {
                 return;
             }
 
-            // 모든 링크를 수집하여 별도의 리스트에 저장
+            // 모든 작품 링크를 수집하여 별도의 리스트에 저장
             List<String> allLinks = new ArrayList<>();
             for (WebElement linkElement : linkElements) {
                 String artUrl = linkElement.getAttribute("href");
@@ -137,7 +150,9 @@ public class CrawlingService {
             }
 
             int totalLinks = allLinks.size();
+
             for (int i = 0; i < totalLinks; i++) {
+                CrawlingTest crawlingTest = new CrawlingTest();
 
                 String artUrl = allLinks.get(i);
                 log.info("현재 링크 위치 : {}/{}", i + 1, totalLinks);
@@ -159,36 +174,49 @@ public class CrawlingService {
                     log.info("찾은 링크로 이동 {}: ", artUrl);
 
                     waitForPage();
-                    WebElement authorElement = waitForElement(By.xpath("//meta[@property='og:title']"), 10);
-                    String title = authorElement.getAttribute("content");
+                    webDriver.get(artUrl);
+                    log.info("찾은 링크로 이동 {}: ", artUrl);
+
+                    waitForPage();
+                    String title = metaData("//meta[@property='og:title']","content");
+                    crawlingTest.setTitle(title);
                     log.info("작품 제목 : {}", title);
 
                     waitForPage();
-                    WebElement titleElement = waitForElement(By.xpath("//meta[@name='author']"), 10);
-                    String author = titleElement.getAttribute("content");
+                    String author = metaData("//meta[@name='author']","content");
+                    crawlingTest.setAuthor(author);
                     log.info("작가 : {}", author);
 
                     waitForPage();
-                    WebElement siteElement = waitForElement(By.xpath("//meta[@property='og:site_name']"), 10);
-                    String site = siteElement.getAttribute("content");
+                    String site = metaData("//meta[@property='og:site_name']","content");
+                    crawlingTest.setSite(site);
                     log.info("작품 게시 사이트 : {}", site);
+
+                    waitForPage();
+                    String completeOrNot = metaData("//meta[@property='article:section']","content");
+                    crawlingTest.setCompleteOrNot(completeOrNot);
+                    log.info("완결 유무 : {}", completeOrNot);
+
+                    waitForPage();
+                    String rating = bodyData("//*[@id=\"__next\"]/div/div[2]/div[1]/div[1]/div[1]/div/div[2]/a/div/div[1]/div[2]/span");
+                    crawlingTest.setRating(rating);
+                    log.info("별점 : " + rating);
 
                     waitForPage();
                     String type = webDriver.getTitle();
                     if (type.contains("웹툰")) {
                         log.info("작품 타입 : 웹툰");
+                        crawlingTest.setComicsOrBook("웹툰");
                     } else {
                         log.info("작품 타입 : 웹소설");
+                        crawlingTest.setComicsOrBook("웹소설");
                     }
 
-                    waitForPage();
-                    WebElement element = waitForElement(By.xpath("//*[@id=\"__next\"]/div/div[2]/div[1]/div[1]/div[1]/div/div[2]/a/div/div[1]/div[2]/span"), 10);
-                    String RaRaTing = element.getText();
-                    log.info("별점 : " + RaRaTing);
+                    crawlingTestRepository.save(crawlingTest);
 
+                    waitForPage();
                     webDriver.navigate().back();
                     log.info("이전 페이지로 돌아갑니다.");
-                    waitForPage();
 
                     // 하나의 데이터를 얻어온 후 2초간 쓰레드 정지. (표적 사이트 서버의 부하를 줄이기 위한 조치.)
                     Thread.sleep(2000);
