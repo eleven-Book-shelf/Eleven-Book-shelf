@@ -1,0 +1,9 @@
+### 댓글 좋아요
+POST http://localhost:8080/comments/1/likes
+Content-Type: application/json
+Authorization: {{access_token}}
+
+### 댓글 좋아요 취소
+DELETE http://localhost:8080/comments/1/likes
+Content-Type: application/json
+Authorization: {{access_token}}

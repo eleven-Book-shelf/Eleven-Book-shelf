@@ -4,7 +4,8 @@ Content-Type: application/json
 Authorization:{{access_token}}
 
 {
-  "contents": "content"
+  "contents": "content",
+  "parentId": null
 }
 
 
