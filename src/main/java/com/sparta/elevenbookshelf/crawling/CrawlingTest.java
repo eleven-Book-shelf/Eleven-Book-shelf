@@ -24,14 +24,12 @@ public class CrawlingTest {
 
     private String comicsOrBook;
 
-    private String contentType;
-
     private String completeOrNot;
 
-//    private String totalView;
+    private Double totalView;
 
-    private String rating;
+    private Double rating;
 
-//    private String whatDay;
+    private String releaseDay;
 
 }
