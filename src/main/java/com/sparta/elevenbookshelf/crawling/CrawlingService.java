@@ -7,6 +7,8 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.openqa.selenium.NoSuchElementException;
 
@@ -16,6 +18,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j(topic = "CrawlingService")
+@EnableScheduling
 public class CrawlingService {
 
     private final WebDriver webDriver;
@@ -34,8 +37,19 @@ public class CrawlingService {
     @Value("${CRAWLING_ART_LINK}")
     private String pageArtLink;
 
+    @PostConstruct
+    public void firstStart() {
+        KaKaoPageService();
+    }
+
+    @Scheduled(fixedDelay = 3600000)
+    public void crawlingDelay() {
+        KaKaoPageService();
+    }
+
+    // TODO : 크롤링이 오래 걸리기 때문에 @Async 사용 고려하기.
     // 크롤링 메서드
-    public void performGoogleSearch() {
+    public void KaKaoPageService() {
 
         log.info("크롤링 시작.");
         webDriver.get(kCrawlingPage);
@@ -43,7 +57,7 @@ public class CrawlingService {
 
         try {
             waitForPage();
-            scrollToEndOfPage();
+//            scrollToEndOfPage();
 
             List<WebElement> linkElements = waitForElements(By.cssSelector(pageArtLink), 10);
             log.info("찾은 링크 개수 {}: ", linkElements.size());
@@ -189,6 +203,11 @@ public class CrawlingService {
         }
 
     }
+
+
+
+    //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
+
 
     // robots.txt 파일에 규정된 접근 금지 목록.
     // TODO : 사이트별 robots.txt 규약을 적응형으로 적용하게끔 수정 필요.
