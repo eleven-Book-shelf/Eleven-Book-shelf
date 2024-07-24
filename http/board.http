@@ -19,9 +19,19 @@ Content-Type: application/json
 Authorization:{{access_token}}
 
 {
-  "title": "test board 2"
+  "title": "test board 1"
 }
 
 ### readBoards
 GET localhost:8080/boards
 
+### createPost
+POST localhost:8080/boards/1
+Content-Type: application/json
+Authorization:{{access_token}}
+
+{
+  "title": "testpost1",
+  "content": "content",
+  "postType": "NORMAL"
+}
