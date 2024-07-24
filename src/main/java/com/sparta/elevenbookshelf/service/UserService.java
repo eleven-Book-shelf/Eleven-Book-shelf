@@ -33,7 +33,7 @@ public class UserService {
 //                .password(passwordEncoder.encode(req.getPassword()))
                 .email(req.getEmail())
                 .status(User.Status.NORMAL)
-                .role(User.Role.USER)
+                .role(User.Role.ADMIN)
                 .build();
 
         userRepository.save(user);
