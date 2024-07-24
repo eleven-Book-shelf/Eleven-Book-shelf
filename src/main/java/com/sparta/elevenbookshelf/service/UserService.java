@@ -21,6 +21,7 @@ public class UserService {
     private final UserRepository userRepository;
 //    private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public UserResponseDto signup(UserRequestDto req) {
 
         if (userRepository.existsByUsername(req.getUsername())) {

@@ -44,10 +44,7 @@ public class AuthService {
 
         user.addRefreshToken(refeshToken);
 
-        return LoginResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refeshToken)
-                .build();
+        return new LoginResponseDto(accessToken, refeshToken);
     }
 
     public void logout(User userid){
