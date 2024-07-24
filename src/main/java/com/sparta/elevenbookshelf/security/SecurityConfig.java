@@ -73,7 +73,8 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
-                                                   .requestMatchers("/auth/login").permitAll()
+/*                                                   .requestMatchers("/auth/login").permitAll()
+                                                   .requestMatchers("/oauth2/authorization/**").permitAll()
                                                    .requestMatchers("/user/signup").permitAll()
                                                    .requestMatchers("/user/email/**").permitAll()
                                                    .requestMatchers("/auth/reissue").permitAll()
@@ -81,7 +82,8 @@ public class SecurityConfig {
                                                    .requestMatchers(HttpMethod.GET,  "/comments/**").permitAll()
                                                    .requestMatchers("/login.html").permitAll()
                                                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                   .anyRequest().authenticated()
+                                                   .anyRequest().authenticated()*/
+                                                   .anyRequest().permitAll()
         );
 
         http.sessionManagement(sessionManagement -> sessionManagement
@@ -92,7 +94,7 @@ public class SecurityConfig {
 
 /*        http.oauth2Login(oauth2Login -> oauth2Login
                                  .loginPage("/templates/login.html")
-                         // .successHandler(oAuth2AuthenticationSuccessHandler()) // OAuth2 인증 성공 핸들러 설정 (필요에 따라 주석 해제)
+                          .successHandler(oAuth2AuthenticationSuccessHandler()) // OAuth2 인증 성공 핸들러 설정 (필요에 따라 주석 해제)
         );*/
 
         return http.build();
