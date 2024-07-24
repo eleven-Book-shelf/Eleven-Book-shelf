@@ -37,15 +37,16 @@ public class CrawlingService {
     @Value("${CRAWLING_ART_LINK}")
     private String pageArtLink;
 
-    @PostConstruct
-    public void firstStart() {
-        KaKaoPageService();
-    }
-
-    @Scheduled(fixedDelay = 3600000)
-    public void crawlingDelay() {
-        KaKaoPageService();
-    }
+//    @PostConstruct
+//    public void firstStart() {
+//        doNotEnterThisLink();
+//        KaKaoPageService();
+//    }
+//
+//    @Scheduled(fixedDelay = 3600000)
+//    public void crawlingDelay() {
+//        KaKaoPageService();
+//    }
 
     // TODO : 크롤링이 오래 걸리기 때문에 @Async 사용 고려하기.
     // 크롤링 메서드
@@ -57,7 +58,7 @@ public class CrawlingService {
 
         try {
            crawlingUtil.waitForPage();
-//           crawlingUtil.scrollToEndOfPage();
+           crawlingUtil.scrollToEndOfPage();
 
             List<WebElement> linkElements = crawlingUtil.waitForElements(By.cssSelector(pageArtLink), 10);
             log.info("찾은 링크 개수 {}: ", linkElements.size());
@@ -138,10 +139,10 @@ public class CrawlingService {
                         log.info("조회수 : {}", totalView);
                     }
 
-                    crawlingUtil.waitForPage();
-                    String releaseDay = crawlingUtil.bodyData("//*[@id=\"__next\"]/div/div[2]/div[1]/div[1]/div[1]/div/div[2]/a/div/div[2]/span");
-                    crawlingTest.setReleaseDay(releaseDay);
-                    log.info("연재 요일 : {}", releaseDay);
+//                    crawlingUtil.waitForPage();
+//                    String releaseDay = crawlingUtil.bodyData("//*[@id=\"__next\"]/div/div[2]/div[1]/div[1]/div[1]/div/div[2]/a/div/div[2]/span");
+//                    crawlingTest.setReleaseDay(releaseDay);
+//                    log.info("연재 요일 : {}", releaseDay);
 
                     crawlingUtil.waitForPage();
                     String contentType = crawlingUtil.bodyData("//*[@id=\"__next\"]/div/div[2]/div[1]/div[1]/div[1]/div/div[2]/a/div/div[1]/div[1]/div/span[2]");
@@ -179,7 +180,7 @@ public class CrawlingService {
                     log.info("===================================");
 
                     // 하나의 데이터를 얻어온 후 2초간 쓰레드 정지. (표적 사이트 서버의 부하를 줄이기 위한 조치.)
-                    crawlingUtil.sleep();
+                    crawlingUtil.sleep(2000);
 
                 } catch (NoSuchElementException e) {
                     log.error("요소를 찾을 수 없습니다: {}", e.getMessage(), e);
@@ -211,9 +212,8 @@ public class CrawlingService {
 
     //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
 
-
-//    // robots.txt 파일에 규정된 접근 금지 목록.
-//    // TODO : 사이트별 robots.txt 규약을 적응형으로 적용하게끔 수정 필요.
+    // robots.txt 파일에 규정된 접근 금지 목록.
+    // TODO : 사이트별 robots.txt 규약을 적응형으로 적용하게끔 수정 필요.
     @PostConstruct
     public void doNotEnterThisLink() {
         disAllowedLink = new HashSet<>();

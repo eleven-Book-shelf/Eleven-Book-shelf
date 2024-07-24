@@ -30,8 +30,8 @@ public class CrawlingTest {
 
     private Double rating;
 
-    private String releaseDay;
-
     private String contentType;
+
+    private Long likeCount;
 
 }
