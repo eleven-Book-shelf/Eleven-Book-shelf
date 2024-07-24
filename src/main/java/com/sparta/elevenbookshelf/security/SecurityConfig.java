@@ -84,10 +84,6 @@ public class SecurityConfig {
                                                    .anyRequest().authenticated()
         );
 
-        http.sessionManagement(sessionManagement -> sessionManagement
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
-
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
 /*        http.oauth2Login(oauth2Login -> oauth2Login

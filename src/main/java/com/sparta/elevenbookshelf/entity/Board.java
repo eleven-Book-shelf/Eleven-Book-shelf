@@ -15,6 +15,7 @@ public class Board extends Timestamp{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "board_id")
     private Long id;
 
     @Column(unique = true)

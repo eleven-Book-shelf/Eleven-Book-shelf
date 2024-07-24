@@ -25,3 +25,28 @@ Authorization:{{access_token}}
 ### readBoards
 GET localhost:8080/boards
 
+### createPost
+POST localhost:8080/boards/1
+Content-Type: application/json
+Authorization:{{access_token}}
+
+{
+  "postType": "NORMAL",
+  "title": "test post 1",
+  "content": "test content 1"
+
+}
+
+### readBoard
+GET localhost:8080/boards/1
+
+### updatePost
+PUT localhost:8080/boards/1/1
+Content-Type: application/json
+Authorization:{{access_token}}
+
+{
+  "postType": "NORMAL",
+  "title": "test post 2",
+  "content": "test content 2"
+}
