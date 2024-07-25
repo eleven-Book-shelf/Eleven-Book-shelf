@@ -1,11 +1,13 @@
-package com.sparta.elevenbookshelf.crawling;
+package com.sparta.elevenbookshelf.crawling.Service;
 
+import com.sparta.elevenbookshelf.crawling.CrawlingTest;
+import com.sparta.elevenbookshelf.crawling.CrawlingTestRepository;
+import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Actions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
@@ -15,73 +17,63 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "NvrService")
+@Slf4j(topic = "MService")
 @EnableScheduling
-public class RiDiService {
+public class MService {
 
     private final WebDriver webDriver;
     private final CrawlingTestRepository crawlingTestRepository;
     private final CrawlingUtil crawlingUtil;
-    private Set<String> disAllowedLink = new HashSet<>();
+    private final Set<String> disAllowedLink = new HashSet<>();
 
-    @Value("${R_PAGE}")
-    private String rPage;
+    @Value("${M_PAGE}")
+    private String mPage;
 
-    @Value("${R_ART_LINK}")
-    private String rArtLink;
-
-    @Value("${R_AUTHOR}")
-    private String rAuthor;
-
-    @Value("${R_CONTENTTYPE}")
-    private String rContentType;
-
-    @Value("${R_LIKECOUNT}")
-    private String rLikeCount;
-
-    @Value("${R_RATING}")
-    private String rRating;
+    @Value("${M_ART_LINK}")
+    private String mArtLink;
 
     @Value("${HEADER_ART_TITLE}")
-    private String rArtTitle;
+    private String mAtTitle;
 
-    @Value("${HEADER_SITE_NAME}")
-    private String rSiteName;
+    @Value("${M_AUTHOR}")
+    private String mAuthor;
 
-    @Value("${R_COMPLETE}")
-    private String rCompleteOrNot;
+    @Value("${M_SITE}")
+    private String mSite;
 
-    @Value("${R_NEXTBUTTON}")
-    private String rNextButton;
+    @Value("${M_CONTENT_TYPE}")
+    private String MContentType;
+
+    @Value("${M_LIKE_COUNT}")
+    private String mLikeCount;
+
+    @Value("${M_BOOK_MARK}")
+    private String mBookMark;
+
+    @Value("${M_TOTAL_VIEW}")
+    private String mTotalCount;
 
     @PostConstruct
     public void init() {
         doNotEnterThisLink();
-        firstStart();
+        MPageService();
     }
 
-    public void firstStart() {
-        RiDiBooks();
-    }
-
-    public void RiDiBooks() {
-        log.info("리디 시작");
-        String baseUrl = rPage;
-        int page = 1;
+    public void MPageService() {
+        log.info("M 시작");
+        String baseUrl = mPage;
 
         try {
+            webDriver.get(baseUrl);
+            log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());
+            crawlingUtil.waitForPage();
+
+            int page = 1;
             while (true) {
-                webDriver.get(baseUrl + page);
-                log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());
-                crawlingUtil.waitForPage();
-//                crawlingUtil.scrollController();
-
-                // 중복을 제거하기 위해 Set 사용
+                WebElement linkBox = webDriver.findElement(By.id("sidenovel"));
                 Set<String> uniqueLinks = new HashSet<>();
-                List<WebElement> linkElements;
+                List<WebElement> linkElements = linkBox.findElements(By.cssSelector(mArtLink));
 
-                // 페이지 내의 모든 링크를 반복해서 찾고 중복 제거
-                linkElements = crawlingUtil.waitForElements(By.cssSelector(rArtLink), 10);
                 for (WebElement element : linkElements) {
                     String uniqueLink = element.getAttribute("href");
                     uniqueLinks.add(uniqueLink);
@@ -115,52 +107,49 @@ public class RiDiService {
                         log.info("찾은 링크로 이동 {}: ", artUrl);
 
                         crawlingUtil.waitForPage();
-                        String title = crawlingUtil.metaData(rArtTitle, "content");
+                        String title = crawlingUtil.metaData(mAtTitle, "content");
                         crawlingTest.setTitle(title);
                         log.info("작품 제목 : {}", title);
 
                         crawlingUtil.waitForPage();
-                        String author = crawlingUtil.bodyData(rAuthor);
+                        String author = crawlingUtil.metaData(mAuthor, "content");
                         crawlingTest.setAuthor(author);
                         log.info("작가 : {}", author);
 
                         crawlingUtil.waitForPage();
-                        String site = crawlingUtil.metaData(rSiteName, "content");
-                        crawlingTest.setSite(site);
+                        String site = crawlingUtil.metaData(mSite, "content");
+                        crawlingTest.setPlatform("site");
                         log.info("작품 게시 사이트 : {}", site);
 
                         crawlingUtil.waitForPage();
-                        String completeOrNot = crawlingUtil.bodyData(rCompleteOrNot);
-                        crawlingTest.setCompleteOrNot(completeOrNot);
-                        log.info("완결 여부 : {}", completeOrNot);
+                        crawlingTest.setCompleteOrNot("연재중");
+                        log.info("완결 여부 : 연재중");
 
                         crawlingUtil.waitForPage();
-                        String contentType = crawlingUtil.bodyData(rContentType);
-                        String contentTypeText = contentType.replace("웹툰", "웹소설");
-                        crawlingTest.setContentType(contentTypeText);
-                        log.info("장르 : {}", contentTypeText);
+                        String contentType = crawlingUtil.bodyData(MContentType);
+                        crawlingTest.setContentType(contentType);
+                        log.info("장르 : {}", contentType);
 
                         crawlingUtil.waitForPage();
-                        String likeCountText = crawlingUtil.bodyData(rLikeCount);
+                        String likeCountText = crawlingUtil.bodyData(mLikeCount);
                         String likeCountNumber = likeCountText.replace(",", "");
                         Long likeCount = Long.parseLong(likeCountNumber);
                         crawlingTest.setLikeCount(likeCount);
                         log.info("좋아요 수 : {}", likeCount);
 
-                        try {
-                            //TODO : 0명 이라는 텍스트 데이터도 있음.
-                            crawlingUtil.waitForPage();
-                            String ratingData = crawlingUtil.bodyData(rRating);
-                            String numberOnly = ratingData.replace("점", "").trim();
-                            Double rating = Double.parseDouble(numberOnly);
-                            crawlingTest.setRating(rating);
-                            log.info("별점 : {}", rating);
+                        crawlingUtil.waitForPage();
+                        String bookMarkData = crawlingUtil.bodyData(mBookMark);
+                        String bookMarkNumber = bookMarkData.replace(",", "");
+                        Long bookMark = Long.parseLong(bookMarkNumber);
+                        crawlingTest.setBookMark(bookMark);
+                        log.info("북마크 수 : {}", bookMark);
 
-                        } catch (NoSuchElementException | TimeoutException e) {
-                            crawlingTest.setRating(0.0);
-                            log.error("별점 : 표본 부족으로 0.0 저장.");
-
-                        }
+                        crawlingUtil.waitForPage();
+                        String totalViewData = crawlingUtil.bodyData(mTotalCount);
+                        totalViewData = totalViewData.replace(",", "");
+                        Double totalView = Double.parseDouble(totalViewData);
+                        crawlingTest.setTotalView(totalView);
+                        log.info("총 조회수 : {}", totalView);
 
                         crawlingUtil.waitForPage();
                         String type = webDriver.getTitle();
@@ -200,35 +189,30 @@ public class RiDiService {
                     }
                 }
 
-                // 다음 페이지로 이동
-                try {
-//                    WebElement nextPageButton = webDriver.findElement(By.cssSelector("a[href*='/category/books/1750?page=" + (page + 1) + "']"));
-                    WebElement nextPageButton = webDriver.findElement(By.cssSelector(rNextButton.replace("{page}", String.valueOf(page + 1))));
-                    nextPageButton.click();
-                    page++;
-                } catch (NoSuchElementException e) {
-                    log.info("더 이상 페이지가 없습니다.");
-                    break;
-                }
             }
 
         } finally {
             webDriver.quit();
-            log.info("리디 크롤링 종료");
-            log.info("========================");
+            log.info("\n");
+            log.info("크롤링 종료");
+            log.info("=============================");
         }
     }
 
     @PostConstruct
     public void doNotEnterThisLink() {
-        disAllowedLink = new HashSet<>();
-        disAllowedLink.add("/payment/");
-        disAllowedLink.add("/api/");
-        disAllowedLink.add("/support/notice");
+        disAllowedLink.add("/addon/");
+        disAllowedLink.add("/ch/");
+        disAllowedLink.add("/files/");
+        disAllowedLink.add("/tpl/");
+        disAllowedLink.add("/widget/");
+        disAllowedLink.add("/page/goods_event");
 
         for (String disAllowed : disAllowedLink) {
             log.info("접근금지 링크 : {}", disAllowed);
         }
 
     }
+
 }
+

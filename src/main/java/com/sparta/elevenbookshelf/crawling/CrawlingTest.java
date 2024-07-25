@@ -20,7 +20,7 @@ public class CrawlingTest {
 
     private String author;
 
-    private String site;
+    private String platform;
 
     private String comicsOrBook;
 
@@ -33,5 +33,7 @@ public class CrawlingTest {
     private String contentType;
 
     private Long likeCount;
+
+    private Long bookMark;
 
 }

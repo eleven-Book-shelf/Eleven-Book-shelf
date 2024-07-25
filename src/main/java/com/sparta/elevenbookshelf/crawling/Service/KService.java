@@ -1,12 +1,14 @@
-package com.sparta.elevenbookshelf.crawling;
+package com.sparta.elevenbookshelf.crawling.Service;
 
+import com.sparta.elevenbookshelf.crawling.CrawlingTest;
+import com.sparta.elevenbookshelf.crawling.CrawlingTestRepository;
+import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,16 +18,16 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "CrawlingService")
+@Slf4j(topic = "KService")
 @EnableScheduling
-public class CrawlingService {
+public class KService {
 
     private final WebDriver webDriver;
     private final CrawlingTestRepository crawlingTestRepository;
-    private Set<String> disAllowedLink;
+    private final Set<String> disAllowedLink = new HashSet<>();
     private final CrawlingUtil crawlingUtil;
 
-    @Value("${CRAWLING_PAGE}")
+    @Value("${K_PAGE}")
     private String kCrawlingPage;
 
     @Value("${K_ROBOTS_TXT1}")
@@ -34,25 +36,46 @@ public class CrawlingService {
     @Value("${K_ROBOTS_TXT2}")
     private String robotsTxtNo2;
 
-    @Value("${CRAWLING_ART_LINK}")
+    @Value("${K_ART_LINK}")
     private String pageArtLink;
+
+    @Value("${K_TITLE}")
+    private String kTitle;
+
+    @Value("${K_AUTHOR}")
+    private String kAuthor;
+
+    @Value("${K_SITE}")
+    private String kSite;
+
+    @Value("${K_COMPLETE}")
+    private String kComplete;
+
+    @Value("${K_TOTAL_VIEW}")
+    private String kTotalView;
+
+    @Value("${K_CONTENT_TYPE}")
+    private String kContentType;
+
+    @Value("${K_RATING}")
+    private String kRating;
 
 //    @PostConstruct
 //    public void firstStart() {
 //        doNotEnterThisLink();
-//        KaKaoPageService();
+//        KPageStart();
 //    }
 //
 //    @Scheduled(fixedDelay = 3600000)
 //    public void crawlingDelay() {
-//        KaKaoPageService();
+//        KPageStart();
 //    }
 
     // TODO : 크롤링이 오래 걸리기 때문에 @Async 사용 고려하기.
     // 크롤링 메서드
-    public void KaKaoPageService() {
+    public void KPageStart() {
 
-        log.info("크롤링 시작.");
+        log.info("R 시작.");
         webDriver.get(kCrawlingPage);
         log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());
 
@@ -103,27 +126,27 @@ public class CrawlingService {
                     log.info("찾은 링크로 이동 {}: ", artUrl);
 
                     crawlingUtil.waitForPage();
-                    String title = crawlingUtil.metaData("//meta[@property='og:title']", "content");
+                    String title = crawlingUtil.metaData(kTitle, "content");
                     crawlingTest.setTitle(title);
                     log.info("작품 제목 : {}", title);
 
                     crawlingUtil.waitForPage();
-                    String author = crawlingUtil.metaData("//meta[@name='author']", "content");
+                    String author = crawlingUtil.metaData(kAuthor, "content");
                     crawlingTest.setAuthor(author);
                     log.info("작가 : {}", author);
 
                     crawlingUtil.waitForPage();
-                    String site = crawlingUtil.metaData("//meta[@property='og:site_name']", "content");
-                    crawlingTest.setSite(site);
+                    String site = crawlingUtil.metaData(kSite, "content");
+                    crawlingTest.setPlatform(site);
                     log.info("작품 게시 사이트 : {}", site);
 
                     crawlingUtil.waitForPage();
-                    String completeOrNot = crawlingUtil.metaData("//meta[@property='article:section']", "content");
+                    String completeOrNot = crawlingUtil.metaData(kComplete, "content");
                     crawlingTest.setCompleteOrNot(completeOrNot);
                     log.info("완결 유무 : {}", completeOrNot);
 
                     crawlingUtil.waitForPage();
-                    String totalViewData = crawlingUtil.bodyData("//*[@id=\"__next\"]/div/div[2]/div[1]/div[1]/div[1]/div/div[2]/a/div/div[1]/div[2]/span");
+                    String totalViewData = crawlingUtil.bodyData(kTotalView);
                     totalViewData = totalViewData.replace(",", "").trim();
 
                     if (totalViewData.contains("만")) {
@@ -139,19 +162,14 @@ public class CrawlingService {
                         log.info("조회수 : {}", totalView);
                     }
 
-//                    crawlingUtil.waitForPage();
-//                    String releaseDay = crawlingUtil.bodyData("//*[@id=\"__next\"]/div/div[2]/div[1]/div[1]/div[1]/div/div[2]/a/div/div[2]/span");
-//                    crawlingTest.setReleaseDay(releaseDay);
-//                    log.info("연재 요일 : {}", releaseDay);
-
                     crawlingUtil.waitForPage();
-                    String contentType = crawlingUtil.bodyData("//*[@id=\"__next\"]/div/div[2]/div[1]/div[1]/div[1]/div/div[2]/a/div/div[1]/div[1]/div/span[2]");
+                    String contentType = crawlingUtil.bodyData(kContentType);
                     crawlingTest.setContentType(contentType);
                     log.info("장르 : {}", contentType);
 
                     try {
                         crawlingUtil.waitForPage();
-                        String ratingData = crawlingUtil.bodyData("//*[@id=\"__next\"]/div/div[2]/div[1]/div[1]/div[1]/div/div[2]/a/div/div[1]/div[3]/span");
+                        String ratingData = crawlingUtil.bodyData(kRating);
                         Double rating = Double.parseDouble(ratingData);
                         crawlingTest.setRating(rating);
                         log.info("별점 : {}", rating);
@@ -216,9 +234,12 @@ public class CrawlingService {
     // TODO : 사이트별 robots.txt 규약을 적응형으로 적용하게끔 수정 필요.
     @PostConstruct
     public void doNotEnterThisLink() {
-        disAllowedLink = new HashSet<>();
         disAllowedLink.add(robotsTxtNo1);
         disAllowedLink.add(robotsTxtNo2);
+
+        for (String disAllowed : disAllowedLink) {
+            log.info("접근 금지 링크 : {}", disAllowed);
+        }
     }
 
 }
