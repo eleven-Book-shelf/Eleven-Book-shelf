@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,14 +21,14 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j(topic = "KService")
 @EnableScheduling
-public class KService {
+public class KNovelService {
 
     private final WebDriver webDriver;
     private final CrawlingTestRepository crawlingTestRepository;
     private final Set<String> disAllowedLink = new HashSet<>();
     private final CrawlingUtil crawlingUtil;
 
-    @Value("${K_PAGE}")
+    @Value("${K_NOVEL_PAGE}")
     private String kCrawlingPage;
 
     @Value("${K_ROBOTS_TXT1}")
@@ -63,25 +64,25 @@ public class KService {
 //    @PostConstruct
 //    public void firstStart() {
 //        doNotEnterThisLink();
-//        KPageStart();
+//        kNovelPageStart();
 //    }
-//
-//    @Scheduled(fixedDelay = 3600000)
-//    public void crawlingDelay() {
-//        KPageStart();
-//    }
+
+    @Scheduled(fixedDelay = 3600000)
+    public void crawlingDelay() {
+        kNovelPageStart();
+    }
 
     // TODO : 크롤링이 오래 걸리기 때문에 @Async 사용 고려하기.
     // 크롤링 메서드
-    public void KPageStart() {
+    public void kNovelPageStart() {
 
-        log.info("R 시작.");
+        log.info("K NOVEL 시작.");
         webDriver.get(kCrawlingPage);
         log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());
 
         try {
            crawlingUtil.waitForPage();
-           crawlingUtil.scrollToEndOfPage();
+//           crawlingUtil.scrollToEndOfPage();
 
             List<WebElement> linkElements = crawlingUtil.waitForElements(By.cssSelector(pageArtLink), 10);
             log.info("찾은 링크 개수 {}: ", linkElements.size());
