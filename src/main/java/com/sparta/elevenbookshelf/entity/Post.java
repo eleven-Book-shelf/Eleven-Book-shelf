@@ -20,7 +20,7 @@ public class Post extends Timestamp {
     private String title;
 
     @Column(nullable = false)
-    private String content;
+    private String contents;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -30,12 +30,17 @@ public class Post extends Timestamp {
     @JoinColumn(name = "board_id")
     private Board board;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "content_id")
+    private Content content;
+
 
     @Builder
-    public Post(PostType postType, String title, String content, User user, Board board) {
+    public Post(PostType postType, String title, String contents, Content content, User user, Board board) {
 
         this.postType = postType;
         this.title = title;
+        this.contents = contents;
         this.content = content;
         this.user = user;
         this.board = board;
@@ -49,8 +54,8 @@ public class Post extends Timestamp {
         this.title = title;
     }
 
-    public void updateContent(String content) {
-        this.content = content;
+    public void updateContents(String contents) {
+        this.contents = contents;
     }
 
     public void updateBoard(Board board) {

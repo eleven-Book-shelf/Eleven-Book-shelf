@@ -129,7 +129,7 @@ public class BoardService {
         post.updatePostType(req.getPostType());
         post.updateBoard(getBoard(req.getBoardId()));
         post.updateTitle(req.getTitle());
-        post.updateContent(req.getContent());
+        post.updateContents(req.getContents());
 
         postRepository.save(post);
 
