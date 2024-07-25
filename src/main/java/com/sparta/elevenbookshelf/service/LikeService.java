@@ -7,7 +7,7 @@ import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.BoardRepository;
-import com.sparta.elevenbookshelf.repository.CommentRepository;
+import com.sparta.elevenbookshelf.repository.commentRepository.CommentRepository;
 import com.sparta.elevenbookshelf.repository.LikeCommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

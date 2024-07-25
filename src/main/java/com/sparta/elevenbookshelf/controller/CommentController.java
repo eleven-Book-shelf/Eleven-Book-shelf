@@ -17,43 +17,45 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/{boardId}")
+@RequestMapping("/{postId}")
 public class CommentController {
 
     private final CommentService commentService;
 
     @PostMapping("/comments")
-    public ResponseEntity<CommentResponseDto> createComment(@PathVariable Long boardId,
+    public ResponseEntity<CommentResponseDto> createComment(@PathVariable Long postId,
                                                             @AuthenticationPrincipal UserPrincipal userPrincipal,
                                                             @RequestBody CommentRequestDto commentRequestDto){
 
         return ResponseEntity.status(HttpStatus.CREATED).
-                body(commentService.createComment(boardId, userPrincipal, commentRequestDto));
+                body(commentService.createComment(postId, userPrincipal, commentRequestDto));
     }
 
     @GetMapping("/comments")
-    public ResponseEntity<List<CommentResponseDto>> readComments(@PathVariable Long boardId){
+    public ResponseEntity<List<CommentResponseDto>> readComments(@PathVariable Long postId,
+                                                                 @RequestParam(value = "offset", defaultValue = "0") int offset,
+                                                                 @RequestParam(value = "pagesize", defaultValue = "10") int pagesize){
 
         return ResponseEntity.status(HttpStatus.OK).
-                body(commentService.readComments(boardId));
+                body(commentService.readComments(postId, offset, pagesize));
     }
 
     @PutMapping("/comments/{commentId}")
-    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long boardId,
+    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long postId,
                                                             @PathVariable Long commentId,
                                                             @AuthenticationPrincipal UserPrincipal userPrincipal,
                                                             @RequestBody CommentRequestDto commentRequestDto){
 
         return ResponseEntity.status(HttpStatus.OK).
-                body(commentService.updateComment(boardId, commentId, userPrincipal.getUser(), commentRequestDto));
+                body(commentService.updateComment(postId, commentId, userPrincipal.getUser(), commentRequestDto));
     }
 
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long boardId,
+    public ResponseEntity<Void> deleteComment(@PathVariable Long postId,
                                                             @PathVariable Long commentId,
                                                             @AuthenticationPrincipal UserPrincipal userPrincipal){
 
-        commentService.deleteComment(boardId, commentId, userPrincipal.getUser());
+        commentService.deleteComment(postId, commentId, userPrincipal.getUser());
         return ResponseEntity.ok().build();
     }
 }
