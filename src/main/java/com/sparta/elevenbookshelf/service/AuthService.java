@@ -41,6 +41,7 @@ public class AuthService {
         String refeshToken = jwtService.generateRefreshToken(user.getUsername());
 
         user.addRefreshToken(refeshToken);
+
         return new LoginResponseDto(accessToken, refeshToken);
     }
 

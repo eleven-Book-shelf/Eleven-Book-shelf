@@ -18,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/boards")
 public class BoardController {
+
     private final BoardService boardService;
 
     //:::::::::::::::::// board //::::::::::::::::://
@@ -44,8 +45,8 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ResponseEntity<List<PostResponseDto>> readBoard(
             @PathVariable Long boardId,
-            @RequestParam int offset,
-            @RequestParam int pagesize) {
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "20") int pagesize) {
 
         List<PostResponseDto> res = boardService.readBoard(boardId, offset, pagesize);
 

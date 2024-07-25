@@ -12,6 +12,7 @@ import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.BoardRepository;
 import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ public class BoardService {
 
     //:::::::::::::::::// board //::::::::::::::::://
 
+    @Transactional
     public BoardResponseDto createBoard(User user, BoardRequestDto req) {
 
         checkUserRole(user);
@@ -51,6 +53,7 @@ public class BoardService {
 
     }
 
+    @Transactional
     public List<PostResponseDto> readBoard(Long boardId, int offset, int pagesize) {
 
         List<Post> posts = postRepository.getPostsByBoard(boardId, offset, pagesize);
@@ -60,6 +63,7 @@ public class BoardService {
                 .toList();
     }
 
+    @Transactional
     public BoardResponseDto updateBoard(User user, Long boardId, BoardRequestDto req) {
 
         checkUserRole(user);
@@ -73,6 +77,7 @@ public class BoardService {
         return new BoardResponseDto(board);
     }
 
+    @Transactional
     public void deleteBoard(User user, Long boardId) {
 
         checkUserRole(user);
@@ -85,6 +90,7 @@ public class BoardService {
 
     //:::::::::::::::::// post //::::::::::::::::://
 
+    @Transactional
     public PostResponseDto createPost(User user, Long boardId, PostRequestDto req) {
 
         Board board = getBoard(boardId);
@@ -102,6 +108,7 @@ public class BoardService {
         return new PostResponseDto(post);
     }
 
+
     public PostResponseDto readPost(Long boardId, Long postId) {
 
         Post post = getPost(postId);
@@ -111,23 +118,25 @@ public class BoardService {
         return new PostResponseDto(post);
     }
 
+    @Transactional
     public PostResponseDto updatePost(User user, Long boardId, Long postId, PostRequestDto req) {
 
         Post post = getPost(postId);
 
-        checkPostUser(user, post);
-        checkPostBoard(boardId, post);
+//        checkPostUser(user, post);
+//        checkPostBoard(boardId, post);
 
         post.updatePostType(req.getPostType());
         post.updateBoard(getBoard(req.getBoardId()));
         post.updateTitle(req.getTitle());
-        post.updateContent(req.getContent());
+        post.updateContents(req.getContents());
 
         postRepository.save(post);
 
         return new PostResponseDto(post);
     }
 
+    @Transactional
     public void deletePost(User user, Long boardId, Long postId) {
 
         Post post = getPost(postId);
