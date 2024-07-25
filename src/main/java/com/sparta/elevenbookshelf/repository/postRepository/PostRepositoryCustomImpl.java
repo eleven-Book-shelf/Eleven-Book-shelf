@@ -3,13 +3,13 @@ package com.sparta.elevenbookshelf.repository.postRepository;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sparta.elevenbookshelf.entity.Post;
+import com.sparta.elevenbookshelf.entity.post.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.sparta.elevenbookshelf.entity.QPost.post;
+import static com.sparta.elevenbookshelf.entity.post.QPost.post;
 
 @Repository
 @RequiredArgsConstructor

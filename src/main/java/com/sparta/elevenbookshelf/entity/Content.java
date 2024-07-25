@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.entity;
 
+import com.sparta.elevenbookshelf.entity.post.ReviewPost;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -38,7 +39,7 @@ public class Content {
     private ContentEnd isEnd;
 
     @OneToMany(mappedBy = "content", cascade = CascadeType.MERGE)
-    private List<Post> posts = new ArrayList<>();
+    private List<ReviewPost> reviews = new ArrayList<>();
 
 //:::::::::::::::::// enum //::::::::::::::::://
 

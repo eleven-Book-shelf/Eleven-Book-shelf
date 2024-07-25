@@ -3,7 +3,7 @@ package com.sparta.elevenbookshelf.service;
 import com.sparta.elevenbookshelf.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.dto.CommentResponseDto;
 import com.sparta.elevenbookshelf.entity.Comment;
-import com.sparta.elevenbookshelf.entity.Post;
+import com.sparta.elevenbookshelf.entity.post.Post;
 import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
