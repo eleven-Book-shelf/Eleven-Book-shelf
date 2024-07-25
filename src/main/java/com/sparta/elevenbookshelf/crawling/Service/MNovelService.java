@@ -56,10 +56,10 @@ public class MNovelService {
 //    @PostConstruct
 //    public void init() {
 //        doNotEnterThisLink();
-//        mPageService();
+//        mNovelService();
 //    }
 
-    public void mPageService() {
+    public void mNovelService() {
         log.info("M NOVEL 시작");
         String baseUrl = mPage;
 

@@ -56,13 +56,13 @@ public class RNovelService {
     @Value("${R_NEXT_BUTTON}")
     private String rNextButton;
 
-    @PostConstruct
-    public void init() {
-        doNotEnterThisLink();
-        rPageStart();
-    }
+//    @PostConstruct
+//    public void init() {
+//        doNotEnterThisLink();
+//        rNovelStart();
+//    }
 
-    public void rPageStart() {
+    public void rNovelStart() {
         log.info("R NOVEL 시작");
         String baseUrl = rPage;
         int page = 1;
