@@ -7,6 +7,7 @@ import lombok.Data;
 public class ContentRequestDto {
 
     private String title;
+    private String imgurl;
     private String description;
     private String author;
     private String platform;

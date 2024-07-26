@@ -3,7 +3,7 @@ POST localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "username": "username",
+  "username": "ADMIN",
   "password": "password@1234"
 }
 
@@ -81,3 +81,19 @@ Authorization:{{access_token}}
 ### deletePost
 DELETE localhost:8080/boards/1/3
 Authorization:{{access_token}}
+
+### createContent
+POST localhost:8080/boards/content
+Content-Type: application/json
+
+{
+  "title": "재밌는 작품",
+  "imgurl": "test url",
+  "description": "재밌는 줄거리",
+  "author": "잘 쓰는 작가",
+  "platform": "도서관",
+  "view": 1000000,
+  "rating": 9.8,
+  "type": "NOVEL",
+  "isEnd": "NOT"
+}

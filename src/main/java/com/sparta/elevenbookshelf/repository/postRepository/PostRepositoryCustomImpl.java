@@ -29,4 +29,17 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .orderBy(orderSpecifier)
                 .fetch();
     }
+
+    @Override
+    public List<Post> getPostsByContent(Long contentId, long offset, int pagesize) {
+
+        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, post.createdAt);
+
+        return jpaQueryFactory.selectFrom(post)
+                .where(post.content.id.eq(contentId))
+                .offset(offset)
+                .limit(pagesize)
+                .orderBy(orderSpecifier)
+                .fetch();
+    }
 }

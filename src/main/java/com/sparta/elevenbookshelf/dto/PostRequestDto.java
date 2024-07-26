@@ -11,4 +11,10 @@ public class PostRequestDto {
     private String body;
     private Long contentId;
     private Double rating;
+
+    public PostRequestDto(ContentResponseDto res) {
+        this.postType = "CONTENT";
+        this.boardId = 1L;
+        this.contentId = res.getId();
+    }
 }

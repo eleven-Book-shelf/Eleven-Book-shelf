@@ -102,18 +102,24 @@ public class BoardService {
     @Transactional
     public PostResponseDto createPost(User user, Long boardId, PostRequestDto req) {
 
-        Board board = getBoard(boardId);
-
         Content content = contentRepositiry.findById(req.getContentId()).orElse(null);
 
         Post post = switch (req.getPostType()) {
-            case "NORMAL" -> NormalPost.builder()
-                    .title(req.getTitle())
-                    .body(req.getBody())
-                    .user(user)
-                    .board(board)
-                    .content(content)
-                    .build();
+            case "NORMAL" -> {
+                Board board = null;
+
+                if(boardId != null) {
+                    board = getBoard(boardId);
+                }
+
+                yield NormalPost.builder()
+                        .title(req.getTitle())
+                        .body(req.getBody())
+                        .user(user)
+                        .board(board)
+                        .content(content)
+                        .build();
+            }
 
             case "REVIEW" -> {
                 if (req.getRating() == null) {
@@ -128,7 +134,7 @@ public class BoardService {
                         .title(req.getTitle())
                         .body(req.getBody())
                         .user(user)
-                        .board(board)
+                        .board(getBoard(2L))
                         .content(content)
                         .rating(req.getRating())
                         .build();
@@ -142,13 +148,18 @@ public class BoardService {
                 yield ContentPost.builder()
                         .title(content.getTitle())
                         .body(content.getDescription())
-                        .user(user)
-                        .board(board)
+                        .user(getUser(1L))
+                        .board(getBoard(1L))
                         .content(content)
                         .build();
             }
             default -> throw new BusinessException(ErrorCode.POST_INVALID);
         };
+
+        if (post instanceof ReviewPost) {
+            content.addReview((ReviewPost) post);
+            contentRepositiry.save(content);
+        }
 
         postRepository.save(post);
 
@@ -166,6 +177,15 @@ public class BoardService {
         }
 
         return new PostResponseDto(post);
+    }
+
+    public List<PostResponseDto> readPostsByContent(Long boardId, Long contentId, long offset, int pagesize) {
+
+        List<Post> posts = postRepository.getPostsByContent(contentId, offset, pagesize);
+
+        return posts.stream().map(
+                        PostResponseDto::new)
+                .toList();
     }
 
     @Transactional
@@ -206,7 +226,29 @@ public class BoardService {
         postRepository.delete(post);
     }
 
-    //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
+    //::::::::::::::::::::::::// Content //:::::::::::::::::::::::://
+
+    public ContentResponseDto createContent(ContentRequestDto req) {
+
+        Content content = Content.builder()
+                .title(req.getTitle())
+                .imgurl(req.getImgurl())
+                .description(req.getDescription())
+                .author(req.getAuthor())
+                .platform(req.getPlatform())
+                .view(req.getView())
+                .rating(req.getRating())
+                .type(req.getType())
+                .isEnd(req.getIsEnd())
+                .build();
+
+        contentRepositiry.save(content);
+
+        return new ContentResponseDto(content);
+    }
+
+
+    //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 
     private Post getPost(Long postId) {
 
@@ -222,12 +264,14 @@ public class BoardService {
         );
     }
 
+
     private User getUser(Long userId) {
 
         return userRepository.findById(userId).orElseThrow(
                 () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
+
 
     private boolean isUserAdmin(User user) {
         return user.getRole().toString().equals("ADMIN");
