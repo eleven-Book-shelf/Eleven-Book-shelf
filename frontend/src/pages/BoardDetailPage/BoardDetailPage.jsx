@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import './PostDetailPage.css';
+import './BoardDetailPage.css';
 
-const PostDetailPage = () => {
+const BoardDetailPage = () => {
     const { id } = useParams();
     const post = {
         id: 1,
@@ -47,4 +47,4 @@ const PostDetailPage = () => {
     );
 }
 
-export default PostDetailPage;
+export default BoardDetailPage;

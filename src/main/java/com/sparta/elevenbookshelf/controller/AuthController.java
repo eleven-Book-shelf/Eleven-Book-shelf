@@ -1,12 +1,10 @@
 package com.sparta.elevenbookshelf.controller;
 
-import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.sparta.elevenbookshelf.dto.LoginRequestDto;
 import com.sparta.elevenbookshelf.dto.LoginResponseDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,9 +28,8 @@ public class AuthController {
     }
 
     @PatchMapping("/logout")
-    public ResponseEntity<Void> logout(@AuthenticationPrincipal UserPrincipal userPrincipal){
-        authService.logout(userPrincipal.getUser());
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<String> logout(@AuthenticationPrincipal UserPrincipal userPrincipal){
+        return ResponseEntity.status(HttpStatus.OK).body(authService.logout(userPrincipal.getUser()));
     }
 
     @PatchMapping("/refresh")

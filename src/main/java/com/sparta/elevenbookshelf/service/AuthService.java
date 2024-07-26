@@ -48,9 +48,11 @@ public class AuthService {
         return new LoginResponseDto(accessToken, refeshToken);
     }
 
-    public void logout(User userid){
+    @Transactional
+    public String logout(User userid){
         User user = getUser(userid.getId());
         user.deleteRefreshToken();
+        return "로그아웃 완료 씹";
     }
 
     @Transactional

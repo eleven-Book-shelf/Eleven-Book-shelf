@@ -56,7 +56,7 @@ public class User extends Timestamp {
 
 
     public void deleteRefreshToken() {
-        this.refreshToken = null;
+        this.refreshToken = "out";
     }
 
     public void addRefreshToken(String RefreshToken) {

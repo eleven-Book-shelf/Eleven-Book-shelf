@@ -1,12 +1,9 @@
 package com.sparta.elevenbookshelf.security.jwt;
 
-import com.sparta.elevenbookshelf.service.AuthService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -17,14 +14,11 @@ import java.util.Base64;
 
 @Component
 @Slf4j(topic = "JwtUtil")
-@RequiredArgsConstructor
 public class JwtUtil {
 
     @Value("${jwt.secret-key}")
     private String SecretKey;
     private Key key;
-
-   private final AuthService authService;
 
     @PostConstruct
     public void init() {

@@ -1,34 +1,54 @@
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../api/axiosInstance';
 import './Header.css';
-import axiosInstance from "../api/axiosInstance";
 
 const HeaderOn = ({ onLogout }) => {
     const navigate = useNavigate();
 
+    // JWT 디코딩 함수
+    const decodeJwt = (token) => {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (e) {
+            return null;
+        }
+    };
+
+    // 토큰 만료 여부 확인 함수
+    const isTokenExpired = (token) => {
+        const decoded = decodeJwt(token);
+        if (!decoded || !decoded.exp) {
+            return true;
+        }
+        const now = Date.now() / 1000;
+        return decoded.exp < now;
+    };
+
+    useEffect(() => {
+        const token = localStorage.getItem('Authorization');
+        if (token && isTokenExpired(token)) {
+            onLogout();
+            navigate('/login'); // 토큰이 만료된 경우 로그인 페이지로 리디렉션
+        }
+    }, [navigate, onLogout]);
+
     const handleLogoutClick = async () => {
         try {
-            await axiosInstance.patch('/logout', null, {
+            await axiosInstance.patch('/auth/logout', null, {
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
             onLogout();
-            navigate('/login');
+            navigate('/login'); // 로그아웃 후 로그인 페이지로 리디렉션
         } catch (error) {
             console.error('로그아웃 실패:', error);
         }
     };
-
-    axiosInstance.interceptors.response.use(
-        response => response,
-        error => {
-            if (error.response && error.response.status === 401) {
-                // JWT가 만료된 경우
-                onLogout();
-                navigate('/login');
-            }
-            return Promise.reject(error);
-        }
-    );
 
     return (
         <header className="header">
