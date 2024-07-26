@@ -1,10 +1,8 @@
 package com.sparta.elevenbookshelf.entity;
 
+import com.sparta.elevenbookshelf.entity.post.ReviewPost;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +18,8 @@ public class Content {
     private Long id;
 
     private String title;
+
+    private String imgurl;
 
     private String description;
 
@@ -38,9 +38,29 @@ public class Content {
     private ContentEnd isEnd;
 
     @OneToMany(mappedBy = "content", cascade = CascadeType.MERGE)
-    private List<Post> posts = new ArrayList<>();
+    private List<ReviewPost> reviews = new ArrayList<>();
 
-//:::::::::::::::::// enum //::::::::::::::::://
+    @Builder
+    public Content(String title, String description, String author, String platform, String imgurl, Double view, Double rating, ContentType type, ContentEnd isEnd) {
+
+        this.title = title;
+        this.imgurl = imgurl;
+        this.description = description;
+        this.author = author;
+        this.platform = platform;
+        this.view = view;
+        this.rating = rating;
+        this.type = type;
+        this.isEnd = isEnd;
+    }
+
+    //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
+
+    public void addReview(ReviewPost review) {
+        this.reviews.add(review);
+    }
+
+    //:::::::::::::::::// enum //::::::::::::::::://
 
     @Getter
     @RequiredArgsConstructor

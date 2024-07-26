@@ -1,9 +1,6 @@
 package com.sparta.elevenbookshelf.controller;
 
-import com.sparta.elevenbookshelf.dto.BoardRequestDto;
-import com.sparta.elevenbookshelf.dto.BoardResponseDto;
-import com.sparta.elevenbookshelf.dto.PostRequestDto;
-import com.sparta.elevenbookshelf.dto.PostResponseDto;
+import com.sparta.elevenbookshelf.dto.*;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.BoardService;
 import lombok.RequiredArgsConstructor;
@@ -120,5 +117,20 @@ public class BoardController {
 
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
+
+    //:::::::::::::::::// post //::::::::::::::::://
+
+    @PostMapping("/content")
+    public ResponseEntity<ContentResponseDto> createContent(@RequestBody ContentRequestDto req){
+
+        ContentResponseDto res = boardService.createContent(req);
+
+        PostRequestDto postReq = new PostRequestDto(res);
+
+        boardService.createPost(null, null, postReq);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    }
+
 
 }
