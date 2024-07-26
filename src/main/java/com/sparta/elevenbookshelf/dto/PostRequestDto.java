@@ -9,5 +9,5 @@ public class PostRequestDto {
     private Post.PostType postType;
     private Long boardId;
     private String title;
-    private String contents;
+    private String content;
 }

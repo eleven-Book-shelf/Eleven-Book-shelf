@@ -20,7 +20,7 @@ public class PostResponseDto {
         this.id = post.getId();
         this.postType = post.getPostType();
         this.title = post.getTitle();
-        this.content = post.getContent();
+        this.content = post.getContents();
         this.username = post.getUser().getUsername();
         this.boardId = post.getBoard().getId();
     }
