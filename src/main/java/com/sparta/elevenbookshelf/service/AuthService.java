@@ -2,6 +2,7 @@ package com.sparta.elevenbookshelf.service;
 
 
 import com.sparta.elevenbookshelf.dto.LoginRequestDto;
+import com.sparta.elevenbookshelf.dto.LoginResponseDto;
 import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
@@ -75,7 +76,7 @@ public class AuthService {
 
     private User getUser(String username) {
         return userRepository.findByUsername(username).orElseThrow(
-                () -> new BusinessException(ErrorCode.USERNAME_NOT_FOUND)
+                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
 
