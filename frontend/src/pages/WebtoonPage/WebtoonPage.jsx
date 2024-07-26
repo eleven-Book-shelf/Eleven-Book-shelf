@@ -22,14 +22,15 @@ const WebtoonPage = () => {
                 <RankingTabs/>
                 <div className="webtoon-grid">
                     {webtoons.map((webtoon, index) => (
-                        <WebtoonCard
-                            key={index}
-                            rank={webtoon.rank}
-                            title={webtoon.title}
-                            author={webtoon.author}
-                            rating={webtoon.rating}
-                            views={webtoon.views}
-                        />
+                        <a href={`/webtoon/${webtoon.rank}`} key={index}>
+                            <WebtoonCard
+                                rank={webtoon.rank}
+                                title={webtoon.title}
+                                author={webtoon.author}
+                                rating={webtoon.rating}
+                                views={webtoon.views}
+                            />
+                        </a>
                     ))}
                 </div>
             </div>

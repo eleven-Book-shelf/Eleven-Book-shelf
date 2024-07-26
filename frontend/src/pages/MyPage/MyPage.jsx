@@ -1,20 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import Modal from 'react-modal';
 import styles from './MyPage.module.css';
+import axiosInstance from '../../api/axiosInstance';
+
+Modal.setAppElement('#root'); // 모달을 사용하는 경우, 접근성을 위해 필요
 
 const MyPage = () => {
     const [profile, setProfile] = useState(null);
     const [bookmarkedWebtoons, setBookmarkedWebtoons] = useState([]);
     const [bookmarkedWebnovels, setBookmarkedWebnovels] = useState([]);
     const [recentPosts, setRecentPosts] = useState([]);
+    const [newUsername, setNewUsername] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    useEffect(() => {
-        // TODO: 실제 데이터 API 호출로 대체해야 합니다.
-        const fetchData = async () => {
-            const profileData = {
-                name: '홍길동',
-                joinDate: '2022년 3월 15일',
-                email: 'hong@example.com'
-            };
+    const fetchData = async () => {
+        try {
+            const profileResponse = await axiosInstance.get('/user', {
+                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+            });
+            setProfile(profileResponse.data);
+            console.log(profileResponse.data);
 
             const webtoonsData = [
                 { title: '전지적 독자 시점', author: '싱숑' },
@@ -34,14 +39,32 @@ const MyPage = () => {
                 { id: 12347, title: '나 혼자만 레벨업 vs 템빨 - 어떤 작품이 더 재밌나요?' }
             ];
 
-            setProfile(profileData);
             setBookmarkedWebtoons(webtoonsData);
             setBookmarkedWebnovels(webnovelsData);
             setRecentPosts(postsData);
-        };
+        } catch (error) {
+            console.error('데이터 불러오기 실패:', error);
+        }
+    };
 
+    useEffect(() => {
         fetchData();
     }, []);
+
+    const handleEditProfile = async () => {
+        try {
+            await axiosInstance.put('/user/edit', null, {
+                params: { username: newUsername },
+                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+            });
+            // 프로필 수정 후 데이터 다시 가져오기
+            await fetchData();
+            setIsModalOpen(false);
+            setNewUsername('');
+        } catch (error) {
+            console.error('프로필 수정 실패:', error);
+        }
+    };
 
     if (!profile) {
         return <div>로딩 중...</div>;
@@ -51,10 +74,10 @@ const MyPage = () => {
         <div className={styles.container}>
             <div className={styles.profileHeader}>
                 <div className={styles.profileInfo}>
-                    <h1>{profile.name}</h1>
-                    <p>가입일: {profile.joinDate}</p>
+                    <h1 className={styles.name}> {profile.nickname}</h1>
+                    <p>가입일: {profile.createdAt}</p>
                     <p>이메일: {profile.email}</p>
-                    <a href="/mypage/edit" className={styles.button}>프로필 수정</a>
+                    <button onClick={() => setIsModalOpen(true)} className={styles.button}>프로필 수정</button>
                 </div>
             </div>
 
@@ -92,6 +115,24 @@ const MyPage = () => {
                     ))}
                 </ul>
             </div>
+
+            <Modal
+                isOpen={isModalOpen}
+                onRequestClose={() => setIsModalOpen(false)}
+                contentLabel="프로필 수정"
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+            >
+                <h2>프로필 수정</h2>
+                <input
+                    type="text"
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
+                    placeholder="새 닉네임 입력"
+                />
+                <button onClick={handleEditProfile}>저장</button>
+                <button onClick={() => setIsModalOpen(false)}>취소</button>
+            </Modal>
         </div>
     );
 };

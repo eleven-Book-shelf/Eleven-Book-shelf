@@ -98,7 +98,7 @@ public class BoardService {
         Post post = Post.builder()
                 .postType(req.getPostType())
                 .title(req.getTitle())
-                .content(req.getContent())
+                .contents(req.getContents())
                 .user(user)
                 .board(board)
                 .build();

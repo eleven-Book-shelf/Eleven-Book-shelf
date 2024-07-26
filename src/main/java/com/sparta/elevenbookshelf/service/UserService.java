@@ -22,7 +22,7 @@ public class UserService {
 //    private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserResponseDto signup(UserRequestDto req) {
+    public void signup(UserRequestDto req) {
 
         if (userRepository.existsByUsername(req.getUsername())) {
             throw new BusinessException(ErrorCode.ALREADY_EXISTING_USER);
@@ -37,14 +37,24 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
-
-        return new UserResponseDto(user);
     }
 
     @Transactional
     public void OAuth2login(Long userId,String accessToken ,String refreshJwt) {
         User user = getUser(userId);
         user.addRefreshToken(refreshJwt);
+    }
+
+    public UserResponseDto getProfile(Long userId) {
+        User user = getUser(userId);
+        return new UserResponseDto(user);
+    }
+
+    @Transactional
+    public UserResponseDto editProfile(Long userId, String username) {
+        User user = getUser(userId);
+        user.updateProfile(username);
+        return null;
     }
 
 
@@ -55,5 +65,12 @@ public class UserService {
                 () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
+
+    private User getUser(String username){
+        return userRepository.findByUsername(username).orElseThrow(
+                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
+        );
+    }
+
 
 }

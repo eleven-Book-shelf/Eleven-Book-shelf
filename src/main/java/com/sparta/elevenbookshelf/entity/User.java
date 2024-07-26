@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.entity;
 
+import com.sparta.elevenbookshelf.dto.UserRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,13 +19,14 @@ public class User extends Timestamp {
     @Column(unique = true)
     private String username;
 
+    private String nickname;
+
     private String password;
 
     @Column(unique = true)
     private String email;
 
     private String refreshToken;
-
 
     private String socialId;
 
@@ -41,11 +43,17 @@ public class User extends Timestamp {
     public User(String username, String password,String email,String socialId ,Status status, Role role) {
         this.username = username;
         this.password = password;
+        this.nickname = username;
         this.email = email;
         this.socialId = socialId;
         this.status = status;
         this.role = role;
     }
+
+    public void updateProfile(String username){
+        this.nickname = username;
+    }
+
 
     public void deleteRefreshToken() {
         this.refreshToken = null;

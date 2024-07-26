@@ -29,7 +29,7 @@ const WebnovelPage = () => {
             </div>
             <div className="webnovel-grid">
                 {webnovels.map((webnovel, index) => (
-                    <div className="webnovel-card" key={index}>
+                    <a href={`/webnovel/${webnovel.rank}`} className="webnovel-card" key={index}>
                         <span className="webnovel-rank">{webnovel.rank}</span>
                         <h3 className="webnovel-title">{webnovel.title}</h3>
                         <p className="webnovel-author">{webnovel.author}</p>
@@ -39,7 +39,7 @@ const WebnovelPage = () => {
                             <span>조회수: {webnovel.views}</span>
                             <span>연재: {webnovel.chapters}화</span>
                         </div>
-                    </div>
+                    </a>
                 ))}
             </div>
         </div>

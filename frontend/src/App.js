@@ -11,8 +11,10 @@ import SignupPage from './pages/SignupPage/SignupPage';
 
 import HomePage from './pages/HomePage/HomePage';
 import WebtoonPage from './pages/WebtoonPage/WebtoonPage';
-import WebnovelPage from './pages/WebnovelPage/WebnovelPage';
+import ContentDetailPage from './pages/ContentDetailPage/ContentDetailPage';
 
+
+import WebnovelPage from './pages/WebnovelPage/WebnovelPage';
 import CommunityPage from './pages/CommunityPage/CommunityPage';
 import PostDetailPage from './pages/PostDetailPage/PostDetailPage';
 import NewPostPage from './pages/NewPostPage/NewPostPage';
@@ -47,6 +49,8 @@ const App = () => {
                     <Route path="/" element={<HomePage onLogin={handleLogin} />} />
                     <Route path="/webtoon" element={<WebtoonPage />} />
                     <Route path="/webnovel" element={<WebnovelPage />} />
+                    <Route path="/webtoon/:id" element={<ContentDetailPage />} />
+                    <Route path="/webnovel/:id" element={<ContentDetailPage />} />
 
                     <Route path="/signup" element={<SignupPage />} />
                     <Route path="/login" element={<LoginPage />} />

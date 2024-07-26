@@ -2,15 +2,14 @@ package com.sparta.elevenbookshelf.controller;
 
 import com.sparta.elevenbookshelf.dto.UserRequestDto;
 import com.sparta.elevenbookshelf.dto.UserResponseDto;
+import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,12 +20,29 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<UserResponseDto> signup(@RequestBody UserRequestDto req) {
+    public ResponseEntity<?> signup(@RequestBody UserRequestDto req) {
+        userService.signup(req);
+        return ResponseEntity.noContent().build();
 
-        UserResponseDto res = userService.signup(req);
+    }
+
+    @GetMapping
+    public ResponseEntity<UserResponseDto> getProfile(@AuthenticationPrincipal UserPrincipal user) {
+
+        UserResponseDto res = userService.getProfile(user.getUser().getId());
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
 
     }
+
+    @PutMapping("/edit")
+    public ResponseEntity<?> editProfile(@AuthenticationPrincipal UserPrincipal user ,@RequestParam String username) {
+
+        UserResponseDto res = userService.editProfile(user.getUser().getId() , username );
+
+        return ResponseEntity.noContent().build();
+
+    }
+
 
 }
