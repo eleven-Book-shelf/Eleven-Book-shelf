@@ -44,7 +44,7 @@ public class Content {
     public Content(String title, String imgurl, String description, String author, String platform, Double view, Double rating, ContentType type, ContentEnd isEnd) {
 
         this.title = title;
-        this.imgurl = imgurl;
+        this.imgUrl = imgUrl;
         this.description = description;
         this.author = author;
         this.platform = platform;

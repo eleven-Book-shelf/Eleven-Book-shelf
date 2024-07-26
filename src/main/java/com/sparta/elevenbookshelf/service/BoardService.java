@@ -3,10 +3,10 @@ package com.sparta.elevenbookshelf.service;
 import com.sparta.elevenbookshelf.dto.*;
 import com.sparta.elevenbookshelf.entity.Board;
 import com.sparta.elevenbookshelf.entity.Content;
+import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.entity.post.ContentPost;
 import com.sparta.elevenbookshelf.entity.post.NormalPost;
 import com.sparta.elevenbookshelf.entity.post.Post;
-import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.entity.post.ReviewPost;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
@@ -232,7 +232,7 @@ public class BoardService {
 
         Content content = Content.builder()
                 .title(req.getTitle())
-                .imgurl(req.getImgurl())
+                .imgUrl(req.getImgUrl())
                 .description(req.getDescription())
                 .author(req.getAuthor())
                 .platform(req.getPlatform())

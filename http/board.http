@@ -88,7 +88,7 @@ Content-Type: application/json
 
 {
   "title": "재밌는 작품",
-  "imgurl": "test url",
+  "imgUrl": "test url",
   "description": "재밌는 줄거리",
   "author": "잘 쓰는 작가",
   "platform": "도서관",
