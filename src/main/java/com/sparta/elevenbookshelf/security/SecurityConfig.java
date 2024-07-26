@@ -83,9 +83,6 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
-/*                                                   .requestMatchers("/auth/login").permitAll()
-                                                   .requestMatchers("/oauth2/authorization/**").permitAll()
-                                                   .requestMatchers("/auth/login").permitAll()
                                                    .requestMatchers("/auth/login").permitAll()
                                                    .requestMatchers("/user/signup").permitAll()
                                                    .requestMatchers("/user/email/**").permitAll()
@@ -94,12 +91,7 @@ public class SecurityConfig {
                                                    .requestMatchers(HttpMethod.GET,  "/comments/**").permitAll()
                                                    .requestMatchers("/login.html").permitAll()
                                                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                   .anyRequest().authenticated()*/
                                                    .anyRequest().permitAll()
-        );
-
-        http.sessionManagement(sessionManagement -> sessionManagement
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

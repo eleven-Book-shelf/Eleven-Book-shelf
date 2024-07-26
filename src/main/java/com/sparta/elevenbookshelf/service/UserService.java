@@ -23,6 +23,8 @@ public class UserService {
 
     @Transactional
     public void signup(UserRequestDto req) {
+    @Transactional
+    public UserResponseDto signup(UserRequestDto req) {
 
         if (userRepository.existsByUsername(req.getUsername())) {
             throw new BusinessException(ErrorCode.ALREADY_EXISTING_USER);
