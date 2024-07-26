@@ -233,7 +233,6 @@ public class KComicsService {
 
     // robots.txt 파일에 규정된 접근 금지 목록.
     // TODO : 사이트별 robots.txt 규약을 적응형으로 적용하게끔 수정 필요.
-    @PostConstruct
     public void doNotEnterThisLink() {
         disAllowedLink.add(robotsTxtNo1);
         disAllowedLink.add(robotsTxtNo2);

@@ -73,6 +73,9 @@ dependencies {
     // Jsoup
     implementation 'org.jsoup:jsoup:1.18.1'
 
+    // CSV
+    implementation 'org.apache.commons:commons-csv:1.11.0'
+
 }
 
 tasks.named('test') {

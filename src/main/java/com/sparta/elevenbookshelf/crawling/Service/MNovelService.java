@@ -199,7 +199,6 @@ public class MNovelService {
         }
     }
 
-    @PostConstruct
     public void doNotEnterThisLink() {
         disAllowedLink.add("/addon/");
         disAllowedLink.add("/ch/");

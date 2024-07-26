@@ -25,6 +25,7 @@ public class RNovelService {
     private final CrawlingTestRepository crawlingTestRepository;
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
+    private final DataUpdateService dataUpdateService;
 
     @Value("${R_PAGE}")
     private String rPage;
@@ -56,11 +57,13 @@ public class RNovelService {
     @Value("${R_NEXT_BUTTON}")
     private String rNextButton;
 
-//    @PostConstruct
-//    public void init() {
-//        doNotEnterThisLink();
+    @PostConstruct
+    public void init() {
+        doNotEnterThisLink();
 //        rNovelStart();
-//    }
+//        crawlingUtil.exportToCsv();
+        dataUpdateService.updateDatabase();
+    }
 
     public void rNovelStart() {
         log.info("R NOVEL 시작");
@@ -196,28 +199,32 @@ public class RNovelService {
                         crawlingUtil.waitForPage();
 
                     }
+
                 }
 
                 // 다음 페이지로 이동
-                try {
-//                    WebElement nextPageButton = webDriver.findElement(By.cssSelector("a[href*='/category/books/1750?page=" + (page + 1) + "']"));
-                    WebElement nextPageButton = webDriver.findElement(By.cssSelector(rNextButton.replace("{page}", String.valueOf(page + 1))));
-                    nextPageButton.click();
-                    page++;
-                } catch (NoSuchElementException e) {
-                    log.info("더 이상 페이지가 없습니다.");
-                    break;
-                }
+//                try {
+//                    WebElement nextPageButton = webDriver.findElement(By.cssSelector(rNextButton.replace("{page}", String.valueOf(page + 1))));
+//                    nextPageButton.click();
+//                    page++;
+//                } catch (NoSuchElementException e) {
+//                    log.info("더 이상 페이지가 없습니다.");
+//                    break;
+//                }
+                break;
+
             }
 
         } finally {
             webDriver.quit();
             log.info("리디 크롤링 종료");
+            crawlingUtil.exportToCsv();
+            log.info("CSV 변환.");
             log.info("========================");
         }
+
     }
 
-    @PostConstruct
     public void doNotEnterThisLink() {
         disAllowedLink.add("/payment/");
         disAllowedLink.add("/api/");

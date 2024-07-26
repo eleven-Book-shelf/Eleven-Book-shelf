@@ -2,23 +2,34 @@ package com.sparta.elevenbookshelf.crawling;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j(topic = "CrawlingUtil")
 public class CrawlingUtil {
 
     private final WebDriver webDriver;
+    private final CrawlingTestRepository crawlingTestRepository;
+
+    @Value("${CSV_FILE}")
+    private String csvOutputDirectory;
 
     // robots.txt 규약 준수를 위한 URL 검사 메서드.
     public boolean checkTheLink(String url, Set<String> disAllowedLink) {
@@ -117,6 +128,58 @@ public class CrawlingUtil {
         } catch (InterruptedException e) {
             log.error("쓰레드 슬립 도중 에러 발생. : {}", e.getMessage());
             Thread.currentThread().interrupt();
+        }
+    }
+
+    public void exportToCsv() {
+        log.info("파일 저장 메서드 실행");
+        List<CrawlingTest> allData = crawlingTestRepository.findAll();
+
+        String fileName = "crawling_data.csv";
+        Path filePath = Paths.get(csvOutputDirectory, fileName);
+        log.info("파일 저장 위치 : {}", csvOutputDirectory);
+
+        try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8);
+             CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.builder()
+                     // setHeader 는 저장될 데이터의 필드 네임을 작성.
+                     .setHeader(
+                             "Id",
+                             "Platform",
+                             "ComicsOrBook",
+                             "ContentType",
+                             "Title",
+                             "Author",
+                             "CompleteOrNot",
+                             "LikeCount",
+                             "Rating",
+                             "LikeCount",
+                             "BookMark",
+                             "TotalView"
+                             )
+                     .build())) {
+
+            for (CrawlingTest data : allData) {
+                // 실제 데이터가 들어가는 부분. 데이터의 위치를 변경한다면 헤더의 위치도 변경해주어야 함.
+                printer.printRecord(
+                        data.getId(),
+                        data.getPlatform(),
+                        data.getComicsOrBook(),
+                        data.getContentType(),
+                        data.getTitle(),
+                        data.getAuthor(),
+                        data.getCompleteOrNot(),
+                        data.getLikeCount(),
+                        data.getRating(),
+                        data.getLikeCount(),
+                        data.getBookMark(),
+                        data.getTotalView()
+                );
+            }
+
+            log.info("CSV 파일이 생성되었습니다: {}", filePath);
+
+        } catch (IOException e) {
+            log.error("CSV 파일 생성 중 오류 발생: {}", e.getMessage(), e);
         }
     }
 

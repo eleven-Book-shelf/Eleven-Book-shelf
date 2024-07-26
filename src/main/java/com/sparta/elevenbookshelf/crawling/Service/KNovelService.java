@@ -67,10 +67,10 @@ public class KNovelService {
 //        kNovelPageStart();
 //    }
 
-    @Scheduled(fixedDelay = 3600000)
-    public void crawlingDelay() {
-        kNovelPageStart();
-    }
+//    @Scheduled(fixedDelay = 3600000)
+//    public void crawlingDelay() {
+//        kNovelPageStart();
+//    }
 
     // TODO : 크롤링이 오래 걸리기 때문에 @Async 사용 고려하기.
     // 크롤링 메서드
@@ -233,7 +233,6 @@ public class KNovelService {
 
     // robots.txt 파일에 규정된 접근 금지 목록.
     // TODO : 사이트별 robots.txt 규약을 적응형으로 적용하게끔 수정 필요.
-    @PostConstruct
     public void doNotEnterThisLink() {
         disAllowedLink.add(robotsTxtNo1);
         disAllowedLink.add(robotsTxtNo2);
