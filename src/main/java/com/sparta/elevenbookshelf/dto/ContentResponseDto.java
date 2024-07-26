@@ -11,7 +11,7 @@ public class ContentResponseDto {
 
     private Long id;
     private String title;
-    private String imgurl;
+    private String imgUrl;
     private String description;
     private String author;
     private String platform;
@@ -24,7 +24,7 @@ public class ContentResponseDto {
     public ContentResponseDto(Content content) {
         this.id = content.getId();
         this.title = content.getTitle();
-        this.imgurl = content.getImgurl();
+        this.imgUrl = content.getImgUrl();
         this.description = content.getDescription();
         this.author = content.getAuthor();
         this.platform = content.getPlatform();
