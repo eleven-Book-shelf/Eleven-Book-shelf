@@ -19,12 +19,10 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
-//    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public void signup(UserRequestDto req) {
-    @Transactional
-    public UserResponseDto signup(UserRequestDto req) {
 
         if (userRepository.existsByUsername(req.getUsername())) {
             throw new BusinessException(ErrorCode.ALREADY_EXISTING_USER);
@@ -32,19 +30,13 @@ public class UserService {
 
         User user = User.builder()
                 .username(req.getUsername())
-//                .password(passwordEncoder.encode(req.getPassword()))
+                .password(passwordEncoder.encode(req.getPassword()))
                 .email(req.getEmail())
                 .status(User.Status.NORMAL)
                 .role(User.Role.ADMIN)
                 .build();
 
         userRepository.save(user);
-    }
-
-    @Transactional
-    public void OAuth2login(Long userId,String accessToken ,String refreshJwt) {
-        User user = getUser(userId);
-        user.addRefreshToken(refreshJwt);
     }
 
     public UserResponseDto getProfile(Long userId) {
@@ -60,6 +52,8 @@ public class UserService {
     }
 
 
+
+
     //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
 
     private User getUser(Long userId){
@@ -73,6 +67,5 @@ public class UserService {
                 () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
-
 
 }

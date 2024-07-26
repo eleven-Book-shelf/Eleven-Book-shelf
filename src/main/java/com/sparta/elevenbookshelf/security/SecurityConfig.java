@@ -7,11 +7,12 @@ import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
 import com.sparta.elevenbookshelf.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
-import com.sparta.elevenbookshelf.service.UserService;
+import com.sparta.elevenbookshelf.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,7 +33,7 @@ public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final JwtService jwtService;
-    private final UserService userService;
+    private final AuthService authService;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
@@ -53,7 +54,7 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
         log.info("@Bean OAuth2AuthenticationSuccessHandler 실행");
-        return new OAuth2AuthenticationSuccessHandler(jwtService, objectMapper,userService);
+        return new OAuth2AuthenticationSuccessHandler(jwtService, objectMapper, authService);
     }
 
     @Bean
@@ -83,14 +84,14 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
-                                                   .requestMatchers("/auth/login").permitAll()
+/*                                                   .requestMatchers("/auth/login").permitAll()
                                                    .requestMatchers("/user/signup").permitAll()
                                                    .requestMatchers("/user/email/**").permitAll()
                                                    .requestMatchers("/auth/reissue").permitAll()
                                                    .requestMatchers(HttpMethod.GET, "/boards/**").permitAll()
                                                    .requestMatchers(HttpMethod.GET,  "/comments/**").permitAll()
                                                    .requestMatchers("/login.html").permitAll()
-                                                   .requestMatchers("/admin/**").hasRole("ADMIN")
+                                                   .requestMatchers("/admin/**").hasRole("ADMIN")*/
                                                    .anyRequest().permitAll()
         );
 

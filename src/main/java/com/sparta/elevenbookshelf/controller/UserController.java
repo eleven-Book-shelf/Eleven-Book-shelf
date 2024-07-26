@@ -28,18 +28,15 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<UserResponseDto> getProfile(@AuthenticationPrincipal UserPrincipal user) {
-
+        log.info("getProfile 실행");
         UserResponseDto res = userService.getProfile(user.getUser().getId());
-
         return ResponseEntity.status(HttpStatus.OK).body(res);
-
     }
 
     @PutMapping("/edit")
     public ResponseEntity<?> editProfile(@AuthenticationPrincipal UserPrincipal user ,@RequestParam String username) {
-
+        log.info("editProfile 실행");
         UserResponseDto res = userService.editProfile(user.getUser().getId() , username );
-
         return ResponseEntity.noContent().build();
 
     }

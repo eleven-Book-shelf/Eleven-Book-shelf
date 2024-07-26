@@ -24,11 +24,11 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final AuthenticationManager authenticationManager;
+//    private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final JwtUtil jwtUtil;
 
-    @Transactional
+    /*@Transactional
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -46,7 +46,7 @@ public class AuthService {
         user.addRefreshToken(refeshToken);
 
         return new LoginResponseDto(accessToken, refeshToken);
-    }
+    }*/
 
     @Transactional
     public String logout(User userid){
@@ -66,6 +66,11 @@ public class AuthService {
         return null;
     }
 
+    @Transactional
+    public void OAuth2login(Long userId,String accessToken ,String refreshJwt) {
+        User user = getUser(userId);
+        user.addRefreshToken(refreshJwt);
+    }
 
 
     //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://

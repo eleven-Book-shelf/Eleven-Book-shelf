@@ -19,7 +19,7 @@ const MyPage = () => {
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
             setProfile(profileResponse.data);
-            console.log(profileResponse.data);
+            console.log('Profile data:', profileResponse.data);
 
             const webtoonsData = [
                 { title: '전지적 독자 시점', author: '싱숑' },

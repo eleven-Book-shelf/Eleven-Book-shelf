@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
+import com.sparta.elevenbookshelf.service.AuthService;
 import com.sparta.elevenbookshelf.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +24,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
-    private final UserService userService;
+    private final AuthService authService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -31,7 +32,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         User user = ((UserPrincipal) authentication.getPrincipal()).getUser();
         String accessToken = jwtService.generateAccessToken(user.getUsername());
         String refreshToken = jwtService.generateRefreshToken(user.getUsername());
-        userService.OAuth2login(user.getId(), accessToken ,refreshToken);
+        authService.OAuth2login(user.getId(), accessToken ,refreshToken);
         response.addHeader(HttpHeaders.AUTHORIZATION, accessToken);
         String redirectUrl = "http://localhost:3000/auth/callback?Authorization=" + accessToken;
         response.sendRedirect(redirectUrl);

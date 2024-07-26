@@ -23,7 +23,7 @@ Content-Type: application/json
 %}
 
 
-### 로그아웃
-PATCH http://localhost:8080/auth/refresh
+### 유저
+GET localhost:8080/user
 Content-Type: application/json
 Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNTIzMDgxNDEyIiwiaWF0IjoxNzIxOTk1Mjk4LCLthqDtgbBf7IOd7ISxX-2DnOyKpO2KuCI6Iu2DnOyKpO2KuCIsImV4cCI6MTcyMjAwMTI5OH0.iwWc1oYKEBpF81b_9zsX9fUiPt4YgztN8NVDwZutXIc

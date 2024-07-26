@@ -19,17 +19,22 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/login")
+/*    @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto req) {
 
         LoginResponseDto res = authService.login(req);
 
         return ResponseEntity.status(HttpStatus.OK).header(HttpHeaders.AUTHORIZATION,res.getAccessToken()).body(res);
-    }
+    }*/
 
     @PatchMapping("/logout")
     public ResponseEntity<String> logout(@AuthenticationPrincipal UserPrincipal userPrincipal){
         return ResponseEntity.status(HttpStatus.OK).body(authService.logout(userPrincipal.getUser()));
+    }
+
+    @PatchMapping("/login")
+    public ResponseEntity<String> login(@AuthenticationPrincipal UserPrincipal userPrincipal){
+        return ResponseEntity.status(HttpStatus.OK).body("씨발");
     }
 
     @PatchMapping("/refresh")
@@ -38,7 +43,5 @@ public class AuthController {
                 .header(HttpHeaders.AUTHORIZATION,authService.refresh(request.getHeader(HttpHeaders.AUTHORIZATION)))
                 .body("null");
     }
-
-
 
 }
