@@ -11,7 +11,7 @@ import com.sparta.elevenbookshelf.entity.post.ReviewPost;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.BoardRepository;
-import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepositiry;
+import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -27,7 +27,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final ContentRepositiry contentRepositiry;
+    private final ContentRepository contentRepository;
 
     //:::::::::::::::::// board //::::::::::::::::://
 
@@ -102,7 +102,7 @@ public class BoardService {
     @Transactional
     public PostResponseDto createPost(User user, Long boardId, PostRequestDto req) {
 
-        Content content = contentRepositiry.findById(req.getContentId()).orElse(null);
+        Content content = contentRepository.findById(req.getContentId()).orElse(null);
 
         Post post = switch (req.getPostType()) {
             case "NORMAL" -> {
@@ -158,7 +158,7 @@ public class BoardService {
 
         if (post instanceof ReviewPost) {
             content.addReview((ReviewPost) post);
-            contentRepositiry.save(content);
+            contentRepository.save(content);
         }
 
         postRepository.save(post);
@@ -242,7 +242,7 @@ public class BoardService {
                 .isEnd(req.getIsEnd())
                 .build();
 
-        contentRepositiry.save(content);
+        contentRepository.save(content);
 
         return new ContentResponseDto(content);
     }
