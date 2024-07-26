@@ -3,7 +3,7 @@ POST localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "username": "username",
+  "username": "ADMIN",
   "password": "password@1234"
 }
 
@@ -25,28 +25,75 @@ Authorization:{{access_token}}
 ### readBoards
 GET localhost:8080/boards
 
-### createPost
+### createNormalPost
 POST localhost:8080/boards/1
 Content-Type: application/json
 Authorization:{{access_token}}
 
 {
   "postType": "NORMAL",
-  "title": "test post 1",
-  "content": "test content 1"
+  "title": "test normal post",
+  "body": "test normal body"
+
+}
+
+### createReviewPost
+POST localhost:8080/boards/1
+Content-Type: application/json
+Authorization:{{access_token}}
+
+{
+  "postType": "REVIEW",
+  "title": "test review post",
+  "body": "test review body",
+  "rating": "5.0"
+
+}
+
+### createContentPost
+POST localhost:8080/boards/1
+Content-Type: application/json
+Authorization:{{access_token}}
+
+{
+  "postType": "CONTENT",
+  "contentId": 1
 
 }
 
 ### readBoard
 GET localhost:8080/boards/1
 
+### readPost
+GET localhost:8080/boards/1/1
+
 ### updatePost
-PUT localhost:8080/boards/1/1
+PUT localhost:8080/boards/1/3
 Content-Type: application/json
 Authorization:{{access_token}}
 
 {
-  "postType": "NORMAL",
+  "boardId": 1,
   "title": "test post 2",
-  "content": "test content 2"
+  "body": "test content 2"
+}
+
+### deletePost
+DELETE localhost:8080/boards/1/3
+Authorization:{{access_token}}
+
+### createContent
+POST localhost:8080/boards/content
+Content-Type: application/json
+
+{
+  "title": "재밌는 작품",
+  "imgUrl": "test url",
+  "description": "재밌는 줄거리",
+  "author": "잘 쓰는 작가",
+  "platform": "도서관",
+  "view": 1000000,
+  "rating": 9.8,
+  "type": "NOVEL",
+  "isEnd": "NOT"
 }

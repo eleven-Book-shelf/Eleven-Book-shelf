@@ -98,7 +98,7 @@ public class BoardService {
         Post post = Post.builder()
                 .postType(req.getPostType())
                 .title(req.getTitle())
-                .contents(req.getContent())
+                .content(req.getContent())
                 .user(user)
                 .board(board)
                 .build();
@@ -129,7 +129,7 @@ public class BoardService {
         post.updatePostType(req.getPostType());
         post.updateBoard(getBoard(req.getBoardId()));
         post.updateTitle(req.getTitle());
-        post.updateContents(req.getContent());
+        post.updateContents(req.getContents());
 
         postRepository.save(post);
 
