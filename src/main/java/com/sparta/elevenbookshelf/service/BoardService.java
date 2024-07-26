@@ -1,17 +1,15 @@
 package com.sparta.elevenbookshelf.service;
 
-import com.sparta.elevenbookshelf.dto.*;
+import com.sparta.elevenbookshelf.dto.BoardRequestDto;
+import com.sparta.elevenbookshelf.dto.BoardResponseDto;
+import com.sparta.elevenbookshelf.dto.PostRequestDto;
+import com.sparta.elevenbookshelf.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.entity.Board;
-import com.sparta.elevenbookshelf.entity.Content;
+import com.sparta.elevenbookshelf.entity.Post;
 import com.sparta.elevenbookshelf.entity.User;
-import com.sparta.elevenbookshelf.entity.post.ContentPost;
-import com.sparta.elevenbookshelf.entity.post.NormalPost;
-import com.sparta.elevenbookshelf.entity.post.Post;
-import com.sparta.elevenbookshelf.entity.post.ReviewPost;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.BoardRepository;
-import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -27,16 +25,13 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final ContentRepository contentRepository;
 
     //:::::::::::::::::// board //::::::::::::::::://
 
     @Transactional
     public BoardResponseDto createBoard(User user, BoardRequestDto req) {
 
-        if(!isUserAdmin(user)){
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
-        }
+        checkUserRole(user);
 
         Board board = Board.builder()
                 .title(req.getTitle())
@@ -71,9 +66,7 @@ public class BoardService {
     @Transactional
     public BoardResponseDto updateBoard(User user, Long boardId, BoardRequestDto req) {
 
-        if(!isUserAdmin(user)){
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
-        }
+        checkUserRole(user);
 
         Board board = getBoard(boardId);
 
@@ -87,9 +80,7 @@ public class BoardService {
     @Transactional
     public void deleteBoard(User user, Long boardId) {
 
-        if(!isUserAdmin(user)){
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
-        }
+        checkUserRole(user);
 
         Board board = getBoard(boardId);
 
@@ -102,64 +93,15 @@ public class BoardService {
     @Transactional
     public PostResponseDto createPost(User user, Long boardId, PostRequestDto req) {
 
-        Content content = contentRepository.findById(req.getContentId()).orElse(null);
+        Board board = getBoard(boardId);
 
-        Post post = switch (req.getPostType()) {
-            case "NORMAL" -> {
-                Board board = null;
-
-                if(boardId != null) {
-                    board = getBoard(boardId);
-                }
-
-                yield NormalPost.builder()
-                        .title(req.getTitle())
-                        .body(req.getBody())
-                        .user(user)
-                        .board(board)
-                        .content(content)
-                        .build();
-            }
-
-            case "REVIEW" -> {
-                if (req.getRating() == null) {
-                    throw new IllegalStateException("리뷰 게시글에는 평점이 있어야 합니다.");
-                }
-
-                if (content == null) {
-                    throw new IllegalStateException("리뷰 게시글에는 컨텐츠가 있어야 합니다.");
-                }
-
-                yield ReviewPost.builder()
-                        .title(req.getTitle())
-                        .body(req.getBody())
-                        .user(user)
-                        .board(getBoard(2L))
-                        .content(content)
-                        .rating(req.getRating())
-                        .build();
-            }
-
-            case "CONTENT" -> {
-                if (content == null) {
-                    throw new IllegalStateException("컨텐츠 게시글에는 컨텐츠가 있어야 합니다.");
-                }
-
-                yield ContentPost.builder()
-                        .title(content.getTitle())
-                        .body(content.getDescription())
-                        .user(getUser(1L))
-                        .board(getBoard(1L))
-                        .content(content)
-                        .build();
-            }
-            default -> throw new BusinessException(ErrorCode.POST_INVALID);
-        };
-
-        if (post instanceof ReviewPost) {
-            content.addReview((ReviewPost) post);
-            contentRepository.save(content);
-        }
+        Post post = Post.builder()
+                .postType(req.getPostType())
+                .title(req.getTitle())
+                .content(req.getContent())
+                .user(user)
+                .board(board)
+                .build();
 
         postRepository.save(post);
 
@@ -167,25 +109,13 @@ public class BoardService {
     }
 
 
-
     public PostResponseDto readPost(Long boardId, Long postId) {
 
         Post post = getPost(postId);
 
-        if(!isPostBoardEqual(boardId, post)) {
-            throw new BusinessException(ErrorCode.POST_NOT_FOUND);
-        }
+        checkPostBoard(boardId, post);
 
         return new PostResponseDto(post);
-    }
-
-    public List<PostResponseDto> readPostsByContent(Long boardId, Long contentId, long offset, int pagesize) {
-
-        List<Post> posts = postRepository.getPostsByContent(contentId, offset, pagesize);
-
-        return posts.stream().map(
-                        PostResponseDto::new)
-                .toList();
     }
 
     @Transactional
@@ -193,17 +123,13 @@ public class BoardService {
 
         Post post = getPost(postId);
 
-        if(!isPostBoardEqual(boardId, post)) {
-            throw new BusinessException(ErrorCode.POST_NOT_FOUND);
-        }
+//        checkPostUser(user, post);
+//        checkPostBoard(boardId, post);
 
-        if(!isPostUserEqual(user, post) && !isUserAdmin(user)) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
-        }
-
+        post.updatePostType(req.getPostType());
         post.updateBoard(getBoard(req.getBoardId()));
         post.updateTitle(req.getTitle());
-        post.updateBody(req.getBody());
+        post.updateContents(req.getContents());
 
         postRepository.save(post);
 
@@ -215,40 +141,13 @@ public class BoardService {
 
         Post post = getPost(postId);
 
-        if(!isPostBoardEqual(boardId, post)) {
-            throw new BusinessException(ErrorCode.POST_NOT_FOUND);
-        }
-
-        if(!isPostUserEqual(user, post) && !isUserAdmin(user)) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
-        }
+        checkPostUser(user, post);
+        checkPostBoard(boardId, post);
 
         postRepository.delete(post);
     }
 
-    //::::::::::::::::::::::::// Content //:::::::::::::::::::::::://
-
-    public ContentResponseDto createContent(ContentRequestDto req) {
-
-        Content content = Content.builder()
-                .title(req.getTitle())
-                .imgUrl(req.getImgUrl())
-                .description(req.getDescription())
-                .author(req.getAuthor())
-                .platform(req.getPlatform())
-                .view(req.getView())
-                .rating(req.getRating())
-                .type(req.getType())
-                .isEnd(req.getIsEnd())
-                .build();
-
-        contentRepository.save(content);
-
-        return new ContentResponseDto(content);
-    }
-
-
-    //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
+    //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
 
     private Post getPost(Long postId) {
 
@@ -264,7 +163,6 @@ public class BoardService {
         );
     }
 
-
     private User getUser(Long userId) {
 
         return userRepository.findById(userId).orElseThrow(
@@ -272,16 +170,21 @@ public class BoardService {
         );
     }
 
-
-    private boolean isUserAdmin(User user) {
-        return user.getRole().toString().equals("ADMIN");
+    private void checkUserRole(User user) {
+        if(!user.getRole().equals(User.Role.ADMIN)) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
     }
 
-    private boolean isPostUserEqual(User user, Post post) {
-        return post.getUser().getId().equals(user.getId());
+    private void checkPostUser(User user, Post post) {
+        if (!post.getUser().equals(user)) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
     }
 
-    private boolean isPostBoardEqual(Long boardId, Post post) {
-        return post.getBoard().equals(getBoard(boardId));
+    private void checkPostBoard(Long boardId, Post post) {
+        if (!post.getBoard().equals(getBoard(boardId))) {
+            throw new BusinessException(ErrorCode.POST_NOT_FOUND);
+        }
     }
 }
