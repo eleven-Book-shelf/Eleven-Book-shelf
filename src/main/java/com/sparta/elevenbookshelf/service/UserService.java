@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+//    private final PasswordEncoder passwordEncoder;
 
     public UserResponseDto signup(UserRequestDto req) {
 
@@ -29,7 +29,7 @@ public class UserService {
 
         User user = User.builder()
                 .username(req.getUsername())
-                .password(passwordEncoder.encode(req.getPassword()))
+//                .password(passwordEncoder.encode(req.getPassword()))
                 .email(req.getEmail())
                 .status(User.Status.NORMAL)
                 .role(User.Role.USER)
@@ -41,8 +41,7 @@ public class UserService {
     }
 
     @Transactional
-    public void OAuth2login(HttpServletResponse response, Long userId,String accessToken ,String refreshJwt) {
-        response.addHeader(HttpHeaders.AUTHORIZATION, accessToken);
+    public void OAuth2login(Long userId,String accessToken ,String refreshJwt) {
         User user = getUser(userId);
         user.addRefreshToken(refreshJwt);
     }

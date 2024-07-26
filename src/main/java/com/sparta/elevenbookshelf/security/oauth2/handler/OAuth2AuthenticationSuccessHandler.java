@@ -31,8 +31,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         User user = ((UserPrincipal) authentication.getPrincipal()).getUser();
         String accessToken = jwtService.generateAccessToken(user.getUsername());
         String refreshToken = jwtService.generateRefreshToken(user.getUsername());
-        userService.OAuth2login(response, user.getId(), accessToken ,refreshToken);
-        response.sendRedirect("/success.html");
+        userService.OAuth2login(user.getId(), accessToken ,refreshToken);
+        response.addHeader(HttpHeaders.AUTHORIZATION, accessToken);
+        String redirectUrl = "http://localhost:3000/auth/callback?Authorization=" + accessToken;
+        response.sendRedirect(redirectUrl);
     }
 
 }

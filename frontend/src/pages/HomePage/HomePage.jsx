@@ -2,7 +2,7 @@ import React from 'react';
 import Card from './Card/Card';
 import './HomePage.css';
 
-const HomePage = () => {
+const HomePage = ({ onLogin }) => {
     const webtoons = [
         {title: '전지적 독자 시점', description: '세계관 최강자를 향한 서사시', genre: '판타지, 액션', rating: '★★★★☆ 4.5/5'},
         {title: '나 혼자만 레벨업', description: '현대 판타지의 정점', genre: '판타지, 액션', rating: '★★★★★ 4.8/5'},

@@ -56,6 +56,7 @@ public class JwtService {
         String token = Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(now)
+                .claim("토큰_생성_태스트", "태스트")
                 .setExpiration(new Date(now.getTime() + expirationTime))
                 .signWith(key, signatureAlgorithm)
                 .compact();
