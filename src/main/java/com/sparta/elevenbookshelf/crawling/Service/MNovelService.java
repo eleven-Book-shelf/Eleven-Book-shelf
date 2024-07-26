@@ -33,16 +33,16 @@ public class MNovelService {
     private String mArtLink;
 
     @Value("${HEADER_ART_TITLE}")
-    private String mAtTitle;
+    private String mArtTitle;
 
     @Value("${M_AUTHOR}")
     private String mAuthor;
 
-    @Value("${M_SITE}")
+    @Value("${HEADER_SITE_NAME}")
     private String mSite;
 
     @Value("${M_CONTENT_TYPE}")
-    private String MContentType;
+    private String mContentType;
 
     @Value("${M_LIKE_COUNT}")
     private String mLikeCount;
@@ -70,7 +70,7 @@ public class MNovelService {
 
             int page = 1;
             while (true) {
-                WebElement linkBox = webDriver.findElement(By.id("sidenovel"));
+                WebElement linkBox = webDriver.findElement(By.id("SECTION-LIST"));
                 Set<String> uniqueLinks = new HashSet<>();
                 List<WebElement> linkElements = linkBox.findElements(By.cssSelector(mArtLink));
 
@@ -107,12 +107,12 @@ public class MNovelService {
                         log.info("찾은 링크로 이동 {}: ", artUrl);
 
                         crawlingUtil.waitForPage();
-                        String title = crawlingUtil.metaData(mAtTitle, "content");
+                        String title = crawlingUtil.metaData(mArtTitle, "content");
                         crawlingTest.setTitle(title);
                         log.info("작품 제목 : {}", title);
 
                         crawlingUtil.waitForPage();
-                        String author = crawlingUtil.metaData(mAuthor, "content");
+                        String author = crawlingUtil.bodyData(mAuthor);
                         crawlingTest.setAuthor(author);
                         log.info("작가 : {}", author);
 
@@ -126,7 +126,7 @@ public class MNovelService {
                         log.info("완결 여부 : 연재중");
 
                         crawlingUtil.waitForPage();
-                        String contentType = crawlingUtil.bodyData(MContentType);
+                        String contentType = crawlingUtil.bodyData(mContentType);
                         crawlingTest.setContentType(contentType);
                         log.info("장르 : {}", contentType);
 

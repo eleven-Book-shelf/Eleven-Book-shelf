@@ -25,10 +25,13 @@ public class RNovelService {
     private final CrawlingTestRepository crawlingTestRepository;
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
-    private final DataUpdateService dataUpdateService;
+//    private final DataUpdateService dataUpdateService;
 
     @Value("${R_PAGE}")
     private String rPage;
+
+    @Value("${R_ART_CLASS}")
+    private String rArtClass;
 
     @Value("${R_ART_LINK}")
     private String rArtLink;
@@ -36,10 +39,10 @@ public class RNovelService {
     @Value("${R_AUTHOR}")
     private String rAuthor;
 
-    @Value("${R_CONTENTTYPE}")
+    @Value("${R_CONTENT_TYPE}")
     private String rContentType;
 
-    @Value("${R_LIKECOUNT}")
+    @Value("${R_LIKE_COUNT}")
     private String rLikeCount;
 
     @Value("${R_RATING}")
@@ -48,7 +51,7 @@ public class RNovelService {
     @Value("${HEADER_ART_TITLE}")
     private String rArtTitle;
 
-    @Value("${HEADER_SITE_NAME}")
+    @Value("${R_SITE_NAME}")
     private String rSiteName;
 
     @Value("${R_COMPLETE}")
@@ -57,13 +60,13 @@ public class RNovelService {
     @Value("${R_NEXT_BUTTON}")
     private String rNextButton;
 
-    @PostConstruct
-    public void init() {
-        doNotEnterThisLink();
+//    @PostConstruct
+//    public void init() {
+//        doNotEnterThisLink();
 //        rNovelStart();
-//        crawlingUtil.exportToCsv();
-        dataUpdateService.updateDatabase();
-    }
+////        crawlingUtil.exportToCsv();
+////        dataUpdateService.updateDatabase();
+//    }
 
     public void rNovelStart() {
         log.info("R NOVEL 시작");
@@ -79,10 +82,10 @@ public class RNovelService {
 
                 // 중복을 제거하기 위해 Set 사용
                 Set<String> uniqueLinks = new HashSet<>();
-                List<WebElement> linkElements;
 
                 // 페이지 내의 모든 링크를 반복해서 찾고 중복 제거
-                linkElements = crawlingUtil.waitForElements(By.cssSelector(rArtLink), 10);
+                WebElement linkBox = webDriver.findElement(By.cssSelector(rArtClass));
+                List<WebElement> linkElements = linkBox.findElements(By.cssSelector(rArtLink));
                 for (WebElement element : linkElements) {
                     String uniqueLink = element.getAttribute("href");
                     uniqueLinks.add(uniqueLink);

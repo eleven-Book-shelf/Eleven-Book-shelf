@@ -28,14 +28,14 @@ public class KNovelService {
     private final Set<String> disAllowedLink = new HashSet<>();
     private final CrawlingUtil crawlingUtil;
 
+    @Value("${K_ROBOTS1}")
+    private String kRobots1;
+
+    @Value("${K_ROBOTS2}")
+    private String kRobots2;
+
     @Value("${K_NOVEL_PAGE}")
     private String kCrawlingPage;
-
-    @Value("${K_ROBOTS_TXT1}")
-    private String robotsTxtNo1;
-
-    @Value("${K_ROBOTS_TXT2}")
-    private String robotsTxtNo2;
 
     @Value("${K_ART_LINK}")
     private String pageArtLink;
@@ -234,8 +234,8 @@ public class KNovelService {
     // robots.txt 파일에 규정된 접근 금지 목록.
     // TODO : 사이트별 robots.txt 규약을 적응형으로 적용하게끔 수정 필요.
     public void doNotEnterThisLink() {
-        disAllowedLink.add(robotsTxtNo1);
-        disAllowedLink.add(robotsTxtNo2);
+        disAllowedLink.add(kRobots1);
+        disAllowedLink.add(kRobots2);
 
         for (String disAllowed : disAllowedLink) {
             log.info("접근 금지 링크 : {}", disAllowed);

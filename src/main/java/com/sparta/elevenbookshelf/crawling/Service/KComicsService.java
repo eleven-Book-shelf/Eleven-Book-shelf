@@ -29,12 +29,12 @@ public class KComicsService {
     private final CrawlingUtil crawlingUtil;
 
     @Value("${K_COMICS_PAGE}")
-    private String kCrawlingPage;
+    private String kComicsPage;
 
-    @Value("${K_ROBOTS_TXT1}")
+    @Value("${K_ROBOTS1}")
     private String robotsTxtNo1;
 
-    @Value("${K_ROBOTS_TXT2}")
+    @Value("${K_ROBOTS2}")
     private String robotsTxtNo2;
 
     @Value("${K_ART_LINK}")
@@ -77,7 +77,7 @@ public class KComicsService {
     public void kComicsPageStart() {
 
         log.info("K COMICS 시작.");
-        webDriver.get(kCrawlingPage);
+        webDriver.get(kComicsPage);
         log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());
 
         try {
