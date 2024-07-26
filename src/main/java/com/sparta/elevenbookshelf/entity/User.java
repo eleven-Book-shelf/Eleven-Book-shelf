@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.entity;
 
+import com.sparta.elevenbookshelf.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,7 @@ public class User extends Timestamp {
     private String email;
 
     private String refreshToken;
+
 
     private String socialId;
 

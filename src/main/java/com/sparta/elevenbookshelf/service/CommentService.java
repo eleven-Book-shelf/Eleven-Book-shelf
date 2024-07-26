@@ -2,33 +2,34 @@ package com.sparta.elevenbookshelf.service;
 
 import com.sparta.elevenbookshelf.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.dto.CommentResponseDto;
-import com.sparta.elevenbookshelf.entity.Board;
 import com.sparta.elevenbookshelf.entity.Comment;
+import com.sparta.elevenbookshelf.entity.post.Post;
 import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
-import com.sparta.elevenbookshelf.repository.BoardRepository;
-import com.sparta.elevenbookshelf.repository.CommentRepository;
+import com.sparta.elevenbookshelf.repository.commentRepository.CommentRepository;
+import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final BoardRepository boardRepository;
+    private final PostRepository postRepository;
 
     //:::::::::::::::::// comment //::::::::::::::::://
 
-    public CommentResponseDto createComment(Long boardId, UserPrincipal userPrincipal, CommentRequestDto commentRequestDto){
+    public CommentResponseDto createComment(Long postId, UserPrincipal userPrincipal, CommentRequestDto commentRequestDto){
 
-        Board board = boardRepository.findById(boardId).orElseThrow(
-                () -> new BusinessException(ErrorCode.BOARD_NOT_FOUND)
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
         );
 
         User user = userPrincipal.getUser();
@@ -42,7 +43,7 @@ public class CommentService {
 
         Comment comment = Comment.builder()
                 .user(user)
-                .board(board)
+                .post(post)
                 .contents(commentRequestDto.getContents())
                 .parent(parentComment)
                 .build();
@@ -52,24 +53,19 @@ public class CommentService {
         return new CommentResponseDto(savedComment);
     }
 
-    public List<CommentResponseDto> readComments(Long boardId){
+    public List<CommentResponseDto> readComments(Long postId, int offset, int pageSize) {
+        List<Comment> comments = commentRepository.findAllByPostIdAndParentIsNull(postId, offset, pageSize)
+                .orElse(new ArrayList<>());
 
-        List<Comment> comments = commentRepository.findAllByBoardIdAndParentIsNull(boardId).orElse(new ArrayList<>());
-        List<CommentResponseDto> commentResponseDto = new ArrayList<>();
-
-        for (Comment comment : comments){
-
-                commentResponseDto.add(convertToResponseDto(comment));
-
-        }
-
-        return commentResponseDto;
+        return comments.stream()
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
     }
 
 
-    public CommentResponseDto updateComment(Long boardId, Long commentId, User user, CommentRequestDto commentRequestDto) {
+    public CommentResponseDto updateComment(Long postId, Long commentId, User user, CommentRequestDto commentRequestDto) {
 
-        Comment comment = getComment(boardId, commentId, user);
+        Comment comment = getComment(postId, commentId, user);
 
         comment.updateContent(commentRequestDto.getContents());
 
@@ -78,9 +74,9 @@ public class CommentService {
         return new CommentResponseDto(comment);
     }
 
-    public void deleteComment(Long boardId, Long commentId, User user) {
+    public void deleteComment(Long postId, Long commentId, User user) {
 
-        Comment comment = getComment(boardId, commentId, user);
+        Comment comment = getComment(postId, commentId, user);
 
         commentRepository.delete(comment);
     }
@@ -88,14 +84,14 @@ public class CommentService {
 
     //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
 
-    private Comment getComment(Long boardId, Long commentId, User user) {
+    private Comment getComment(Long postId, Long commentId, User user) {
 
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 ()-> new BusinessException(ErrorCode.COMMENT_NOT_FOUND)
         );
 
-        if(!comment.getBoard().getId().equals(boardId)){
-            throw new BusinessException(ErrorCode.BOARD_NOT_FOUND);
+        if(!comment.getPost().getId().equals(postId)){
+            throw new BusinessException(ErrorCode.POST_NOT_FOUND);
         }
 
         if(!comment.getUser().getId().equals(user.getId())){
@@ -105,15 +101,12 @@ public class CommentService {
         return comment;
     }
 
-    private CommentResponseDto convertToResponseDto(Comment comment){
+    private CommentResponseDto convertToResponseDto(Comment comment) {
+        List<CommentResponseDto> childrenDto = comment.getChildren().stream()
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
 
-        CommentResponseDto responseDto = new CommentResponseDto(comment);
-
-        for (Comment child : comment.getChildren()){
-            responseDto.getChildren().add(convertToResponseDto(child));
-        }
-
-        return responseDto;
+        return new CommentResponseDto(comment.getUser().getId(), comment.getPost().getId(), comment.getContents(), childrenDto);
     }
 
 }

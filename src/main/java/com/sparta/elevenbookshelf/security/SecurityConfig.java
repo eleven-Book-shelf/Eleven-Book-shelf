@@ -81,11 +81,7 @@ public class SecurityConfig {
                                                    .requestMatchers(HttpMethod.GET,  "/comments/**").permitAll()
                                                    .requestMatchers("/login.html").permitAll()
                                                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                   .anyRequest().authenticated()
-        );
-
-        http.sessionManagement(sessionManagement -> sessionManagement
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                                                   .anyRequest().permitAll()
         );
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

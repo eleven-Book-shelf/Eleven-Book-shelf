@@ -1,9 +1,6 @@
 package com.sparta.elevenbookshelf.controller;
 
-import com.sparta.elevenbookshelf.dto.BoardRequestDto;
-import com.sparta.elevenbookshelf.dto.BoardResponseDto;
-import com.sparta.elevenbookshelf.dto.PostRequestDto;
-import com.sparta.elevenbookshelf.dto.PostResponseDto;
+import com.sparta.elevenbookshelf.dto.*;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.BoardService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/boards")
 public class BoardController {
+
     private final BoardService boardService;
 
     //:::::::::::::::::// board //::::::::::::::::://
@@ -44,8 +42,8 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ResponseEntity<List<PostResponseDto>> readBoard(
             @PathVariable Long boardId,
-            @RequestParam int offset,
-            @RequestParam int pagesize) {
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "20") int pagesize) {
 
         List<PostResponseDto> res = boardService.readBoard(boardId, offset, pagesize);
 
@@ -119,5 +117,20 @@ public class BoardController {
 
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
+
+    //:::::::::::::::::// post //::::::::::::::::://
+
+    @PostMapping("/content")
+    public ResponseEntity<ContentResponseDto> createContent(@RequestBody ContentRequestDto req){
+
+        ContentResponseDto res = boardService.createContent(req);
+
+        PostRequestDto postReq = new PostRequestDto(res);
+
+        boardService.createPost(null, null, postReq);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    }
+
 
 }

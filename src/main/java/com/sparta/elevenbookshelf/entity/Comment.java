@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.entity;
 
+import com.sparta.elevenbookshelf.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,8 +27,9 @@ public class Comment {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "board_id", nullable = false)
-    private Board board;
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Comment parent;
@@ -36,10 +38,10 @@ public class Comment {
     private List<Comment> children = new ArrayList<>();
 
     @Builder
-    public Comment(String contents, User user, Board board, Comment parent){
+    public Comment(String contents, User user, Post post, Comment parent){
         this.contents = contents;
         this.user = user;
-        this.board = board;
+        this.post = post;
         this.parent = parent;
         this.children = new ArrayList<>();
     }
@@ -52,8 +54,9 @@ public class Comment {
         this.parent = parent;
     }
 
-    public void updateBoard(Board board) {
-        this.board = board;
+    public void updatePost(Post post) {
+        this.post = post;
     }
+
 
 }

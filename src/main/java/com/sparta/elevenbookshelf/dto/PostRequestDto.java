@@ -1,13 +1,20 @@
 package com.sparta.elevenbookshelf.dto;
 
-import com.sparta.elevenbookshelf.entity.Post;
 import lombok.Data;
 
 @Data
 public class PostRequestDto {
 
-    private Post.PostType postType;
+    private String postType;
     private Long boardId;
     private String title;
-    private String content;
+    private String body;
+    private Long contentId;
+    private Double rating;
+
+    public PostRequestDto(ContentResponseDto res) {
+        this.postType = "CONTENT";
+        this.boardId = 1L;
+        this.contentId = res.getId();
+    }
 }

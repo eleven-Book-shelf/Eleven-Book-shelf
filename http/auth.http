@@ -13,7 +13,7 @@ POST localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "username": "username",
+  "username": "username2",
   "password": "password@1234"
 }
 
