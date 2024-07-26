@@ -1,14 +1,34 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import './Header.css';
+import axiosInstance from "../api/axiosInstance";
 
 const HeaderOn = ({ onLogout }) => {
     const navigate = useNavigate();
 
-    const handleLogoutClick = () => {
-        onLogout();
-        navigate('/login'); // 로그아웃 후 로그인 페이지로 리디렉션
+    const handleLogoutClick = async () => {
+        try {
+            await axiosInstance.patch('/logout', null, {
+                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+            });
+            onLogout();
+            navigate('/login');
+        } catch (error) {
+            console.error('로그아웃 실패:', error);
+        }
     };
+
+    axiosInstance.interceptors.response.use(
+        response => response,
+        error => {
+            if (error.response && error.response.status === 401) {
+                // JWT가 만료된 경우
+                onLogout();
+                navigate('/login');
+            }
+            return Promise.reject(error);
+        }
+    );
 
     return (
         <header className="header">
