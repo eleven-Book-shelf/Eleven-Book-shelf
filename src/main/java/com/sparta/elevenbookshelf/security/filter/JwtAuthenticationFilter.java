@@ -2,7 +2,6 @@ package com.sparta.elevenbookshelf.security.filter;
 
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
 import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
-import com.sparta.elevenbookshelf.service.AuthService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -46,9 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (!jwtUtil.isTokenValidate(accessToken)) {
             filterChain.doFilter(request, response);
+            return;
         }
 
         validateToken(accessToken);
+        filterChain.doFilter(request, response); // 추가된 부분
     }
 
     private void validateToken(String token) {
