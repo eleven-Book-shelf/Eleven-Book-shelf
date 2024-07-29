@@ -3,8 +3,8 @@ package com.sparta.elevenbookshelf.service;
 import com.sparta.elevenbookshelf.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.dto.CommentResponseDto;
 import com.sparta.elevenbookshelf.entity.Comment;
-import com.sparta.elevenbookshelf.entity.post.Post;
 import com.sparta.elevenbookshelf.entity.User;
+import com.sparta.elevenbookshelf.entity.post.Post;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.commentRepository.CommentRepository;
@@ -26,7 +26,7 @@ public class CommentService {
 
     //:::::::::::::::::// comment //::::::::::::::::://
 
-    public CommentResponseDto createComment(Long postId, UserPrincipal userPrincipal, CommentRequestDto commentRequestDto){
+    public CommentResponseDto createComment(Long postId, UserPrincipal userPrincipal, CommentRequestDto commentRequestDto) {
 
         Post post = postRepository.findById(postId).orElseThrow(
                 () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
@@ -35,9 +35,9 @@ public class CommentService {
         User user = userPrincipal.getUser();
         Comment parentComment = null;
 
-        if(commentRequestDto.getParentId() != null){
+        if (commentRequestDto.getParentId() != null) {
             parentComment = commentRepository.findById(commentRequestDto.getParentId()).orElseThrow(
-                    ()-> new BusinessException(ErrorCode.COMMENT_NOT_FOUND)
+                    () -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND)
             );
         }
 
@@ -87,14 +87,14 @@ public class CommentService {
     private Comment getComment(Long postId, Long commentId, User user) {
 
         Comment comment = commentRepository.findById(commentId).orElseThrow(
-                ()-> new BusinessException(ErrorCode.COMMENT_NOT_FOUND)
+                () -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND)
         );
 
-        if(!comment.getPost().getId().equals(postId)){
+        if (!comment.getPost().getId().equals(postId)) {
             throw new BusinessException(ErrorCode.POST_NOT_FOUND);
         }
 
-        if(!comment.getUser().getId().equals(user.getId())){
+        if (!comment.getUser().getId().equals(user.getId())) {
             throw new BusinessException(ErrorCode.USER_NOT_FOUND);
 
         }
@@ -106,7 +106,13 @@ public class CommentService {
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
 
-        return new CommentResponseDto(comment.getUser().getId(), comment.getPost().getId(), comment.getContents(), childrenDto);
+        return new CommentResponseDto(comment.getId(),
+                                      comment.getUser().getId(),
+                                      comment.getPost().getId(),
+                                      comment.getUser().getNickname(),
+                                      comment.getContents(), childrenDto,
+                                      comment.getCreatedAt()
+        );
     }
 
 }

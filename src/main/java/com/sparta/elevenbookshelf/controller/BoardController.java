@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,15 +44,27 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
+    @GetMapping("/{boardId}/title")
+    public ResponseEntity<String> readBoardTitle(
+            @PathVariable Long boardId) {
+        return ResponseEntity.status(HttpStatus.OK).body(boardService.readBoardTitle(boardId));
+    }
+
     @GetMapping("/{boardId}")
-    public ResponseEntity<List<PostResponseDto>> readBoard(
+    public ResponseEntity<Map<String, Object>> readBoard(
             @PathVariable Long boardId,
             @RequestParam(defaultValue = "0") int offset,
             @RequestParam(defaultValue = "20") int pagesize) {
 
-        List<PostResponseDto> res = boardService.readBoard(boardId, offset, pagesize);
+        List<PostResponseDto> posts = boardService.readBoard(boardId, offset, pagesize);
+        long totalPosts = boardService.getTotalPostsByBoard(boardId);
+        int totalPages = (int) Math.ceil((double) totalPosts / pagesize);
 
-        return ResponseEntity.status(HttpStatus.OK).body(res);
+        Map<String, Object> response = new HashMap<>();
+        response.put("posts", posts);
+        response.put("totalPages", totalPages);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{boardId}")
@@ -82,9 +96,6 @@ public class BoardController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long boardId,
             @RequestBody PostRequestDto req) {
-
-        logger.info("Received request to create post for boardId: {}", boardId);
-        logger.info("Request body: {}", req);
 
         PostResponseDto res = boardService.createPost(userPrincipal.getUser(), boardId, req);
 

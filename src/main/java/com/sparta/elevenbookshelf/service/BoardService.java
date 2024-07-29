@@ -13,6 +13,7 @@ import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.BoardRepository;
 import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
+import com.sparta.elevenbookshelf.repository.postRepository.PostRepositoryCustom;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -97,7 +98,15 @@ public class BoardService {
 
     }
 
+    public String readBoardTitle(Long boardId) {
+        return getBoard(boardId).getTitle();
+    }
+
     //:::::::::::::::::// post //::::::::::::::::://
+
+    public long getTotalPostsByBoard(Long boardId) {
+        return postRepository.getTotalPostsByBoard(boardId);
+    }
 
     @Transactional
     public PostResponseDto createPost(User user, Long boardId, PostRequestDto req) {
@@ -170,9 +179,7 @@ public class BoardService {
         return new PostResponseDto(post);
     }
 
-
-
-
+    @Transactional
     public PostResponseDto readPost(Long boardId, Long postId) {
 
         Post post = getPost(postId);
@@ -180,6 +187,8 @@ public class BoardService {
         if(!isPostBoardEqual(boardId, post)) {
             throw new BusinessException(ErrorCode.POST_NOT_FOUND);
         }
+
+        post.incrementViewCount();
 
         return new PostResponseDto(post);
     }
@@ -289,4 +298,5 @@ public class BoardService {
     private boolean isPostBoardEqual(Long boardId, Post post) {
         return post.getBoard().equals(getBoard(boardId));
     }
+
 }

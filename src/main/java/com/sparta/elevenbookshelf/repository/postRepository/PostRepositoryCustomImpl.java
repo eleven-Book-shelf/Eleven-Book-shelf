@@ -6,6 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.elevenbookshelf.entity.post.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,6 +29,13 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .limit(pagesize)
                 .orderBy(orderSpecifier)
                 .fetch();
+    }
+
+    @Transactional(readOnly = true)
+    public Long getTotalPostsByBoard(Long boardId) {
+        return jpaQueryFactory.selectFrom(post)
+                .where(post.board.id.eq(boardId))
+                .fetchCount();
     }
 
     @Override

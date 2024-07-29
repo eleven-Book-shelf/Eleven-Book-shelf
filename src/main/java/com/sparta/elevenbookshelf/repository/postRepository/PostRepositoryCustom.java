@@ -9,4 +9,8 @@ public interface PostRepositoryCustom {
     List<Post> getPostsByBoard(Long boardId, long offset, int pagesize);
 
     List<Post> getPostsByContent(Long contentId, long offset, int pagesize);
+
+    Long getTotalPostsByBoard(Long boardId);
 }
+
+

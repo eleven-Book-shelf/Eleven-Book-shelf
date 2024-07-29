@@ -53,12 +53,16 @@ public abstract class Post {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
+    @Column(nullable = false)
+    private int viewCount;
+
     public Post (String title, String body, User user, Board board, Content content) {
         this.title = title;
         this.body = body;
         this.user = user;
         this.board = board;
         this.content = content;
+        this.viewCount = 0; // 초기 조회수는 0으로 설정
     }
 
     public void updateTitle(String title) {
@@ -75,5 +79,9 @@ public abstract class Post {
 
     public void updateBoard(Board board) {
         this.board = board;
+    }
+
+    public void incrementViewCount() {
+        this.viewCount++;
     }
 }

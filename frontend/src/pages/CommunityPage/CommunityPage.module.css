@@ -1,8 +1,11 @@
+/* CommunityPage.module.css */
+
 .container {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 1rem;
 }
+
 .button {
     display: inline-block;
     padding: 0.5rem 1rem;
@@ -15,66 +18,109 @@
     border: none;
     cursor: pointer;
 }
+
 .button:hover {
     background-color: #3b78e7;
 }
+
 .button + .button {
     margin-left: 1rem;
 }
-.community-header {
+
+.communityHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
 }
-.board-list {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+.boardList {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
-.board-item {
+
+.boardItem {
+    background-color: #fff;
     padding: 1rem;
-    border-bottom: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.boardTitle {
+    font-size: 2rem;
+    font-weight: bolder;
+    color: #007bff;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.boardTitle:hover {
+    background-color: #dbdce0;
+}
+
+.boardPosts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.boardPost {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
 }
-.board-item *{
-    display: inline-block;
-}
-.board-item:hover{
-    background-color: #f0f0f0;
-}
-.board-item:last-child {
+
+.boardPost:last-child {
     border-bottom: none;
 }
-.board-title {
+
+.boardPost:hover {
+    background-color: #e5e3e3;
+}
+
+.postTitle {
+    margin-left: 20px;
     font-size: 1.1rem;
-    font-weight: 500;
-    color: #333;
+    color: #343434;
     text-decoration: none;
 }
-.board-title:hover {
-    color: #4285f4;
+
+.postTitle:hover {
+    text-decoration: underline;
 }
-.board-meta {
-    font-size: 0.9rem;
-    color: #888;
+
+.postMeta {
+    font-size: 0.7rem;
+    color: #666;
 }
+
+.postMeta span {
+    margin-right: 1rem;
+}
+
 .pagination {
     display: flex;
     justify-content: center;
     margin-top: 2rem;
 }
-.page-link {
+
+.pageLink {
     padding: 0.5rem 1rem;
     margin: 0 0.25rem;
     border: 1px solid #ddd;
     border-radius: 4px;
     color: #333;
     text-decoration: none;
+    cursor: pointer;
 }
-.page-link:hover, .page-link.active {
+
+.pageLink:hover, .pageLink.active {
     background-color: #4285f4;
     color: #fff;
     border-color: #4285f4;

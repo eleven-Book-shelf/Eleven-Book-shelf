@@ -65,7 +65,7 @@ const App = () => {
 
                     <Route path="/community" element={<CommunityPage />} />
                     <Route path="/community/board/:boardId/" element={<BoardPage />} />
-                    <Route path="/community/board/:boardId/post/:postid" element={<PostDetailPage />} />
+                    <Route path="/community/board/:boardId/post/:postId" element={<PostDetailPage />} />
                     <Route path="/community/board/:boardId/post/new" element={<NewPostPage />} />
                 </Routes>
             </div>

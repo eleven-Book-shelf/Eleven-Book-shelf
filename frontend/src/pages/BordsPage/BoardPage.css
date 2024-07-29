@@ -43,7 +43,7 @@
     display: inline-block;
 }
 .board-item:hover{
-    background-color: #f0f0f0;
+    background-color: #dedede;
 }
 .board-item:last-child {
     border-bottom: none;
