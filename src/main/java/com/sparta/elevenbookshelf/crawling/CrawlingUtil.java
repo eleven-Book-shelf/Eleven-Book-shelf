@@ -1,5 +1,8 @@
 package com.sparta.elevenbookshelf.crawling;
 
+import com.sparta.elevenbookshelf.dto.ContentRequestDto;
+import com.sparta.elevenbookshelf.entity.Content;
+import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -30,7 +33,7 @@ import java.util.Set;
 public class CrawlingUtil {
 
     private final WebDriver webDriver;
-    private final CrawlingTestRepository crawlingTestRepository;
+    private final ContentRepository contentRepository;
 
     @Value("${CSV_FILE}")
     private String csvOutputDirectory;
@@ -154,7 +157,7 @@ public class CrawlingUtil {
     // csv 파일로 변환하여 저장.
     public void exportToCsv() {
         log.info("파일 저장 메서드 실행");
-        List<CrawlingTest> allData = crawlingTestRepository.findAll();
+        List<Content> allData = contentRepository.findAll();
 
         String fileName = "crawling_data.csv";
         Path filePath = Paths.get(csvOutputDirectory, fileName);
@@ -165,37 +168,39 @@ public class CrawlingUtil {
                      // setHeader 는 저장될 데이터의 필드 네임을 작성.
                      .setHeader(
                              "Id",
-                             "Platform",
-                             "ComicsOrBook",
-                             "ContentType",
                              "Title",
+                             "Description",
                              "Author",
-                             "CompleteOrNot",
-                             "LikeCount",
+                             "Platform",
+                             "Url",
+                             "Genre",
+                             "View",
                              "Rating",
                              "BookMark",
-                             "TotalView",
-                             "Thumbnail",
-                             "Url"
+                             "LikeCount",
+                             "Type",
+                             "IsEnd",
+                             "ImgUrl"
                              )
                      .build())) {
 
-            for (CrawlingTest data : allData) {
+            for (Content data : allData) {
                 // 실제 데이터가 들어가는 부분. 데이터의 위치를 변경한다면 헤더의 위치도 변경해주어야 함.
                 printer.printRecord(
                         data.getId(),
-                        data.getPlatform(),
-                        data.getComicsOrBook(),
-                        data.getContentType(),
                         data.getTitle(),
+                        data.getDescription(),
                         data.getAuthor(),
-                        data.getCompleteOrNot(),
-                        data.getLikeCount(),
+                        data.getPlatform(),
+                        data.getUrl(),
+                        data.getGenre(),
+                        data.getView(),
                         data.getRating(),
                         data.getBookMark(),
-                        data.getTotalView(),
-                        data.getThumbnail(),
-                        data.getUrl()
+                        data.getLikeCount(),
+                        data.getType(),
+                        data.getIsEnd(),
+                        data.getImgUrl()
                 );
             }
 
@@ -218,15 +223,16 @@ public class CrawlingUtil {
             for (CSVRecord csvRecord : csvParser) {
                 String artUrl = csvRecord.get("Url");
 
-                Optional<CrawlingTest> mainData = crawlingTestRepository.findByUrl(artUrl);
+                Optional<Content> mainData = contentRepository.findByUrl(artUrl);
 
                 if (mainData.isPresent()) {
-                    updateData(mainData.get(), csvRecord);
-                    crawlingTestRepository.save(mainData.get());
+                    ContentRequestDto requestDto = createRequestDto(csvRecord);
+                    updateData(mainData.get(), requestDto);
+                    contentRepository.save(mainData.get());
 
                 } else {
-                    CrawlingTest newData = createNewData(csvRecord);
-                    crawlingTestRepository.save(newData);
+                    Content newData = createNewData(csvRecord);
+                    contentRepository.save(newData);
                 }
             }
 
@@ -240,30 +246,45 @@ public class CrawlingUtil {
 
     }
 
-    private void updateData(CrawlingTest existingData, CSVRecord csvRecord) {
-        setCommonData(existingData, csvRecord);
+    private void updateData(Content existingData, ContentRequestDto requestDto) {
+        existingData.updateContent(requestDto);
     }
 
-    private CrawlingTest createNewData(CSVRecord csvRecord) {
-        CrawlingTest newData = new CrawlingTest();
-        newData.setId(Long.parseLong(csvRecord.get("Id")));
-        setCommonData(newData, csvRecord);
-        return newData;
+    private Content createNewData(CSVRecord csvRecord) {
+        return Content.builder()
+                .title(csvRecord.get("Title"))
+                .description(csvRecord.get("Description"))
+                .author(csvRecord.get("Author"))
+                .platform(csvRecord.get("Platform"))
+                .url(csvRecord.get("Url"))
+                .genre(csvRecord.get("Genre"))
+                .view(parseDoubleOrDefault(csvRecord.get("View")))
+                .rating(parseDoubleOrDefault(csvRecord.get("Rating")))
+                .bookMark(parseLongOrDefault(csvRecord.get("Bookmark")))
+                .likeCount(parseLongOrDefault(csvRecord.get("LikeCount")))
+                .type(Content.ContentType.valueOf(csvRecord.get("ContentType").toUpperCase()))
+                .isEnd(Content.ContentEnd.valueOf(csvRecord.get("IsEnd").toUpperCase()))
+                .imgUrl(csvRecord.get("ImgUrl"))
+                .build();
+
     }
 
-    private void setCommonData(CrawlingTest data, CSVRecord csvRecord) {
-        data.setPlatform(csvRecord.get("Platform"));
-        data.setComicsOrBook(csvRecord.get("ComicsOrBook"));
-        data.setContentType(csvRecord.get("ContentType"));
-        data.setTitle(csvRecord.get("Title"));
-        data.setAuthor(csvRecord.get("Author"));
-        data.setCompleteOrNot(csvRecord.get("CompleteOrNot"));
-        data.setRating(parseDoubleOrDefault(csvRecord.get("Rating")));
-        data.setLikeCount(parseLongOrDefault(csvRecord.get("LikeCount")));
-        data.setBookMark(parseLongOrDefault(csvRecord.get("BookMark")));
-        data.setTotalView(parseDoubleOrDefault(csvRecord.get("TotalView")));
-        data.setThumbnail(csvRecord.get("Thumbnail"));
-        data.setUrl(csvRecord.get("Url"));
+    private ContentRequestDto createRequestDto(CSVRecord csvRecord) {
+        ContentRequestDto requestDto = new ContentRequestDto();
+        requestDto.setTitle(csvRecord.get("Title"));
+        requestDto.setImgUrl(csvRecord.get("ImgUrl"));
+        requestDto.setDescription(csvRecord.get("Description"));
+        requestDto.setAuthor(csvRecord.get("Author"));
+        requestDto.setPlatform(csvRecord.get("Platform"));
+        requestDto.setUrl(csvRecord.get("Url"));
+        requestDto.setGenre(csvRecord.get("Genre"));
+        requestDto.setView(parseDoubleOrDefault(csvRecord.get("View")));
+        requestDto.setRating(parseDoubleOrDefault(csvRecord.get("Rating")));
+        requestDto.setBookMark(parseLongOrDefault(csvRecord.get("Bookmark")));
+        requestDto.setLikeCount(parseLongOrDefault(csvRecord.get("LikeCount")));
+        requestDto.setType(Content.ContentType.valueOf(csvRecord.get("ContentType").toUpperCase()));
+        requestDto.setIsEnd(Content.ContentEnd.valueOf(csvRecord.get("IsEnd").toUpperCase()));
+        return requestDto;
     }
 
     // Long 타입으로 파싱
