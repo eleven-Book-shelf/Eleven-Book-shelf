@@ -1,12 +1,11 @@
 import React from 'react';
-import './MyCard.css';
+import styles from './MyCard.module.css';
 
-const MyCard = ({ title, description, author }) => {
+const MyCard = ({ title, author }) => {
     return (
-        <div className="card">
-            <h2 className="card-title">{title}</h2>
-            <p className="card-description">{description}</p>
-            <p className="card-author">작가: {author}</p>
+        <div className={styles.card}>
+            <h2 className={styles.title}>{title}</h2>
+            <p className={styles.author}>작가: {author}</p>
         </div>
     );
 }

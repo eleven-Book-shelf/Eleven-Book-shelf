@@ -25,19 +25,21 @@ const MyPage = () => {
             const webtoonsData = [
                 { title: '전지적 독자 시점', author: '싱숑' },
                 { title: '나 혼자만 레벨업', author: '추공 / 장성락' },
+                { title: '여신강림', author: '야옹이' },
                 { title: '여신강림', author: '야옹이' }
             ];
 
             const webnovelsData = [
                 { title: '전생했더니 슬라임이었던 건에 대하여', author: '후세 츠라' },
                 { title: '재벌집 막내아들', author: '산경' },
+                { title: '달빛조각사', author: '남희성' },
                 { title: '달빛조각사', author: '남희성' }
             ];
 
             const postsData = [
-                { id: 12345, title: '전지적 독자 시점 85화 리뷰 - 놀라운 반전!' },
-                { id: 12346, title: '웹소설 추천 부탁드립니다' },
-                { id: 12347, title: '나 혼자만 레벨업 vs 템빨 - 어떤 작품이 더 재밌나요?' }
+                { id: 1, title: '전지적 독자 시점 85화 리뷰 - 놀라운 반전!' },
+                { id: 2, title: '웹소설 추천 부탁드립니다' },
+                { id: 3, title: '나 혼자만 레벨업 vs 템빨 - 어떤 작품이 더 재밌나요?' }
             ];
 
             setBookmarkedWebtoons(webtoonsData);
@@ -85,8 +87,8 @@ const MyPage = () => {
             <div className={styles.section}>
                 <h2>북마크한 웹툰</h2>
                 <div className={styles.grid}>
-                    {bookmarkedWebnovels.map((ranking, index) => (
-                        <a href={`/${ranking.type}/${ranking.rank}`} key={index}>
+                    {bookmarkedWebtoons.map((ranking, index) => (
+                        <a href={`/webtoon/${ranking.id}`} key={index}>
                             <MyCard
                                 title={ranking.title}
                                 author={ranking.author}
@@ -97,10 +99,10 @@ const MyPage = () => {
             </div>
 
             <div className={styles.section}>
-                <h2>북마크한 웹소설</h2>
+                    <h2>북마크한 웹소설</h2>
                 <div className={styles.grid}>
                     {bookmarkedWebnovels.map((ranking, index) => (
-                        <a href={`/${ranking.type}/${ranking.rank}`} key={index}>
+                        <a href={`/webnovel/${ranking.id}`} key={index}>
                             <MyCard
                                 title={ranking.title}
                                 author={ranking.author}
@@ -109,13 +111,14 @@ const MyPage = () => {
                     ))}
                 </div>
             </div>
+
 
             <div className={styles.section}>
                 <h2>최근 작성한 게시글</h2>
                 <ul>
                     {recentPosts.map(post => (
-                        <li key={post.id}>
-                            <a href={`/community/post/${post.id}`}>{post.title}</a>
+                        <li key={post.id} className={styles.my_page_link}>
+                            <a href={`/community/board/${post.id}`}>{post.title}</a>
                         </li>
                     ))}
                 </ul>

@@ -16,15 +16,20 @@ const CommunityPage = () => {
         <div className="container">
             <div className="community-header">
                 <h1>커뮤니티</h1>
-                <a href="/community/post/new" className="button">새 글 작성</a>
+                <a href="/community/board/new" className="button">새 글 작성</a>
             </div>
 
-            <div className="post-list">
-                {posts.map(post => (
-                    <div className="post-item" key={post.id}>
-                        <a href={`/community/post/${post.id}`} className="post-title">{post.title}</a>
-                        <span className="post-meta">{post.author} | {post.date} | 조회 {post.views} | 댓글 {post.comments}</span>
-                    </div>
+            <div className="board-list">
+                {posts.map(board => (
+                    <a
+                        href={`/community/board/${board.id}`}
+                        className="board-item"
+                        key={board.id}
+                    >
+                        <a href={`/community/board/${board.id}`} className="board-title">{board.title}</a>
+                        <span
+                            className="board-meta">{board.author} | {board.date} | 조회 {board.views} | 댓글 {board.comments}</span>
+                    </a>
                 ))}
             </div>
 
