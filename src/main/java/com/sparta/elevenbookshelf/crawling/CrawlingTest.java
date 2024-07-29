@@ -36,4 +36,6 @@ public class CrawlingTest {
 
     private Long bookMark;
 
+    private String thumbnail;
+
 }

@@ -11,6 +11,7 @@ import org.openqa.selenium.*;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.Element;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +26,7 @@ public class RNovelService {
     private final CrawlingTestRepository crawlingTestRepository;
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
-//    private final DataUpdateService dataUpdateService;
+    private final DataUpdateService dataUpdateService;
 
     @Value("${R_PAGE}")
     private String rPage;
@@ -60,13 +61,13 @@ public class RNovelService {
     @Value("${R_NEXT_BUTTON}")
     private String rNextButton;
 
-//    @PostConstruct
-//    public void init() {
-//        doNotEnterThisLink();
-//        rNovelStart();
-////        crawlingUtil.exportToCsv();
-////        dataUpdateService.updateDatabase();
-//    }
+    @PostConstruct
+    public void init() {
+        doNotEnterThisLink();
+        rNovelStart();
+//        crawlingUtil.exportToCsv();
+//        dataUpdateService.updateDatabase();
+    }
 
     public void rNovelStart() {
         log.info("R NOVEL 시작");
@@ -175,6 +176,14 @@ public class RNovelService {
                             log.info("작품 타입 : 웹소설");
                             crawlingTest.setComicsOrBook("웹소설");
                         }
+
+                        crawlingUtil.waitForPage();
+                        String thumbnail = crawlingUtil.getThumbnail(".thumbnail", true);
+                        crawlingTest.setThumbnail(thumbnail);
+                        log.info("작품 썸네일 : {}", thumbnail);
+
+                        crawlingTest.setTotalView(0.0);
+                        crawlingTest.setBookMark(0L);
 
                         crawlingTestRepository.save(crawlingTest);
 

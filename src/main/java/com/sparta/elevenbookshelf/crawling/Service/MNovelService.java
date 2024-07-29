@@ -118,7 +118,7 @@ public class MNovelService {
 
                         crawlingUtil.waitForPage();
                         String site = crawlingUtil.metaData(mSite, "content");
-                        crawlingTest.setPlatform("site");
+                        crawlingTest.setPlatform(site);
                         log.info("작품 게시 사이트 : {}", site);
 
                         crawlingUtil.waitForPage();
@@ -160,6 +160,15 @@ public class MNovelService {
                             log.info("작품 타입 : 웹소설");
                             crawlingTest.setComicsOrBook("웹소설");
                         }
+
+                        crawlingUtil.waitForPage();
+                        String thumbnailClass = String.format("img.%s","cover");
+                        String thumbnail = crawlingUtil.getThumbnail(thumbnailClass, true);
+                        crawlingTest.setThumbnail(thumbnail);
+                        log.info("작품 썸네일 : {}", thumbnail);
+
+                        crawlingTest.setRating(0.0);
+                        log.info("현재 사이트 레이팅 지수 없음. 0.0으로 고정.");
 
                         crawlingTestRepository.save(crawlingTest);
 

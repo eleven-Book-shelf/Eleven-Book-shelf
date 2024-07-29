@@ -68,10 +68,23 @@ public class CrawlingUtil {
         return element.getAttribute(attributeName);
     }
 
-    // body 에서 데이터를 추출하는 메서드.
+    // body 에서 데이터를 추출하는 메서드. 텍스트만 가져옴.
     public String bodyData(String xPath) {
         WebElement element = waitForElement(By.xpath(xPath), 10);
         return element.getText();
+    }
+
+    // 썸네일 링크 가져오기
+    public String getThumbnail(String selector, boolean isCssSelector) {
+        WebElement element;
+        if (isCssSelector) {
+            element = waitForElement(By.cssSelector(selector), 10);
+        } else {
+            element = waitForElement(By.xpath(selector), 10);
+        }
+
+        return element.getAttribute("src");
+
     }
 
     // 동적 페이지 스크롤 최 하단 이동 메서드.
@@ -154,7 +167,8 @@ public class CrawlingUtil {
                              "Rating",
                              "LikeCount",
                              "BookMark",
-                             "TotalView"
+                             "TotalView",
+                             "Thumbnail"
                              )
                      .build())) {
 
@@ -172,7 +186,8 @@ public class CrawlingUtil {
                         data.getRating(),
                         data.getLikeCount(),
                         data.getBookMark(),
-                        data.getTotalView()
+                        data.getTotalView(),
+                        data.getThumbnail()
                 );
             }
 

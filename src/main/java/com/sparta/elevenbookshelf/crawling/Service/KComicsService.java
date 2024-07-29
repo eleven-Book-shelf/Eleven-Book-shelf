@@ -191,6 +191,11 @@ public class KComicsService {
                         crawlingTest.setComicsOrBook("웹소설");
                     }
 
+                    String thumbnailXpath = String.format("//img[@alt='%s']", "썸네일");
+                    String thumbnail = crawlingUtil.getThumbnail(thumbnailXpath, false);
+                    crawlingTest.setThumbnail(thumbnail);
+                    log.info("작품 썸네일 : {}", thumbnail);
+
                     crawlingTestRepository.save(crawlingTest);
 
                     crawlingUtil.waitForPage();
