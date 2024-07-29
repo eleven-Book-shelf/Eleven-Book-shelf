@@ -1,15 +1,17 @@
 package com.sparta.elevenbookshelf.service;
 
-import com.sparta.elevenbookshelf.dto.BoardRequestDto;
-import com.sparta.elevenbookshelf.dto.BoardResponseDto;
-import com.sparta.elevenbookshelf.dto.PostRequestDto;
-import com.sparta.elevenbookshelf.dto.PostResponseDto;
+import com.sparta.elevenbookshelf.dto.*;
 import com.sparta.elevenbookshelf.entity.Board;
-import com.sparta.elevenbookshelf.entity.Post;
+import com.sparta.elevenbookshelf.entity.Content;
+import com.sparta.elevenbookshelf.entity.post.ContentPost;
+import com.sparta.elevenbookshelf.entity.post.NormalPost;
+import com.sparta.elevenbookshelf.entity.post.Post;
 import com.sparta.elevenbookshelf.entity.User;
+import com.sparta.elevenbookshelf.entity.post.ReviewPost;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.BoardRepository;
+import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepositiry;
 import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -147,8 +149,30 @@ public class BoardService {
         postRepository.delete(post);
     }
 
-    //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
+    //::::::::::::::::::::::::// Content //:::::::::::::::::::::::://
 
+    public ContentResponseDto createContent(ContentRequestDto req) {
+
+        Content content = Content.builder()
+                .title(req.getTitle())
+                .imgurl(req.getImgUrl())
+                .description(req.getDescription())
+                .author(req.getAuthor())
+                .platform(req.getPlatform())
+                .view(req.getView())
+                .rating(req.getRating())
+                .type(req.getType())
+                .isEnd(req.getIsEnd())
+                .build();
+
+        contentRepository.save(content);
+
+        return new ContentResponseDto(content);
+    }
+
+
+    //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
+    
     private Post getPost(Long postId) {
 
         return postRepository.findById(postId).orElseThrow(
