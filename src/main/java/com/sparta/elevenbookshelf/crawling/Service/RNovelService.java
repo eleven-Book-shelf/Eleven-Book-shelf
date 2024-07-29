@@ -26,7 +26,6 @@ public class RNovelService {
     private final CrawlingTestRepository crawlingTestRepository;
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
-    private final DataUpdateService dataUpdateService;
 
     @Value("${R_PAGE}")
     private String rPage;

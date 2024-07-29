@@ -185,6 +185,9 @@ public class KComicsService {
                     crawlingTest.setThumbnail(thumbnail);
                     log.info("작품 썸네일 : {}", thumbnail);
 
+                    crawlingTest.setBookMark(0L);
+                    crawlingTest.setLikeCount(0L);
+
                     crawlingTestRepository.save(crawlingTest);
 
                     crawlingUtil.waitForPage();
