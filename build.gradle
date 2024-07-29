@@ -64,6 +64,18 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
+    // Selenium WebDriver
+    implementation 'org.seleniumhq.selenium:selenium-java:4.22.0'
+
+    // WebDriverManager
+    implementation 'io.github.bonigarcia:webdrivermanager:5.7.0'
+
+    // Jsoup
+    implementation 'org.jsoup:jsoup:1.18.1'
+
+    // CSV
+    implementation 'org.apache.commons:commons-csv:1.11.0'
+
 }
 
 tasks.named('test') {
