@@ -7,16 +7,12 @@ import lombok.Data;
 public class ContentRequestDto {
 
     private String title;
-    private String imgUrl;
+    private String imgurl;
     private String description;
     private String author;
     private String platform;
-    private String url;
-    private String genre;
     private Double view;
     private Double rating;
-    private Long bookMark;
-    private Long likeCount;
     private Content.ContentType type;
     private Content.ContentEnd isEnd;
 

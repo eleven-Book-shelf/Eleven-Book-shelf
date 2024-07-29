@@ -1,6 +1,5 @@
 package com.sparta.elevenbookshelf.entity;
 
-import com.sparta.elevenbookshelf.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.entity.post.ReviewPost;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,27 +19,17 @@ public class Content {
 
     private String title;
 
-    private String imgUrl;
+    private String imgurl;
 
-    @Column(length = 1000)
     private String description;
 
     private String author;
 
     private String platform;
 
-    @Column(length = 1000)
-    private String url;
-
-    private String genre;
-
     private Double view;
 
     private Double rating;
-
-    private Long bookMark;
-
-    private Long likeCount;
 
     @Enumerated(EnumType.STRING)
     private ContentType type;
@@ -52,57 +41,23 @@ public class Content {
     private List<ReviewPost> reviews = new ArrayList<>();
 
     @Builder
-    public Content(String title,
-                   String imgUrl,
-                   String description,
-                   String author,
-                   String platform,
-                   String url,
-                   String genre,
-                   Double view,
-                   Double rating,
-                   Long bookMark,
-                   Long likeCount,
-                   ContentType type,
-                   ContentEnd isEnd
-
-    ) {
+    public Content(String title, String imgurl, String description, String author, String platform, Double view, Double rating, ContentType type, ContentEnd isEnd) {
 
         this.title = title;
-        this.imgUrl = imgUrl;
+        this.imgurl = imgurl;
         this.description = description;
         this.author = author;
         this.platform = platform;
-        this.url = url;
-        this.genre = genre;
         this.view = view;
         this.rating = rating;
         this.type = type;
         this.isEnd = isEnd;
-        this.bookMark = bookMark;
-        this.likeCount = likeCount;
     }
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 
     public void addReview(ReviewPost review) {
         this.reviews.add(review);
-    }
-
-    public void updateContent(ContentRequestDto requestDto) {
-        this.title = requestDto.getTitle();
-        this.imgUrl = requestDto.getImgUrl();
-        this.description = requestDto.getDescription();
-        this.author = requestDto.getAuthor();
-        this.platform = requestDto.getPlatform();
-        this.url = requestDto.getUrl();
-        this.genre = requestDto.getGenre();
-        this.view = requestDto.getView();
-        this.rating = requestDto.getRating();
-        this.bookMark = requestDto.getBookMark();
-        this.likeCount = requestDto.getLikeCount();
-        this.type = requestDto.getType();
-        this.isEnd = requestDto.getIsEnd();
     }
 
     //:::::::::::::::::// enum //::::::::::::::::://
