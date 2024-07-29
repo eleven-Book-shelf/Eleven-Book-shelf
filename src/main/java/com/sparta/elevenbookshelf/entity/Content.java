@@ -19,7 +19,7 @@ public class Content {
 
     private String title;
 
-    private String imgUrl;
+    private String imgurl;
 
     private String description;
 
