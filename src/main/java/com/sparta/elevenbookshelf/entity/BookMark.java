@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.entity;
 
+import com.sparta.elevenbookshelf.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
