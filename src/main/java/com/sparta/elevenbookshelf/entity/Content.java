@@ -19,7 +19,7 @@ public class Content {
 
     private String title;
 
-    private String imgurl;
+    private String imgUrl;
 
     private String description;
 
@@ -41,10 +41,10 @@ public class Content {
     private List<ReviewPost> reviews = new ArrayList<>();
 
     @Builder
-    public Content(String title, String imgurl, String description, String author, String platform, Double view, Double rating, ContentType type, ContentEnd isEnd) {
+    public Content(String title, String imgUrl, String description, String author, String platform, Double view, Double rating, ContentType type, ContentEnd isEnd) {
 
         this.title = title;
-        this.imgurl = imgurl;
+        this.imgUrl = imgUrl;
         this.description = description;
         this.author = author;
         this.platform = platform;

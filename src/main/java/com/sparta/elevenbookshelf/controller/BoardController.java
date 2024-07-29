@@ -4,6 +4,8 @@ import com.sparta.elevenbookshelf.dto.*;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +19,7 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
+    private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
 
     //:::::::::::::::::// board //::::::::::::::::://
 
@@ -74,16 +77,19 @@ public class BoardController {
 
     //:::::::::::::::::// post //::::::::::::::::://
 
-/*    @PostMapping("/{boardId}")
+    @PostMapping("/{boardId}")
     public ResponseEntity<PostResponseDto> createPost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long boardId,
             @RequestBody PostRequestDto req) {
 
+        logger.info("Received request to create post for boardId: {}", boardId);
+        logger.info("Request body: {}", req);
+
         PostResponseDto res = boardService.createPost(userPrincipal.getUser(), boardId, req);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
-    }*/
+    }
 
     @GetMapping("/{boardId}/{postId}")
     public ResponseEntity<PostResponseDto> readPost(

@@ -24,7 +24,7 @@ public class ContentResponseDto {
     public ContentResponseDto(Content content) {
         this.id = content.getId();
         this.title = content.getTitle();
-        this.imgurl = content.getImgurl();
+        this.imgurl = content.getImgUrl();
         this.description = content.getDescription();
         this.author = content.getAuthor();
         this.platform = content.getPlatform();

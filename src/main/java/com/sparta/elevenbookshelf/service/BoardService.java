@@ -102,13 +102,17 @@ public class BoardService {
     @Transactional
     public PostResponseDto createPost(User user, Long boardId, PostRequestDto req) {
 
-        Content content = contentRepository.findById(req.getContentId()).orElse(null);
+        Content content = null;
+
+        if (req.getContentId() != null) {
+            content = contentRepository.findById(req.getContentId()).orElse(null);
+        }
 
         Post post = switch (req.getPostType()) {
             case "NORMAL" -> {
                 Board board = null;
 
-                if(boardId != null) {
+                if (boardId != null) {
                     board = getBoard(boardId);
                 }
 
@@ -168,6 +172,7 @@ public class BoardService {
 
 
 
+
     public PostResponseDto readPost(Long boardId, Long postId) {
 
         Post post = getPost(postId);
@@ -201,7 +206,7 @@ public class BoardService {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
-        post.updateBoard(getBoard(req.getBoardId()));
+        post.updateBoard(getBoard(boardId));
         post.updateTitle(req.getTitle());
         post.updateBody(req.getBody());
 
@@ -232,7 +237,7 @@ public class BoardService {
 
         Content content = Content.builder()
                 .title(req.getTitle())
-                .imgurl(req.getImgurl())
+                .imgUrl(req.getImgurl())
                 .description(req.getDescription())
                 .author(req.getAuthor())
                 .platform(req.getPlatform())

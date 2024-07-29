@@ -16,11 +16,11 @@ import HomePage from './pages/HomePage/HomePage';
 import WebtoonPage from './pages/WebtoonPage/WebtoonPage';
 import ContentDetailPage from './pages/ContentDetailPage/ContentDetailPage';
 
-
 import WebnovelPage from './pages/WebnovelPage/WebnovelPage';
 import CommunityPage from './pages/CommunityPage/CommunityPage';
-import BoardDetailPage from './pages/BoardDetailPage/BoardDetailPage';
+import PostDetailPage from './pages/PostDetailPage/PostDetailPage';
 import NewPostPage from './pages/NewPostPage/NewPostPage';
+import BoardPage from "./pages/BordsPage/BoardPage";
 
 import './App.css';
 
@@ -64,8 +64,9 @@ const App = () => {
                     <Route path="/bookmarkedWebnovels" element={<BookmarkedWebnovels />} />
 
                     <Route path="/community" element={<CommunityPage />} />
-                    <Route path="/community/board/:id" element={<BoardDetailPage />} />
-                    <Route path="/community/board/new" element={<NewPostPage />} />
+                    <Route path="/community/board/:boardId/" element={<BoardPage />} />
+                    <Route path="/community/board/:boardId/post/:postid" element={<PostDetailPage />} />
+                    <Route path="/community/board/:boardId/post/new" element={<NewPostPage />} />
                 </Routes>
             </div>
         </Router>
