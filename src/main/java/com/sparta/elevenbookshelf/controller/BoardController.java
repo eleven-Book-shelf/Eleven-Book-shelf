@@ -74,7 +74,7 @@ public class BoardController {
 
     //:::::::::::::::::// post //::::::::::::::::://
 
-    @PostMapping("/{boardId}")
+/*    @PostMapping("/{boardId}")
     public ResponseEntity<PostResponseDto> createPost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long boardId,
@@ -83,7 +83,7 @@ public class BoardController {
         PostResponseDto res = boardService.createPost(userPrincipal.getUser(), boardId, req);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
-    }
+    }*/
 
     @GetMapping("/{boardId}/{postId}")
     public ResponseEntity<PostResponseDto> readPost(
@@ -120,7 +120,7 @@ public class BoardController {
 
     //:::::::::::::::::// post //::::::::::::::::://
 
-    @PostMapping("/content")
+/*    @PostMapping("/content")
     public ResponseEntity<ContentResponseDto> createContent(@RequestBody ContentRequestDto req){
 
         ContentResponseDto res = boardService.createContent(req);
@@ -130,7 +130,7 @@ public class BoardController {
         boardService.createPost(null, null, postReq);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
-    }
+    }*/
 
 
 }

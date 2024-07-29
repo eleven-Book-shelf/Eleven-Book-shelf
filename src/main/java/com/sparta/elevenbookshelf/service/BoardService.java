@@ -5,8 +5,8 @@ import com.sparta.elevenbookshelf.dto.BoardResponseDto;
 import com.sparta.elevenbookshelf.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.entity.Board;
-import com.sparta.elevenbookshelf.entity.Post;
 import com.sparta.elevenbookshelf.entity.User;
+import com.sparta.elevenbookshelf.entity.post.Post;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.BoardRepository;
@@ -90,7 +90,7 @@ public class BoardService {
 
     //:::::::::::::::::// post //::::::::::::::::://
 
-    @Transactional
+/*    @Transactional
     public PostResponseDto createPost(User user, Long boardId, PostRequestDto req) {
 
         Board board = getBoard(boardId);
@@ -106,7 +106,7 @@ public class BoardService {
         postRepository.save(post);
 
         return new PostResponseDto(post);
-    }
+    }*/
 
 
     public PostResponseDto readPost(Long boardId, Long postId) {
@@ -126,10 +126,8 @@ public class BoardService {
 //        checkPostUser(user, post);
 //        checkPostBoard(boardId, post);
 
-        post.updatePostType(req.getPostType());
         post.updateBoard(getBoard(req.getBoardId()));
         post.updateTitle(req.getTitle());
-        post.updateContents(req.getContents());
 
         postRepository.save(post);
 

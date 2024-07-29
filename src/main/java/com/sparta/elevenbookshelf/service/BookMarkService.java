@@ -2,6 +2,7 @@ package com.sparta.elevenbookshelf.service;
 
 import com.sparta.elevenbookshelf.dto.BookMarkResponseDto;
 import com.sparta.elevenbookshelf.entity.*;
+import com.sparta.elevenbookshelf.entity.post.Post;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.BookMarkRepository;

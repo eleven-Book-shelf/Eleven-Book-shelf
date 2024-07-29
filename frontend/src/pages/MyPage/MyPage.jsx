@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import styles from './MyPage.module.css';
 import axiosInstance from '../../api/axiosInstance';
+import MyCard from "./MyCard/MyCard";
 
 Modal.setAppElement('#root'); // 모달을 사용하는 경우, 접근성을 위해 필요
 
@@ -84,11 +85,13 @@ const MyPage = () => {
             <div className={styles.section}>
                 <h2>북마크한 웹툰</h2>
                 <div className={styles.grid}>
-                    {bookmarkedWebtoons.map((webtoon, index) => (
-                        <div key={index} className={styles.card}>
-                            <h3>{webtoon.title}</h3>
-                            <p>작가: {webtoon.author}</p>
-                        </div>
+                    {bookmarkedWebnovels.map((ranking, index) => (
+                        <a href={`/${ranking.type}/${ranking.rank}`} key={index}>
+                            <MyCard
+                                title={ranking.title}
+                                author={ranking.author}
+                            />
+                        </a>
                     ))}
                 </div>
             </div>
@@ -96,11 +99,13 @@ const MyPage = () => {
             <div className={styles.section}>
                 <h2>북마크한 웹소설</h2>
                 <div className={styles.grid}>
-                    {bookmarkedWebnovels.map((webnovel, index) => (
-                        <div key={index} className={styles.card}>
-                            <h3>{webnovel.title}</h3>
-                            <p>작가: {webnovel.author}</p>
-                        </div>
+                    {bookmarkedWebnovels.map((ranking, index) => (
+                        <a href={`/${ranking.type}/${ranking.rank}`} key={index}>
+                            <MyCard
+                                title={ranking.title}
+                                author={ranking.author}
+                            />
+                        </a>
                     ))}
                 </div>
             </div>

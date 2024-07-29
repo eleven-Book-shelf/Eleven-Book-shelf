@@ -1,26 +1,26 @@
 package com.sparta.elevenbookshelf.dto;
 
-import com.sparta.elevenbookshelf.entity.Post;
-import lombok.Builder;
+
+import com.sparta.elevenbookshelf.entity.Content;
+import com.sparta.elevenbookshelf.entity.post.Post;
 import lombok.Data;
-import lombok.Getter;
 
 @Data
 public class PostResponseDto {
 
     private Long id;
-    private Post.PostType postType;
+//    private Post.PostType postType;
     private String title;
-    private String content;
+    private Content content;
     private String username;
     private Long boardId;
 
     public PostResponseDto(Post post) {
 
         this.id = post.getId();
-        this.postType = post.getPostType();
+//        this.postType = post.getPostType();
         this.title = post.getTitle();
-        this.content = post.getContents();
+        this.content = post.getContent();
         this.username = post.getUser().getUsername();
         this.boardId = post.getBoard().getId();
     }

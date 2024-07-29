@@ -98,7 +98,7 @@ public class SecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
-                .loginPage("http://localhost:3000/login")
+                .loginPage("http://localhost:1477/login")
                 .successHandler(oAuth2AuthenticationSuccessHandler())
         );
 
