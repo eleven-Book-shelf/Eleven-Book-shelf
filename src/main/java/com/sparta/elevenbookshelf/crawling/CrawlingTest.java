@@ -38,4 +38,6 @@ public class CrawlingTest {
 
     private String thumbnail;
 
+    private String url;
+
 }

@@ -97,6 +97,7 @@ public class KNovelService {
                 CrawlingTest crawlingTest = new CrawlingTest();
 
                 String artUrl = allLinks.get(i);
+                crawlingTest.setUrl(artUrl);
                 log.info("현재 링크 위치 : {}/{}", i + 1, totalLinks);
 
                 try {

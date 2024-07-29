@@ -56,14 +56,12 @@ public class MNovelService {
     public void mNovelsStart() {
         doNotEnterThisLink();
         log.info("M NOVEL 시작");
-        String baseUrl = mPage;
 
         try {
-            webDriver.get(baseUrl);
+            webDriver.get(mPage);
             log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());
             crawlingUtil.waitForPage();
 
-            int page = 1;
             WebElement linkBox = webDriver.findElement(By.id("SECTION-LIST"));
             Set<String> uniqueLinks = new HashSet<>();
             List<WebElement> linkElements = linkBox.findElements(By.cssSelector(mArtLink));
@@ -72,17 +70,13 @@ public class MNovelService {
                 String uniqueLink = element.getAttribute("href");
                 uniqueLinks.add(uniqueLink);
             }
-
             log.info("유일한 링크 개수 {}: ", uniqueLinks.size());
-            for (String unique : uniqueLinks) {
-                log.info("가져온 링크 : {}", unique);
-            }
 
-            int totalLinks = uniqueLinks.size();
             int index = 0;
             for (String artUrl : uniqueLinks) {
                 CrawlingTest crawlingTest = new CrawlingTest();
-                log.info("현재 링크 위치 : {}/{}", ++index, totalLinks);
+                crawlingTest.setUrl(artUrl);
+                log.info("현재 링크 위치 : {}/{}", ++index, uniqueLinks.size());
 
                 try {
                     log.info("작품 정보 URL : {}", artUrl);

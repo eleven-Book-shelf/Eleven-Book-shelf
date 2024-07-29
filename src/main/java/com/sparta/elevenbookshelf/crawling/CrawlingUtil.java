@@ -175,7 +175,8 @@ public class CrawlingUtil {
                              "Rating",
                              "BookMark",
                              "TotalView",
-                             "Thumbnail"
+                             "Thumbnail",
+                             "Url"
                              )
                      .build())) {
 
@@ -193,7 +194,8 @@ public class CrawlingUtil {
                         data.getRating(),
                         data.getBookMark(),
                         data.getTotalView(),
-                        data.getThumbnail()
+                        data.getThumbnail(),
+                        data.getUrl()
                 );
             }
 
@@ -214,15 +216,13 @@ public class CrawlingUtil {
                      .build()))
         {
             for (CSVRecord csvRecord : csvParser) {
-                Long id = Long.parseLong(csvRecord.get("Id"));
-                String thumbnail = csvRecord.get("Thumbnail");
+                String artUrl = csvRecord.get("Url");
 
-                log.debug("csv Record - Id : {}, Thumbnail : {}", id, thumbnail);
-
-                Optional<CrawlingTest> mainData = crawlingTestRepository.findById(id);
+                Optional<CrawlingTest> mainData = crawlingTestRepository.findByUrl(artUrl);
 
                 if (mainData.isPresent()) {
                     updateData(mainData.get(), csvRecord);
+                    crawlingTestRepository.save(mainData.get());
 
                 } else {
                     CrawlingTest newData = createNewData(csvRecord);
@@ -234,6 +234,8 @@ public class CrawlingUtil {
             log.error("CSV 파일 읽는중 오류 발생 : {}", e.getMessage());
         } catch (NumberFormatException e) {
             log.error("ID 파싱 중 오류 발생 : {}", e.getMessage());
+        } catch (NullPointerException e) {
+            log.error("DB 업데이트 중 NPE 발생. : {}", e.getMessage());
         }
 
     }
@@ -261,6 +263,7 @@ public class CrawlingUtil {
         data.setBookMark(parseLongOrDefault(csvRecord.get("BookMark")));
         data.setTotalView(parseDoubleOrDefault(csvRecord.get("TotalView")));
         data.setThumbnail(csvRecord.get("Thumbnail"));
+        data.setUrl(csvRecord.get("Url"));
     }
 
     // Long 타입으로 파싱

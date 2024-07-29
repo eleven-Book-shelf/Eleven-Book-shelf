@@ -81,22 +81,19 @@ public class RNovelService {
                     String uniqueLink = element.getAttribute("href");
                     uniqueLinks.add(uniqueLink);
                 }
-
                 log.info("유일한 링크 개수 {}: ", uniqueLinks.size());
-                for (String unique : uniqueLinks) {
-                    log.info("가져온 링크 : {}", unique);
-                }
 
-                int totalLinks = uniqueLinks.size();
+
                 int index = 0;
                 for (String artUrl : uniqueLinks) {
                     CrawlingTest crawlingTest = new CrawlingTest();
-                    log.info("현재 링크 위치 : {}/{}", ++index, totalLinks);
+                    log.info("현재 링크 위치 : {}/{}", ++index, uniqueLinks.size());
 
                     try {
                         log.info("작품 정보 URL : {}", artUrl);
                         crawlingUtil.waitForPage();
                         webDriver.get(artUrl);
+                        crawlingTest.setUrl(artUrl);
 
                         // robots.txt 규약 위반시 이전 페이지로 이동.
                         if (crawlingUtil.checkTheLink(artUrl, disAllowedLink)) {

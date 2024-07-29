@@ -1,6 +1,6 @@
-package com.sparta.elevenbookshelf.crawling.Service;
+package com.sparta.elevenbookshelf.crawling;
 
-import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
+import com.sparta.elevenbookshelf.crawling.Service.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,17 +14,17 @@ public class CrawlingController {
     private final KNovelService kNovelService;
     private final RNovelService rNovelService;
     private final CrawlingUtil crawlingUtil;
-    private final DataUpdateService dataUpdateService;
 
     @PostConstruct
     public void startCrawling() {
 
-        mNovelService.mNovelsStart();
+//        mNovelService.mNovelsStart();
 //        kNovelService.kNovelsStart();
 //        kComicsService.kComicsStart();
 //        rNovelService.rNovelsStart();
 
-        crawlingUtil.exportToCsv();
+//        crawlingUtil.exportToCsv();
+        crawlingUtil.updateDatabase();
 
     }
 
