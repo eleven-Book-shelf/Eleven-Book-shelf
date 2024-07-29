@@ -232,7 +232,7 @@ public class BoardService {
 
         Content content = Content.builder()
                 .title(req.getTitle())
-                .imgurl(req.getImgUrl())
+                .imgurl(req.getImgurl())
                 .description(req.getDescription())
                 .author(req.getAuthor())
                 .platform(req.getPlatform())
