@@ -61,21 +61,10 @@ public class KComicsService {
     @Value("${K_RATING}")
     private String kRating;
 
-//    @PostConstruct
-//    public void firstStart() {
-//        doNotEnterThisLink();
-//        kComicsPageStart();
-//    }
-//
-//    @Scheduled(fixedDelay = 3600000)
-//    public void crawlingDelay() {
-//        kComicsPageStart();
-//    }
-
     // TODO : 크롤링이 오래 걸리기 때문에 @Async 사용 고려하기.
     // 크롤링 메서드
-    public void kComicsPageStart() {
-
+    public void kComicsStart() {
+        doNotEnterThisLink();
         log.info("K COMICS 시작.");
         webDriver.get(kComicsPage);
         log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());

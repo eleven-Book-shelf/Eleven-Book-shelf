@@ -61,21 +61,10 @@ public class KNovelService {
     @Value("${K_RATING}")
     private String kRating;
 
-//    @PostConstruct
-//    public void firstStart() {
-//        doNotEnterThisLink();
-//        kNovelPageStart();
-//    }
-
-//    @Scheduled(fixedDelay = 3600000)
-//    public void crawlingDelay() {
-//        kNovelPageStart();
-//    }
-
     // TODO : 크롤링이 오래 걸리기 때문에 @Async 사용 고려하기.
     // 크롤링 메서드
-    public void kNovelPageStart() {
-
+    public void kNovelsStart() {
+        doNotEnterThisLink();
         log.info("K NOVEL 시작.");
         webDriver.get(kCrawlingPage);
         log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());

@@ -58,27 +58,18 @@ public class RNovelService {
     @Value("${R_COMPLETE}")
     private String rCompleteOrNot;
 
-    @Value("${R_NEXT_BUTTON}")
-    private String rNextButton;
-
-    @PostConstruct
-    public void init() {
-        doNotEnterThisLink();
-        rNovelStart();
-//        crawlingUtil.exportToCsv();
-//        dataUpdateService.updateDatabase();
-    }
-
-    public void rNovelStart() {
+    public void rNovelsStart() {
         log.info("R NOVEL 시작");
         String baseUrl = rPage;
         int page = 1;
 
         try {
             while (true) {
+                doNotEnterThisLink();
                 webDriver.get(baseUrl + page);
                 log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());
                 crawlingUtil.waitForPage();
+
 //                crawlingUtil.scrollController();
 
                 // 중복을 제거하기 위해 Set 사용
@@ -215,23 +206,19 @@ public class RNovelService {
                 }
 
                 // 다음 페이지로 이동
-//                try {
-//                    WebElement nextPageButton = webDriver.findElement(By.cssSelector(rNextButton.replace("{page}", String.valueOf(page + 1))));
-//                    nextPageButton.click();
-//                    page++;
-//                } catch (NoSuchElementException e) {
-//                    log.info("더 이상 페이지가 없습니다.");
-//                    break;
-//                }
-                break;
+                try {
+                    page++;
+                    log.info("다음 페이지로 이동 페이지 : {}", page);
+                } catch (NoSuchElementException e) {
+                    log.info("더 이상 페이지가 없습니다.");
+                    break;
+                }
 
             }
 
         } finally {
             webDriver.quit();
             log.info("리디 크롤링 종료");
-            crawlingUtil.exportToCsv();
-            log.info("CSV 변환.");
             log.info("========================");
         }
 
