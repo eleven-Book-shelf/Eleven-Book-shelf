@@ -5,6 +5,9 @@ import HeaderAuth from './Header/HeaderAuth';
 import HeaderOn from './Header/HeaderOn';
 
 import MyPage from './pages/MyPage/MyPage';
+import BookmarkedWebtoons from "./pages/MyPage/bookmarkedWebtoons/bookmarkedWebtoons";
+import BookmarkedWebnovels from "./pages/MyPage/bookmarkedWebnovels/bookmarkedWebnovels";
+
 import LoginPage from './pages/LoginPage/LoginPage';
 import AuthCallback from './api/AuthCallback';
 import SignupPage from './pages/SignupPage/SignupPage';
@@ -57,6 +60,8 @@ const App = () => {
                     <Route path="/auth/callback" element={<AuthCallback onLogin={handleLogin} />} />
 
                     <Route path="/mypage" element={<MyPage />} />
+                    <Route path="/bookmarkedWebtoons" element={<BookmarkedWebtoons />} />
+                    <Route path="/bookmarkedWebnovels" element={<BookmarkedWebnovels />} />
 
                     <Route path="/community" element={<CommunityPage />} />
                     <Route path="/community/board/:id" element={<BoardDetailPage />} />

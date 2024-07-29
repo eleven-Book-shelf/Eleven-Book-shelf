@@ -1,8 +1,7 @@
 import React from 'react';
-import './Webnovel.module.css';
-import styles from "../MyPage/bookmarkedWebnovels/BookmarkedWebnovels.module.css";
+import styles from './BookmarkedWebnovels.module.css'
 
-const WebnovelPage = () => {
+const BookmarkedWebnovels = () => {
     const webnovels = [
         { rank: 1, title: '전지적 독자 시점', author: '싱숑', rating: '4.9', views: '2,500,000', chapters: 500, description: '세계관 최강자를 향한 서사시. 소설 속 주인공이 되어 폐허가 된 세상을 살아가는 이야기.' },
         { rank: 2, title: '나 혼자만 레벨업', author: '추공', rating: '4.8', views: '2,300,000', chapters: 270, description: '최약체 헌터, 진우가 각성하여 세계 최강 헌터의 자리에 오르는 이야기.' },
@@ -14,7 +13,7 @@ const WebnovelPage = () => {
 
     return (
         <div className={styles.container}>
-            <h1>웹소설</h1>
+            <h1>북마크 웹소설</h1>
             <div className={styles['genre-filter']}>
                 <button className={`${styles['genre-button']} ${styles.active}`}>전체</button>
                 <button className={styles['genre-button']}>판타지</button>
@@ -47,4 +46,4 @@ const WebnovelPage = () => {
     );
 }
 
-export default WebnovelPage;
+export default BookmarkedWebnovels;

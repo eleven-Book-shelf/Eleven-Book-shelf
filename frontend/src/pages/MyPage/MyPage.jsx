@@ -85,7 +85,7 @@ const MyPage = () => {
             </div>
 
             <div className={styles.section}>
-                <h2>북마크한 웹툰</h2>
+                <h2 className={styles.sectionTitle}>북마크한 웹툰 <a href="/bookmarkedWebtoons" className={styles.more_btu}>더보기</a></h2>
                 <div className={styles.grid}>
                     {bookmarkedWebtoons.map((ranking, index) => (
                         <a href={`/webtoon/${ranking.id}`} key={index}>
@@ -99,7 +99,7 @@ const MyPage = () => {
             </div>
 
             <div className={styles.section}>
-                    <h2>북마크한 웹소설</h2>
+                <h2 className={styles.sectionTitle}>북마크한 웹소설 <a href="/bookmarkedWebnovels" className={styles.more_btu}>더보기</a></h2>
                 <div className={styles.grid}>
                     {bookmarkedWebnovels.map((ranking, index) => (
                         <a href={`/webnovel/${ranking.id}`} key={index}>
@@ -111,7 +111,6 @@ const MyPage = () => {
                     ))}
                 </div>
             </div>
-
 
             <div className={styles.section}>
                 <h2>최근 작성한 게시글</h2>
