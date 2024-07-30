@@ -10,7 +10,6 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -18,8 +17,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "MService")
-@EnableScheduling
+@Slf4j(topic = "MNovelService")
 public class MNovelService {
 
     private final WebDriver webDriver;
@@ -53,7 +51,7 @@ public class MNovelService {
     @Value("${M_TOTAL_VIEW}")
     private String mTotalCount;
 
-    public void mNovelsStart() {
+    public void serviceStart() {
         doNotEnterThisLink();
         log.info("M NOVEL 시작");
 

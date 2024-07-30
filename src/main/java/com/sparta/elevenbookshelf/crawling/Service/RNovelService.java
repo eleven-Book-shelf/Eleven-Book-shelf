@@ -5,19 +5,19 @@ import com.sparta.elevenbookshelf.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.entity.Content;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "RService")
-@EnableScheduling
+@Slf4j(topic = "RNovelService")
 public class RNovelService {
 
     private final WebDriver webDriver;
@@ -54,7 +54,7 @@ public class RNovelService {
     @Value("${R_COMPLETE}")
     private String rIsEnd;
 
-    public void rNovelsStart() {
+    public void serviceStart() {
         log.info("R NOVEL 시작");
         String baseUrl = rPage;
         int page = 1;
