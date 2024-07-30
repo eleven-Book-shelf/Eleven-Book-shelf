@@ -124,7 +124,7 @@ public class MNovelService {
                     String bookMarkData = crawlingUtil.bodyData(mBookMark);
                     String bookMarkNumber = bookMarkData.replace(",", "");
                     Long bookMark = Long.parseLong(bookMarkNumber);
-                    requestDto.setBookMark(bookMark);
+                    requestDto.setBookMarkCount(bookMark);
                     log.info("북마크 수 : {}", bookMark);
 
                     crawlingUtil.waitForPage();

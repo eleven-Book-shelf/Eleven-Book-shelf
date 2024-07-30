@@ -166,7 +166,7 @@ public class RNovelService {
                         log.info("작품 썸네일 : {}", imgUrl);
 
                         requestDto.setView(0.0);
-                        requestDto.setBookMark(0L);
+                        requestDto.setBookMarkCount(0L);
 
                         crawlingUtil.saveData(requestDto, artUrl);
 
