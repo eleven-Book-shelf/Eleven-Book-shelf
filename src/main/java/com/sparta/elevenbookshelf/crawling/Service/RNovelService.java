@@ -3,26 +3,24 @@ package com.sparta.elevenbookshelf.crawling.Service;
 import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
 import com.sparta.elevenbookshelf.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.entity.Content;
-import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "RService")
-@EnableScheduling
+@Slf4j(topic = "RNovelService")
 public class RNovelService {
 
     private final WebDriver webDriver;
-    private final ContentRepository contentRepository;
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
 
@@ -56,7 +54,7 @@ public class RNovelService {
     @Value("${R_COMPLETE}")
     private String rIsEnd;
 
-    public void rNovelsStart() {
+    public void serviceStart() {
         log.info("R NOVEL 시작");
         String baseUrl = rPage;
         int page = 1;
@@ -70,18 +68,8 @@ public class RNovelService {
 
 //                crawlingUtil.scrollController();
 
-                // 중복을 제거하기 위해 Set 사용
-                Set<String> uniqueLinks = new HashSet<>();
-
-                // 페이지 내의 모든 링크를 반복해서 찾고 중복 제거
-                WebElement linkBox = webDriver.findElement(By.cssSelector(rArtClass));
-                List<WebElement> linkElements = linkBox.findElements(By.cssSelector(rArtLink));
-                for (WebElement element : linkElements) {
-                    String uniqueLink = element.getAttribute("href");
-                    uniqueLinks.add(uniqueLink);
-                }
-                log.info("유일한 링크 개수 {}: ", uniqueLinks.size());
-
+                // 중복제거
+                Set<String> uniqueLinks = crawlingUtil.notDuplicatedLinks(By.cssSelector(rArtClass), By.cssSelector(rArtLink));
 
                 int index = 0;
                 for (String artUrl : uniqueLinks) {
@@ -149,7 +137,6 @@ public class RNovelService {
                         log.info("좋아요 수 : {}", likeCount);
 
                         try {
-
                             crawlingUtil.waitForPage();
                             String ratingData = crawlingUtil.bodyData(rRating);
                             String numberOnly = ratingData.replaceAll("[점명]","").trim();
@@ -179,7 +166,7 @@ public class RNovelService {
                         log.info("작품 썸네일 : {}", imgUrl);
 
                         requestDto.setView(0.0);
-                        requestDto.setBookMark(0L);
+                        requestDto.setBookMarkCount(0L);
 
                         crawlingUtil.saveData(requestDto, artUrl);
 
@@ -214,6 +201,11 @@ public class RNovelService {
                 try {
                     page++;
                     log.info("다음 페이지로 이동 페이지 : {}", page);
+
+                    if (page == 5) {
+                        break;
+                    }
+
                 } catch (NoSuchElementException e) {
                     log.info("더 이상 페이지가 없습니다.");
                     break;

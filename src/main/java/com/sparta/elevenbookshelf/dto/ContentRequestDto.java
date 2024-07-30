@@ -15,7 +15,7 @@ public class ContentRequestDto {
     private String genre;
     private Double view;
     private Double rating;
-    private Long bookMark;
+    private Long bookMarkCount;
     private Long likeCount;
     private Content.ContentType type;
     private Content.ContentEnd isEnd;

@@ -38,7 +38,7 @@ public class Content {
 
     private Double rating;
 
-    private Long bookMark;
+    private Long bookMarkCount;
 
     private Long likeCount;
 
@@ -61,7 +61,7 @@ public class Content {
                    String genre,
                    Double view,
                    Double rating,
-                   Long bookMark,
+                   Long bookMarkCount,
                    Long likeCount,
                    ContentType type,
                    ContentEnd isEnd
@@ -79,7 +79,7 @@ public class Content {
         this.rating = rating;
         this.type = type;
         this.isEnd = isEnd;
-        this.bookMark = bookMark;
+        this.bookMarkCount = bookMarkCount;
         this.likeCount = likeCount;
     }
 
@@ -99,7 +99,7 @@ public class Content {
         this.genre = requestDto.getGenre();
         this.view = requestDto.getView();
         this.rating = requestDto.getRating();
-        this.bookMark = requestDto.getBookMark();
+        this.bookMarkCount = requestDto.getBookMarkCount();
         this.likeCount = requestDto.getLikeCount();
         this.type = requestDto.getType();
         this.isEnd = requestDto.getIsEnd();

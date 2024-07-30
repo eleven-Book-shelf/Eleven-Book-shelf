@@ -10,6 +10,7 @@ import com.sparta.elevenbookshelf.repository.commentRepository.CommentRepository
 import com.sparta.elevenbookshelf.repository.LikeCommentRepository;
 import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
+import com.sparta.elevenbookshelf.repository.likeRepository.LikeCommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

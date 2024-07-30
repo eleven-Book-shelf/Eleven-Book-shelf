@@ -1,5 +1,5 @@
 ###북마크 생성
-POST http://localhost:8080/bookmarks/3
+POST http://localhost:8080/bookmarks/1
 Content-Type: application/json
 Authorization:{{access_token}}
 
@@ -19,11 +19,6 @@ Authorization:{{access_token}}
   "message": "Removing bookmark",
   "status": false
 }
-
-###북마크 조회
-#GET http://localhost:8080/bookmarks/1/status?userId=1
-#Content-Type: application/json
-#Authorization:{{access_token}}
 
 ###북마크 전체 조회
 GET http://localhost:8080/bookmarks/user/1

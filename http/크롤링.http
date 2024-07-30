@@ -1,0 +1,11 @@
+### 모든 크롤링 서비스 시작.
+POST localhost:8080/content/start/all
+
+### DB 크롤링 데이터 로컬에 저장.
+GET localhost:8080/content/local
+
+### 로컬 크롤링 데이터로 DB 업데이트.
+POST localhost:8080/content/local/update
+
+### Content 단건 조회
+GET localhost:8080/content?contentUrl=https%3A%2F%2Fridibooks.com%2Fbooks%2F2313041736%3F_rdt_sid%3Dcategory_bestsellers%26_rdt_idx%3D10%26_rdt_arg%3D1750
