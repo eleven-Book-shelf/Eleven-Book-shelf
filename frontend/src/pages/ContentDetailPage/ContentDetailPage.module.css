@@ -13,7 +13,7 @@
     padding: 0 1rem;
 }
 
-.button {
+.button{
     display: inline-block;
     padding: 0.5rem 1rem;
     background-color: #4285f4;
@@ -86,51 +86,6 @@
     margin-bottom: 2rem;
 }
 
-.commentSection {
-    margin-top: 2rem;
-}
-
-.comment {
-    background-color: #f9f9f9;
-    border-radius: 4px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
-
-.commentAuthor {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-}
-
-.commentContent {
-    margin-bottom: 0.5rem;
-}
-
-.commentMeta {
-    font-size: 0.8rem;
-    color: #888;
-}
-
-.commentForm {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 1rem;
-    margin-top: 2rem;
-}
-
-.commentForm textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    resize: vertical;
-    min-height: 100px;
-}
-
-.commentForm .button {
-    margin-top: 1rem;
-}
 .topBox{
     min-height: 250px;
     max-height: 600px;

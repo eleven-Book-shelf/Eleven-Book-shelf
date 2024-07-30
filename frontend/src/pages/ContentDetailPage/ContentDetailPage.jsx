@@ -1,6 +1,7 @@
 import React from 'react';
 import {useParams} from 'react-router-dom';
-import styles from './ContentDetailPage.module.css'; // CSS 모듈 사용
+import CommentSection from '../CommentSection/CommentSection';
+import styles from './ContentDetailPage.module.css';
 
 const ContentDetailPage = () => {
     const {id} = useParams();
@@ -19,11 +20,6 @@ const ContentDetailPage = () => {
             '\n' +
             '콘텐츠산업 진흥법 제2조(정의) ① 이 법에서 사용하는 용어의 뜻은 다음과 같다.\n' +
             '1. \'콘텐츠\'란 부호·문자·도형·색채·음성·음향·이미지 및 영상 등(이들의 복합체를 포함한다)의 자료 또는 정보를 말한다.',
-        comments: [
-            {id: 1, author: '테스트유저 2', content: '댓글 테스트입니다.', date: '2023년 5월 15일 15:10'},
-            {id: 2, author: '테스트유저 3', content: '두 번째 댓글 테스트입니다.', date: '2023년 5월 15일 16:05'},
-            {id: 3, author: '테스트유저 4', content: '세 번째 댓글 테스트입니다.', date: '2023년 5월 15일 17:30'},
-        ]
     };
 
     return (
@@ -47,21 +43,8 @@ const ContentDetailPage = () => {
                     </div>
 
                     <div className={styles.commentSection}>
-                        <h3>댓글 ({post.comments.length})</h3>
-                        {post.comments.map(comment => (
-                            <div className={styles.comment} key={comment.id}>
-                                <p className={styles.commentAuthor}>{comment.author}</p>
-                                <p className={styles.commentContent}>{comment.content}</p>
-                                <p className={styles.commentMeta}>{comment.date}</p>
-                            </div>
-                        ))}
+                        <CommentSection postId={id} />
                     </div>
-
-                    <form className={styles.commentForm} action={`/community/post/${id}/comment`} method="POST">
-                        <h3>댓글 작성</h3>
-                        <textarea name="comment" placeholder="댓글을 입력하세요..."/>
-                        <button type="submit" className={styles.button}>댓글 작성</button>
-                    </form>
                 </div>
             </div>
         </div>

@@ -52,6 +52,7 @@ public class AuthService {
     public String logout(User userid){
         User user = getUser(userid.getId());
         user.deleteRefreshToken();
+        return "";
     }
 
     @Transactional

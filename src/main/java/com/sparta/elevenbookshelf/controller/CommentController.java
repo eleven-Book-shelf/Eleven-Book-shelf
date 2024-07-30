@@ -2,13 +2,10 @@ package com.sparta.elevenbookshelf.controller;
 
 import com.sparta.elevenbookshelf.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.dto.CommentResponseDto;
-import com.sparta.elevenbookshelf.entity.Comment;
-import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +22,7 @@ public class CommentController {
     @PostMapping("/comments")
     public ResponseEntity<CommentResponseDto> createComment(@PathVariable Long postId,
                                                             @AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                            @RequestBody CommentRequestDto commentRequestDto){
+                                                            @RequestBody CommentRequestDto commentRequestDto) {
 
         return ResponseEntity.status(HttpStatus.CREATED).
                 body(commentService.createComment(postId, userPrincipal, commentRequestDto));
@@ -34,7 +31,7 @@ public class CommentController {
     @GetMapping("/comments")
     public ResponseEntity<List<CommentResponseDto>> readComments(@PathVariable Long postId,
                                                                  @RequestParam(value = "offset", defaultValue = "0") int offset,
-                                                                 @RequestParam(value = "pagesize", defaultValue = "10") int pagesize){
+                                                                 @RequestParam(value = "pagesize", defaultValue = "10") int pagesize) {
 
         return ResponseEntity.status(HttpStatus.OK).
                 body(commentService.readComments(postId, offset, pagesize));
@@ -44,7 +41,7 @@ public class CommentController {
     public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long postId,
                                                             @PathVariable Long commentId,
                                                             @AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                            @RequestBody CommentRequestDto commentRequestDto){
+                                                            @RequestBody CommentRequestDto commentRequestDto) {
 
         return ResponseEntity.status(HttpStatus.OK).
                 body(commentService.updateComment(postId, commentId, userPrincipal.getUser(), commentRequestDto));
@@ -52,8 +49,8 @@ public class CommentController {
 
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long postId,
-                                                            @PathVariable Long commentId,
-                                                            @AuthenticationPrincipal UserPrincipal userPrincipal){
+                                              @PathVariable Long commentId,
+                                              @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         commentService.deleteComment(postId, commentId, userPrincipal.getUser());
         return ResponseEntity.ok().build();

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import axiosInstance from './api/axiosInstance';  // 경로가 맞는지 확인하세요
 import Header from './Header/Header';
 import HeaderAuth from './Header/HeaderAuth';
 import HeaderOn from './Header/HeaderOn';
@@ -26,22 +27,38 @@ import './App.css';
 
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [profile, setProfile] = useState(null);
 
     useEffect(() => {
-        // 초기 로그인 상태 확인
         const token = localStorage.getItem('Authorization');
         if (token) {
             setIsLoggedIn(true);
+            fetchData(); // 로그인 상태일 때 프로필 데이터 불러오기
         }
     }, []);
 
+    const fetchData = async () => {
+        try {
+            const profileResponse = await axiosInstance.get('/user', {
+                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+            });
+            setProfile(profileResponse.data);
+            localStorage.setItem('userId', profileResponse.data.id);
+        } catch (error) {
+            console.error('데이터 불러오기 실패:', error);
+        }
+    };
+
     const handleLogin = () => {
         setIsLoggedIn(true);
+        fetchData();
     };
 
     const handleLogout = () => {
         setIsLoggedIn(false);
         localStorage.removeItem('Authorization');
+        localStorage.removeItem('userId');
+        setProfile(null);
     };
 
     return (

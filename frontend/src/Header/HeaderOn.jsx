@@ -6,7 +6,6 @@ import './Header.css';
 const HeaderOn = ({ onLogout }) => {
     const navigate = useNavigate();
 
-    // JWT 디코딩 함수
     const decodeJwt = (token) => {
         try {
             const base64Url = token.split('.')[1];
@@ -20,7 +19,6 @@ const HeaderOn = ({ onLogout }) => {
         }
     };
 
-    // 토큰 만료 여부 확인 함수
     const isTokenExpired = (token) => {
         const decoded = decodeJwt(token);
         if (!decoded || !decoded.exp) {
@@ -34,7 +32,7 @@ const HeaderOn = ({ onLogout }) => {
         const token = localStorage.getItem('Authorization');
         if (token && isTokenExpired(token)) {
             onLogout();
-            navigate('/login'); // 토큰이 만료된 경우 로그인 페이지로 리디렉션
+            navigate('/login');
         }
     }, [navigate, onLogout]);
 
@@ -44,7 +42,7 @@ const HeaderOn = ({ onLogout }) => {
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
             onLogout();
-            navigate('/login'); // 로그아웃 후 로그인 페이지로 리디렉션
+            navigate('/');
         } catch (error) {
             console.error('로그아웃 실패:', error);
         }
