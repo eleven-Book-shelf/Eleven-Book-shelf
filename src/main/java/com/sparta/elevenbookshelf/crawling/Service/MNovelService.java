@@ -3,17 +3,17 @@ package com.sparta.elevenbookshelf.crawling.Service;
 import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
 import com.sparta.elevenbookshelf.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.entity.Content;
-import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -23,7 +23,6 @@ import java.util.Set;
 public class MNovelService {
 
     private final WebDriver webDriver;
-    private final ContentRepository contentRepository;
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
 
@@ -63,15 +62,7 @@ public class MNovelService {
             log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());
             crawlingUtil.waitForPage();
 
-            WebElement linkBox = webDriver.findElement(By.id("SECTION-LIST"));
-            Set<String> uniqueLinks = new HashSet<>();
-            List<WebElement> linkElements = linkBox.findElements(By.cssSelector(mArtLink));
-
-            for (WebElement element : linkElements) {
-                String uniqueLink = element.getAttribute("href");
-                uniqueLinks.add(uniqueLink);
-            }
-            log.info("유일한 링크 개수 {}: ", uniqueLinks.size());
+            Set<String> uniqueLinks = crawlingUtil.notDuplicatedLinks(By.id("SECTION-LIST"),By.cssSelector(mArtLink));
 
             int index = 0;
             for (String artUrl : uniqueLinks) {

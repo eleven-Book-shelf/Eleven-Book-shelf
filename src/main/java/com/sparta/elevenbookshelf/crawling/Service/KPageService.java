@@ -3,27 +3,28 @@ package com.sparta.elevenbookshelf.crawling.Service;
 import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
 import com.sparta.elevenbookshelf.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.entity.Content;
-import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
-import org.openqa.selenium.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "KService")
-@EnableScheduling
-public class KComicsService {
+@Slf4j(topic = "KPageService")
+public class KPageService {
 
     private final WebDriver webDriver;
     private final Set<String> disAllowedLink = new HashSet<>();
     private final CrawlingUtil crawlingUtil;
-    private final ContentRepository contentRepository;
+
+    @Value("${K_NOVEL_PAGE}")
+    private String kNovelPage;
 
     @Value("${K_COMICS_PAGE}")
     private String kComicsPage;
@@ -58,16 +59,29 @@ public class KComicsService {
     @Value("${K_RATING}")
     private String kRating;
 
+
+    public void serviceStart() {
+
+        log.info("K PAGE 시작.");
+
+        kPage(kNovelPage, "K NOVEL");
+        log.info("K NOVEL 종료.");
+
+//        kPage(kComicsPage, "K COMICS");
+//        log.info("K COMICS 종료. K PAGE 끝.");
+
+    }
+
     // 크롤링 메서드
-    public void kComicsStart() {
+    private void kPage(String page, String pageType) {
         doNotEnterThisLink();
-        log.info("K COMICS 시작.");
-        webDriver.get(kComicsPage);
+        log.info("{} 시작.", pageType);
+        webDriver.get(page);
         log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());
 
         try {
-           crawlingUtil.waitForPage();
-//           crawlingUtil.scrollToEndOfPage();
+            crawlingUtil.waitForPage();
+//            crawlingUtil.scrollToEndOfPage();
 
             List<WebElement> linkElements = crawlingUtil.waitForElements(By.cssSelector(pageArtLink), 10);
             log.info("찾은 링크 개수 {}: ", linkElements.size());
@@ -235,13 +249,13 @@ public class KComicsService {
 
     // robots.txt 파일에 규정된 접근 금지 목록.
     // TODO : 사이트별 robots.txt 규약을 적응형으로 적용하게끔 수정 필요.
-    public void doNotEnterThisLink() {
+    private void doNotEnterThisLink() {
         disAllowedLink.add(robotsTxtNo1);
         disAllowedLink.add(robotsTxtNo2);
 
         for (String disAllowed : disAllowedLink) {
             log.info("접근 금지 링크 : {}", disAllowed);
         }
-    }
 
+    }
 }
