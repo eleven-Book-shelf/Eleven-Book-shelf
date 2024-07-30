@@ -1,21 +1,18 @@
 package com.sparta.elevenbookshelf.crawling.Service;
 
-import com.sparta.elevenbookshelf.crawling.CrawlingTest;
-import com.sparta.elevenbookshelf.crawling.CrawlingTestRepository;
 import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
-import jakarta.annotation.PostConstruct;
+import com.sparta.elevenbookshelf.dto.ContentRequestDto;
+import com.sparta.elevenbookshelf.entity.Content;
+import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
+import org.openqa.selenium.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +21,7 @@ import java.util.Set;
 public class KNovelService {
 
     private final WebDriver webDriver;
-    private final CrawlingTestRepository crawlingTestRepository;
+    private final ContentRepository contentRepository;
     private final Set<String> disAllowedLink = new HashSet<>();
     private final CrawlingUtil crawlingUtil;
 
@@ -61,7 +58,6 @@ public class KNovelService {
     @Value("${K_RATING}")
     private String kRating;
 
-    // TODO : 크롤링이 오래 걸리기 때문에 @Async 사용 고려하기.
     // 크롤링 메서드
     public void kNovelsStart() {
         doNotEnterThisLink();
@@ -94,10 +90,10 @@ public class KNovelService {
             int totalLinks = allLinks.size();
 
             for (int i = 0; i < totalLinks; i++) {
-                CrawlingTest crawlingTest = new CrawlingTest();
+                ContentRequestDto requestDto = new ContentRequestDto();
 
                 String artUrl = allLinks.get(i);
-                crawlingTest.setUrl(artUrl);
+                requestDto.setUrl(artUrl);
                 log.info("현재 링크 위치 : {}/{}", i + 1, totalLinks);
 
                 try {
@@ -118,23 +114,33 @@ public class KNovelService {
 
                     crawlingUtil.waitForPage();
                     String title = crawlingUtil.metaData(kTitle, "content");
-                    crawlingTest.setTitle(title);
+                    requestDto.setTitle(title);
                     log.info("작품 제목 : {}", title);
 
                     crawlingUtil.waitForPage();
                     String author = crawlingUtil.metaData(kAuthor, "content");
-                    crawlingTest.setAuthor(author);
+                    requestDto.setAuthor(author);
                     log.info("작가 : {}", author);
 
                     crawlingUtil.waitForPage();
                     String site = crawlingUtil.metaData(kSite, "content");
-                    crawlingTest.setPlatform(site);
+                    requestDto.setPlatform(site);
                     log.info("작품 게시 사이트 : {}", site);
 
                     crawlingUtil.waitForPage();
                     String completeOrNot = crawlingUtil.metaData(kComplete, "content");
-                    crawlingTest.setCompleteOrNot(completeOrNot);
-                    log.info("완결 유무 : {}", completeOrNot);
+                    if (completeOrNot.contains("연재")) {
+                        requestDto.setIsEnd(Content.ContentEnd.NOT);
+                        log.info("완결 유무 : 연재중");
+                    } else {
+                        requestDto.setIsEnd(Content.ContentEnd.END);
+                        log.info("완결 유무 : 완결");
+                    }
+
+                    crawlingUtil.waitForPage();
+                    String description = crawlingUtil.metaData("//meta[@name='description']","content");
+                    requestDto.setDescription(description);
+                    log.info("작품 소개. : {}", description);
 
                     crawlingUtil.waitForPage();
                     String totalViewData = crawlingUtil.bodyData(kTotalView);
@@ -144,29 +150,29 @@ public class KNovelService {
                         String totalViewParse = totalViewData.replace("만", "").trim();
                         Double totalView = Double.parseDouble(totalViewParse) * 1000;
 
-                        crawlingTest.setTotalView(totalView);
+                        requestDto.setView(totalView);
                         log.info("만 제거한 총 조회수 : {}", totalView);
 
                     } else {
                         Double totalView = Double.parseDouble(totalViewData);
-                        crawlingTest.setTotalView(totalView);
+                        requestDto.setView(totalView);
                         log.info("조회수 : {}", totalView);
                     }
 
                     crawlingUtil.waitForPage();
-                    String contentType = crawlingUtil.bodyData(kContentType);
-                    crawlingTest.setContentType(contentType);
-                    log.info("장르 : {}", contentType);
+                    String genre = crawlingUtil.bodyData(kContentType);
+                    requestDto.setGenre(genre);
+                    log.info("장르 : {}", genre);
 
                     try {
                         crawlingUtil.waitForPage();
                         String ratingData = crawlingUtil.bodyData(kRating);
                         Double rating = Double.parseDouble(ratingData);
-                        crawlingTest.setRating(rating);
+                        requestDto.setRating(rating);
                         log.info("별점 : {}", rating);
 
                     } catch (NoSuchElementException | TimeoutException e) {
-                        crawlingTest.setRating(0.0);
+                        requestDto.setRating(0.0);
                         log.error("별점 : 표본 부족으로 0.0 저장.");
 
                     }
@@ -174,22 +180,46 @@ public class KNovelService {
                     crawlingUtil.waitForPage();
                     String type = webDriver.getTitle();
                     if (type.contains("웹툰")) {
+                        requestDto.setType(Content.ContentType.COMICS);
                         log.info("작품 타입 : 웹툰");
-                        crawlingTest.setComicsOrBook("웹툰");
                     } else {
+                        requestDto.setType(Content.ContentType.NOVEL);
                         log.info("작품 타입 : 웹소설");
-                        crawlingTest.setComicsOrBook("웹소설");
                     }
 
-                    String thumbnailXpath = String.format("//img[@alt='%s']", "썸네일");
-                    String thumbnail = crawlingUtil.getThumbnail(thumbnailXpath, false);
-                    crawlingTest.setThumbnail(thumbnail);
-                    log.info("작품 썸네일 : {}", thumbnail);
+                    String imgUrlXpath = String.format("//img[@alt='%s']", "썸네일");
+                    String imgUrl = crawlingUtil.getThumbnail(imgUrlXpath, false);
+                    requestDto.setImgUrl(imgUrl);
+                    log.info("작품 썸네일 : {}", imgUrl);
 
-                    crawlingTest.setBookMark(0L);
-                    crawlingTest.setLikeCount(0L);
+                    requestDto.setBookMark(0L);
+                    requestDto.setLikeCount(0L);
 
-                    crawlingTestRepository.save(crawlingTest);
+                    Optional<Content> updateOrCreate = contentRepository.findByUrl(artUrl);
+                    if (updateOrCreate.isPresent()) {
+                        Content content = updateOrCreate.get();
+                        content.updateContent(requestDto);
+                        contentRepository.save(content);
+
+                    } else {
+                        Content newContent = Content.builder()
+                                .title(requestDto.getTitle())
+                                .imgUrl(requestDto.getImgUrl())
+                                .description(requestDto.getDescription())
+                                .author(requestDto.getAuthor())
+                                .platform(requestDto.getPlatform())
+                                .view(requestDto.getView())
+                                .rating(requestDto.getRating())
+                                .type(requestDto.getType())
+                                .isEnd(requestDto.getIsEnd())
+                                .likeCount(requestDto.getLikeCount())
+                                .bookMark(requestDto.getBookMark())
+                                .url(requestDto.getUrl())
+                                .genre(requestDto.getGenre())
+                                .build();
+                        contentRepository.save(newContent);
+
+                    }
 
                     crawlingUtil.waitForPage();
                     webDriver.navigate().back();
@@ -219,8 +249,6 @@ public class KNovelService {
             }
 
         } finally {
-//            webDriver.quit();
-            log.info("\n");
             log.info("크롤링 종료");
             log.info("=============================");
         }

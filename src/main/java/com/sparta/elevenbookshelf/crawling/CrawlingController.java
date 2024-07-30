@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/crawling")
+@RequestMapping("/content")
 public class CrawlingController {
 
     private final MNovelService mNovelService;
@@ -35,6 +35,18 @@ public class CrawlingController {
         crawlingUtil.updateDatabase();
 
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostConstruct
+    public void test() {
+        mNovelService.mNovelsStart();
+//        kComicsService.kComicsStart();
+//        kNovelService.kNovelsStart();
+//        rNovelService.rNovelsStart();
+
+        crawlingUtil.exportToCsv();
+
+//        crawlingUtil.updateDatabase();
     }
 
 }

@@ -1,9 +1,9 @@
 package com.sparta.elevenbookshelf.crawling.Service;
 
-import com.sparta.elevenbookshelf.crawling.CrawlingTest;
-import com.sparta.elevenbookshelf.crawling.CrawlingTestRepository;
 import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
-import jakarta.annotation.PostConstruct;
+import com.sparta.elevenbookshelf.dto.ContentRequestDto;
+import com.sparta.elevenbookshelf.entity.Content;
+import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -22,7 +23,7 @@ import java.util.Set;
 public class MNovelService {
 
     private final WebDriver webDriver;
-    private final CrawlingTestRepository crawlingTestRepository;
+    private final ContentRepository contentRepository;
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
 
@@ -74,8 +75,8 @@ public class MNovelService {
 
             int index = 0;
             for (String artUrl : uniqueLinks) {
-                CrawlingTest crawlingTest = new CrawlingTest();
-                crawlingTest.setUrl(artUrl);
+                ContentRequestDto requestDto = new ContentRequestDto();
+                requestDto.setUrl(artUrl);
                 log.info("현재 링크 위치 : {}/{}", ++index, uniqueLinks.size());
 
                 try {
@@ -96,69 +97,74 @@ public class MNovelService {
 
                     crawlingUtil.waitForPage();
                     String title = crawlingUtil.metaData(mArtTitle, "content");
-                    crawlingTest.setTitle(title);
+                    requestDto.setTitle(title);
                     log.info("작품 제목 : {}", title);
 
                     crawlingUtil.waitForPage();
                     String author = crawlingUtil.bodyData(mAuthor);
-                    crawlingTest.setAuthor(author);
+                    requestDto.setAuthor(author);
                     log.info("작가 : {}", author);
 
                     crawlingUtil.waitForPage();
                     String site = crawlingUtil.metaData(mSite, "content");
-                    crawlingTest.setPlatform(site);
+                    requestDto.setPlatform(site);
                     log.info("작품 게시 사이트 : {}", site);
 
-                    crawlingUtil.waitForPage();
-                    crawlingTest.setCompleteOrNot("연재중");
-                    log.info("완결 여부 : 연재중");
+                    // 해당 링크는 연재중인 작품만 모아둔 곳임.
+                    requestDto.setIsEnd(Content.ContentEnd.NOT);
+                    log.info("완결 여부 : NOT");
 
                     crawlingUtil.waitForPage();
-                    String contentType = crawlingUtil.bodyData(mContentType);
-                    crawlingTest.setContentType(contentType);
-                    log.info("장르 : {}", contentType);
+                    String description = crawlingUtil.metaData("//meta[@name='description']","content");
+                    requestDto.setDescription(description);
+                    log.info("작품 소개. : {}", description);
+
+                    crawlingUtil.waitForPage();
+                    String genre = crawlingUtil.bodyData(mContentType);
+                    requestDto.setGenre(genre);
+                    log.info("장르 : {}", genre);
 
                     crawlingUtil.waitForPage();
                     String likeCountText = crawlingUtil.bodyData(mLikeCount);
                     String likeCountNumber = likeCountText.replace(",", "");
                     Long likeCount = Long.parseLong(likeCountNumber);
-                    crawlingTest.setLikeCount(likeCount);
+                    requestDto.setLikeCount(likeCount);
                     log.info("좋아요 수 : {}", likeCount);
 
                     crawlingUtil.waitForPage();
                     String bookMarkData = crawlingUtil.bodyData(mBookMark);
                     String bookMarkNumber = bookMarkData.replace(",", "");
                     Long bookMark = Long.parseLong(bookMarkNumber);
-                    crawlingTest.setBookMark(bookMark);
+                    requestDto.setBookMark(bookMark);
                     log.info("북마크 수 : {}", bookMark);
 
                     crawlingUtil.waitForPage();
                     String totalViewData = crawlingUtil.bodyData(mTotalCount);
                     totalViewData = totalViewData.replace(",", "");
                     Double totalView = Double.parseDouble(totalViewData);
-                    crawlingTest.setTotalView(totalView);
+                    requestDto.setView(totalView);
                     log.info("총 조회수 : {}", totalView);
 
                     crawlingUtil.waitForPage();
                     String type = webDriver.getTitle();
                     if (type.contains("웹툰")) {
                         log.info("작품 타입 : 웹툰");
-                        crawlingTest.setComicsOrBook("웹툰");
+                        requestDto.setType(Content.ContentType.COMICS);
                     } else {
                         log.info("작품 타입 : 웹소설");
-                        crawlingTest.setComicsOrBook("웹소설");
+                        requestDto.setType(Content.ContentType.NOVEL);
                     }
 
                     crawlingUtil.waitForPage();
-                    String thumbnailClass = String.format("img.%s", "cover");
-                    String thumbnail = crawlingUtil.getThumbnail(thumbnailClass, true);
-                    crawlingTest.setThumbnail(thumbnail);
-                    log.info("작품 썸네일 : {}", thumbnail);
+                    String imgUrlClass = String.format("img.%s", "cover");
+                    String imgUrl = crawlingUtil.getThumbnail(imgUrlClass, true);
+                    requestDto.setImgUrl(imgUrl);
+                    log.info("작품 썸네일 : {}", imgUrl);
 
-                    crawlingTest.setRating(0.0);
+                    requestDto.setRating(0.0);
                     log.info("현재 사이트 레이팅 지수 없음. 0.0으로 고정.");
 
-                    crawlingTestRepository.save(crawlingTest);
+                    crawlingUtil.saveData(requestDto, artUrl);
 
                     crawlingUtil.waitForPage();
                     webDriver.navigate().back();
@@ -189,8 +195,6 @@ public class MNovelService {
             }
 
         } finally {
-//            webDriver.quit();
-            log.info("\n");
             log.info("크롤링 종료");
             log.info("=============================");
         }
