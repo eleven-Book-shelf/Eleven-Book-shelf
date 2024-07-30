@@ -5,6 +5,7 @@ import com.sparta.elevenbookshelf.entity.Hashtag;
 import com.sparta.elevenbookshelf.entity.Timestamp;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,4 +26,11 @@ public class ContentHashtag extends Timestamp {
     @ManyToOne
     @JoinColumn(name = "hashtag_id")
     private Hashtag hashtag;
+
+    @Builder
+    public ContentHashtag (Content content, Hashtag hashtag) {
+
+        this.content = content;
+        this.hashtag = hashtag;
+    }
 }

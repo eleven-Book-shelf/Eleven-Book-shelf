@@ -22,6 +22,8 @@ public class Hashtag extends Timestamp {
     @Column(name = "hashtag_id")
     private Long id;
 
+    private double tier;
+
     private String tag;
 
     private int count;
@@ -37,7 +39,9 @@ public class Hashtag extends Timestamp {
 
     @Builder
     public Hashtag(String tag) {
+        this.tier = 0.0;
         this.tag = tag;
+        this.count = 0;
     }
 
     public void incrementCount() {
@@ -46,5 +50,9 @@ public class Hashtag extends Timestamp {
 
     public void decrementCount() {
         this.count--;
+    }
+
+    public void updateTier() {
+        this.tier = this.count/10;
     }
 }
