@@ -91,3 +91,16 @@
     max-height: 600px;
     overflow: auto;
 }
+
+.post_img {
+    width: 280px;
+    height: 400px;
+    object-fit: cover;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: right;
+
+    margin-bottom: 1.2rem;
+    background-position: center;
+    background-size: cover;
+}

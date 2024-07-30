@@ -1,7 +1,7 @@
 import React from 'react';
 import GenreFilter from '../../WebtoonPage/GenreFilter/GenreFilter';
 import RankingTabs from '../../WebtoonPage/RankingTabs/RankingTabs';
-import WebtoonCard from '../../WebtoonPage/WebtoonCard/WebtoonCard'
+import Card from "../../HomePage/Card/Card";
 
 const BookMarkedWebtoons = () => {
     const webtoons = [
@@ -22,12 +22,12 @@ const BookMarkedWebtoons = () => {
                 <div className="webtoon-grid">
                     {webtoons.map((webtoon, index) => (
                         <a href={`/webtoon/${webtoon.rank}`} key={index}>
-                            <WebtoonCard
-                                rank={webtoon.rank}
+                            <Card
+                                img={webtoon.imgUrl}
                                 title={webtoon.title}
-                                author={webtoon.author}
+                                description={webtoon.description}
+                                genre={webtoon.genre}
                                 rating={webtoon.rating}
-                                views={webtoon.views}
                             />
                         </a>
                     ))}

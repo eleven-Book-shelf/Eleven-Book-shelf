@@ -1,20 +1,27 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Card from './Card/Card';
 import './HomePage.css';
+import axiosInstance from "../../api/axiosInstance";
 
 const HomePage = ({onLogin}) => {
-    const ranking = [
-        {rank: 1,title: '전지적 독자 시점', description: '세계관 최강자를 향한 서사시', genre: '판타지, 액션', rating: '★★★★☆ 4.5/5',type:'webtoon' },
-        {rank: 2,title: '나 혼자만 레벨업', description: '현대 판타지의 정점', genre: '판타지, 액션', rating: '★★★★★ 4.8/5',type:'webnovel'},
-        {rank: 3,title: '갓 오브 하이스쿨', description: '액션과 판타지의 조화', genre: '액션, 개그', rating: '★★★★☆ 4.3/5',type:'webtoon'},
-        {rank: 4,title: '전생했더니 슬라임이었던 건에 대하여', description: '이세계 판타지의 새로운 지평', genre: '판타지, 모험', rating: '★★★★☆ 4.6/5',type:'webnovel'},
-        {rank: 5,title: '전생했더니 슬라임이었던 건에 대하여', description: '이세계 판타지의 새로운 지평', genre: '판타지, 모험', rating: '★★★★☆ 4.6/5',type:'webnovel'},
-        {rank: 6,title: '전생했더니 슬라임이었던 건에 대하여', description: '이세계 판타지의 새로운 지평', genre: '판타지, 모험', rating: '★★★★☆ 4.6/5',type:'webnovel'},
-        {rank: 6,title: '전생했더니 슬라임이었던 건에 대하여', description: '이세계 판타지의 새로운 지평', genre: '판타지, 모험', rating: '★★★★☆ 4.6/5',type:'webnovel'},
-        {rank: 6,title: '전생했더니 슬라임이었던 건에 대하여', description: '이세계 판타지의 새로운 지평', genre: '판타지, 모험', rating: '★★★★☆ 4.6/5',type:'webnovel'},
-        {rank: 6,title: '전생했더니 슬라임이었던 건에 대하여', description: '이세계 판타지의 새로운 지평', genre: '판타지, 모험', rating: '★★★★☆ 4.6/5',type:'webnovel'},
-        {rank: 7,title: '전생했더니 슬라임이었던 건에 대하여', description: '이세계 판타지의 새로운 지평', genre: '판타지, 모험', rating: '★★★★☆ 4.6/5',type:'webnovel'}
-    ];
+    const [ranking, setRanking] = useState([]);
+
+    useEffect(() => {
+        fetchContent();
+    }, []);
+
+    const fetchContent = async () => {
+        try {
+            const response = await axiosInstance.get(`/card`);
+            const content = response.data.map(content => ({
+                ...content,
+                type: content.type === 'COMICS' ? 'webtoon' : 'webnovel'
+            }));
+            setRanking(content);
+        } catch (error) {
+            console.error("컨텐츠를 불러오는 중 오류가 발생했습니다!", error);
+        }
+    };
 
     return (
         <div className="container">
@@ -22,8 +29,9 @@ const HomePage = ({onLogin}) => {
                 <h1>인기 웹툰 & 웹소설</h1>
                 <div className="grid">
                     {ranking.map((ranking, index) => (
-                        <a href={`/${ranking.type}/${ranking.rank}`} key={index}>
+                        <a href={`/${ranking.type}/${ranking.id}`} key={index}>
                             <Card
+                                img={ranking.imgUrl}
                                 title={ranking.title}
                                 description={ranking.description}
                                 genre={ranking.genre}

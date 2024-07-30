@@ -1,18 +1,30 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import GenreFilter from './GenreFilter/GenreFilter';
 import RankingTabs from './RankingTabs/RankingTabs';
-import WebtoonCard from './WebtoonCard/WebtoonCard';
+import Card from "../HomePage/Card/Card";
+import axiosInstance from "../../api/axiosInstance";
 import './WebtoonPage.css';
 
 const WebtoonPage = () => {
-    const webtoons = [
-        {rank: 1, title: '신의 탑', author: 'SIU', rating: '4.9', views: '1,500,000'},
-        {rank: 2, title: '여신강림', author: '야옹이', rating: '4.8', views: '1,400,000'},
-        {rank: 3, title: '독립일기', author: '자까', rating: '4.7', views: '1,300,000'},
-        {rank: 4, title: '갓 오브 하이스쿨', author: '박용제', rating: '4.6', views: '1,200,000'},
-        {rank: 5, title: '전지적 독자 시점', author: '슬리피-C', rating: '4.9', views: '1,100,000'},
-        {rank: 6, title: '나 혼자만 레벨업', author: '서유경, 추공', rating: '4.8', views: '1,000,000'}
-    ];
+    const [webtoons, setRanking] = useState([]);
+
+    useEffect(() => {
+        fetchContent();
+    }, []);
+
+    const fetchContent = async () => {
+        try {
+            const response = await axiosInstance.get(`/card`);
+            const content = response.data.map(content => ({
+                ...content,
+                type: content.type === 'COMICS' ? 'webtoon' : 'webnovel'
+            }));
+            setRanking(content);
+            console.log(content)
+        } catch (error) {
+            console.error("컨텐츠를 불러오는 중 오류가 발생했습니다!", error);
+        }
+    };
 
     return (
         <div>
@@ -22,13 +34,13 @@ const WebtoonPage = () => {
                 <RankingTabs/>
                 <div className="webtoon-grid">
                     {webtoons.map((webtoon, index) => (
-                        <a href={`/webtoon/${webtoon.rank}`} key={index}>
-                            <WebtoonCard
-                                rank={webtoon.rank}
+                        <a href={`/webtoon/${webtoon.id}`} key={index}>
+                            <Card
+                                img={webtoon.imgUrl}
                                 title={webtoon.title}
-                                author={webtoon.author}
+                                description={webtoon.description}
+                                genre={webtoon.genre}
                                 rating={webtoon.rating}
-                                views={webtoon.views}
                             />
                         </a>
                     ))}

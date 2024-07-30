@@ -69,8 +69,8 @@ const App = () => {
                     <Route path="/" element={<HomePage onLogin={handleLogin} />} />
                     <Route path="/webtoon" element={<WebtoonPage />} />
                     <Route path="/webnovel" element={<WebnovelPage />} />
-                    <Route path="/webtoon/:id" element={<ContentDetailPage />} />
-                    <Route path="/webnovel/:id" element={<ContentDetailPage />} />
+                    <Route path="/webtoon/:cardId" element={<ContentDetailPage />} />
+                    <Route path="/webnovel/:cardId" element={<ContentDetailPage />} />
 
                     <Route path="/signup" element={<SignupPage />} />
                     <Route path="/login" element={<LoginPage />} />

@@ -15,6 +15,7 @@ public class ContentResponseDto {
     private String description;
     private String author;
     private String platform;
+    private String genre;
     private Double view;
     private Double rating;
     private Content.ContentType type;
@@ -28,6 +29,7 @@ public class ContentResponseDto {
         this.description = content.getDescription();
         this.author = content.getAuthor();
         this.platform = content.getPlatform();
+        this.genre = content.getGenre();
         this.view = content.getView();
         this.rating = content.getRating();
         this.type = content.getType();
