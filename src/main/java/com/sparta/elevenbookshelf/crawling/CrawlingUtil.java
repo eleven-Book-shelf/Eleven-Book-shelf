@@ -198,8 +198,8 @@ public class CrawlingUtil {
                         data.getRating(),
                         data.getBookMark(),
                         data.getLikeCount(),
-                        data.getType(),
-                        data.getIsEnd(),
+                        data.getType().toString(),
+                        data.getIsEnd().toString(),
                         data.getImgUrl()
                 );
             }
@@ -262,7 +262,7 @@ public class CrawlingUtil {
                 .rating(parseDoubleOrDefault(csvRecord.get("Rating")))
                 .bookMark(parseLongOrDefault(csvRecord.get("Bookmark")))
                 .likeCount(parseLongOrDefault(csvRecord.get("LikeCount")))
-                .type(Content.ContentType.valueOf(csvRecord.get("ContentType").toUpperCase()))
+                .type(Content.ContentType.valueOf(csvRecord.get("Type").toUpperCase()))
                 .isEnd(Content.ContentEnd.valueOf(csvRecord.get("IsEnd").toUpperCase()))
                 .imgUrl(csvRecord.get("ImgUrl"))
                 .build();
@@ -282,7 +282,7 @@ public class CrawlingUtil {
         requestDto.setRating(parseDoubleOrDefault(csvRecord.get("Rating")));
         requestDto.setBookMark(parseLongOrDefault(csvRecord.get("Bookmark")));
         requestDto.setLikeCount(parseLongOrDefault(csvRecord.get("LikeCount")));
-        requestDto.setType(Content.ContentType.valueOf(csvRecord.get("ContentType").toUpperCase()));
+        requestDto.setType(Content.ContentType.valueOf(csvRecord.get("Type").toUpperCase()));
         requestDto.setIsEnd(Content.ContentEnd.valueOf(csvRecord.get("IsEnd").toUpperCase()));
         return requestDto;
     }
