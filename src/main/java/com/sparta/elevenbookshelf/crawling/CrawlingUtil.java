@@ -24,9 +24,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j(topic = "CrawlingUtil")
@@ -50,6 +52,24 @@ public class CrawlingUtil {
         }
         return false;
     }
+
+    // 중복 링크 제거.
+    public Set<String> notDuplicatedLinks(By id, By cssSelector) {
+        Set<String> uniqueLinks = new HashSet<>();
+        try {
+            WebElement parentElement = webDriver.findElement(id);
+            List<WebElement> linkElements = parentElement.findElements(cssSelector);
+            for (WebElement element : linkElements) {
+                String uniqueLink = element.getAttribute("href");
+                uniqueLinks.add(uniqueLink);
+            }
+            log.info("유일한 링크 개수 : {} ", uniqueLinks.size());
+        } catch (NoSuchElementException e) {
+            log.error("요소를 찾을 수 없습니다: {}", e.getMessage());
+        }
+        return uniqueLinks;
+    }
+
 
     // 페이지 로딩을 기다리는 메서드.
     public void waitForPage() {
@@ -100,6 +120,7 @@ public class CrawlingUtil {
     // 동적 페이지 스크롤 최 하단 이동 메서드.
     // End 를 눌렀을 경우 페이지 최 하단으로 이동하는 페이지에 사용.
     public void scrollController() {
+        log.info("Selenium 동적 스크롤 실행.");
         Actions actions = new Actions(webDriver);
 
         for (int i = 0; i <= 20; i++) {
@@ -121,26 +142,31 @@ public class CrawlingUtil {
     public void scrollToEndOfPage() {
         // 자바 스크립트 코드를 실행 할 수 있도록 JavascriptExecutor 객체 생성.
         JavascriptExecutor js = (JavascriptExecutor) webDriver;
+        log.info("JS 동적 스크롤 실행.");
 
         // 현재 페이지의 총 높이를 저장.
         long lastHeight = (long) js.executeScript("return document.body.scrollHeight");
+        log.info("현재 높이 : {}", lastHeight);
 
         // 스크롤이 바닥에 닿을때까지 반복
         while (true) {
             // 페이지를 끝까지 스크롤함.
             js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-            sleep(1000);
+            sleep(500);
 
             // 스크롤을 최하단까지 내린후 페이지의 총 높이를 다시 저장.
             long newHeight = (long) js.executeScript("return document.body.scrollHeight");
+            log.info("스크롤 후 페이지 높이 : {}", newHeight);
 
             // 이번 반복에서 저장한 페이지의 총 높이와 이전 반복에서 저장한 페이지의 총 높이가 같다면 반복을 종료.
             if (newHeight == lastHeight) {
+                log.info("페이지 끝 도착.");
                 break;
             }
 
             // 마지막 반복의 높이값을 계속 업데이트하여 조건문에서 검사가 가능하도록 함.
             lastHeight = newHeight;
+            log.info("페이지 높이 다름. 반복 실시.");
         }
     }
 
@@ -152,6 +178,35 @@ public class CrawlingUtil {
             log.error("쓰레드 슬립 도중 에러 발생. : {}", e.getMessage());
             Thread.currentThread().interrupt();
         }
+    }
+
+    public void saveData(ContentRequestDto requestDto, String artUrl) {
+        Optional<Content> dataSave = contentRepository.findByUrl(artUrl);
+        if (dataSave.isPresent()) {
+
+            Content content = dataSave.get();
+            content.updateContent(requestDto);
+            contentRepository.save(content);
+        } else {
+
+            Content newContent = Content.builder()
+                    .title(requestDto.getTitle())
+                    .imgUrl(requestDto.getImgUrl())
+                    .description(requestDto.getDescription())
+                    .author(requestDto.getAuthor())
+                    .platform(requestDto.getPlatform())
+                    .view(requestDto.getView())
+                    .rating(requestDto.getRating())
+                    .type(requestDto.getType())
+                    .isEnd(requestDto.getIsEnd())
+                    .likeCount(requestDto.getLikeCount())
+                    .bookMark(requestDto.getBookMark())
+                    .url(requestDto.getUrl())
+                    .genre(requestDto.getGenre())
+                    .build();
+            contentRepository.save(newContent);
+        }
+
     }
 
     // csv 파일로 변환하여 저장.
@@ -198,8 +253,8 @@ public class CrawlingUtil {
                         data.getRating(),
                         data.getBookMark(),
                         data.getLikeCount(),
-                        data.getType(),
-                        data.getIsEnd(),
+                        data.getType().toString(),
+                        data.getIsEnd().toString(),
                         data.getImgUrl()
                 );
             }
@@ -262,7 +317,7 @@ public class CrawlingUtil {
                 .rating(parseDoubleOrDefault(csvRecord.get("Rating")))
                 .bookMark(parseLongOrDefault(csvRecord.get("Bookmark")))
                 .likeCount(parseLongOrDefault(csvRecord.get("LikeCount")))
-                .type(Content.ContentType.valueOf(csvRecord.get("ContentType").toUpperCase()))
+                .type(Content.ContentType.valueOf(csvRecord.get("Type").toUpperCase()))
                 .isEnd(Content.ContentEnd.valueOf(csvRecord.get("IsEnd").toUpperCase()))
                 .imgUrl(csvRecord.get("ImgUrl"))
                 .build();
@@ -282,7 +337,7 @@ public class CrawlingUtil {
         requestDto.setRating(parseDoubleOrDefault(csvRecord.get("Rating")));
         requestDto.setBookMark(parseLongOrDefault(csvRecord.get("Bookmark")));
         requestDto.setLikeCount(parseLongOrDefault(csvRecord.get("LikeCount")));
-        requestDto.setType(Content.ContentType.valueOf(csvRecord.get("ContentType").toUpperCase()));
+        requestDto.setType(Content.ContentType.valueOf(csvRecord.get("Type").toUpperCase()));
         requestDto.setIsEnd(Content.ContentEnd.valueOf(csvRecord.get("IsEnd").toUpperCase()));
         return requestDto;
     }

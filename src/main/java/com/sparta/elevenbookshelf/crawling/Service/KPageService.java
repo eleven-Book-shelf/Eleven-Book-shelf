@@ -1,15 +1,12 @@
 package com.sparta.elevenbookshelf.crawling.Service;
 
-import com.sparta.elevenbookshelf.crawling.CrawlingTest;
-import com.sparta.elevenbookshelf.crawling.CrawlingTestRepository;
 import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
-import jakarta.annotation.PostConstruct;
+import com.sparta.elevenbookshelf.dto.ContentRequestDto;
+import com.sparta.elevenbookshelf.entity.Content;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,23 +16,24 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "KService")
-@EnableScheduling
-public class KNovelService {
+@Slf4j(topic = "KPageService")
+public class KPageService {
 
     private final WebDriver webDriver;
-    private final CrawlingTestRepository crawlingTestRepository;
     private final Set<String> disAllowedLink = new HashSet<>();
     private final CrawlingUtil crawlingUtil;
 
+    @Value("${K_NOVEL_PAGE}")
+    private String kNovelPage;
+
+    @Value("${K_COMICS_PAGE}")
+    private String kComicsPage;
+
     @Value("${K_ROBOTS1}")
-    private String kRobots1;
+    private String robotsTxtNo1;
 
     @Value("${K_ROBOTS2}")
-    private String kRobots2;
-
-    @Value("${K_NOVEL_PAGE}")
-    private String kCrawlingPage;
+    private String robotsTxtNo2;
 
     @Value("${K_ART_LINK}")
     private String pageArtLink;
@@ -61,17 +59,29 @@ public class KNovelService {
     @Value("${K_RATING}")
     private String kRating;
 
-    // TODO : 크롤링이 오래 걸리기 때문에 @Async 사용 고려하기.
+
+    public void serviceStart() {
+
+        log.info("K PAGE 시작.");
+
+        kPage(kNovelPage, "K NOVEL");
+        log.info("K NOVEL 종료.");
+
+//        kPage(kComicsPage, "K COMICS");
+//        log.info("K COMICS 종료. K PAGE 끝.");
+
+    }
+
     // 크롤링 메서드
-    public void kNovelsStart() {
+    private void kPage(String page, String pageType) {
         doNotEnterThisLink();
-        log.info("K NOVEL 시작.");
-        webDriver.get(kCrawlingPage);
+        log.info("{} 시작.", pageType);
+        webDriver.get(page);
         log.info("크롤링 할 페이지 : {}", webDriver.getCurrentUrl());
 
         try {
-           crawlingUtil.waitForPage();
-//           crawlingUtil.scrollToEndOfPage();
+            crawlingUtil.waitForPage();
+//            crawlingUtil.scrollToEndOfPage();
 
             List<WebElement> linkElements = crawlingUtil.waitForElements(By.cssSelector(pageArtLink), 10);
             log.info("찾은 링크 개수 {}: ", linkElements.size());
@@ -94,10 +104,10 @@ public class KNovelService {
             int totalLinks = allLinks.size();
 
             for (int i = 0; i < totalLinks; i++) {
-                CrawlingTest crawlingTest = new CrawlingTest();
+                ContentRequestDto requestDto = new ContentRequestDto();
 
                 String artUrl = allLinks.get(i);
-                crawlingTest.setUrl(artUrl);
+                requestDto.setUrl(artUrl);
                 log.info("현재 링크 위치 : {}/{}", i + 1, totalLinks);
 
                 try {
@@ -118,23 +128,33 @@ public class KNovelService {
 
                     crawlingUtil.waitForPage();
                     String title = crawlingUtil.metaData(kTitle, "content");
-                    crawlingTest.setTitle(title);
+                    requestDto.setTitle(title);
                     log.info("작품 제목 : {}", title);
 
                     crawlingUtil.waitForPage();
                     String author = crawlingUtil.metaData(kAuthor, "content");
-                    crawlingTest.setAuthor(author);
+                    requestDto.setAuthor(author);
                     log.info("작가 : {}", author);
 
                     crawlingUtil.waitForPage();
                     String site = crawlingUtil.metaData(kSite, "content");
-                    crawlingTest.setPlatform(site);
+                    requestDto.setPlatform(site);
                     log.info("작품 게시 사이트 : {}", site);
 
                     crawlingUtil.waitForPage();
                     String completeOrNot = crawlingUtil.metaData(kComplete, "content");
-                    crawlingTest.setCompleteOrNot(completeOrNot);
-                    log.info("완결 유무 : {}", completeOrNot);
+                    if (completeOrNot.contains("연재")) {
+                        requestDto.setIsEnd(Content.ContentEnd.NOT);
+                        log.info("완결 유무 : NOT");
+                    } else {
+                        requestDto.setIsEnd(Content.ContentEnd.END);
+                        log.info("완결 유무 : END");
+                    }
+
+                    crawlingUtil.waitForPage();
+                    String description = crawlingUtil.metaData("//meta[@name='description']","content");
+                    requestDto.setDescription(description);
+                    log.info("작품 소개. : {}", description);
 
                     crawlingUtil.waitForPage();
                     String totalViewData = crawlingUtil.bodyData(kTotalView);
@@ -144,29 +164,29 @@ public class KNovelService {
                         String totalViewParse = totalViewData.replace("만", "").trim();
                         Double totalView = Double.parseDouble(totalViewParse) * 1000;
 
-                        crawlingTest.setTotalView(totalView);
+                        requestDto.setView(totalView);
                         log.info("만 제거한 총 조회수 : {}", totalView);
 
                     } else {
                         Double totalView = Double.parseDouble(totalViewData);
-                        crawlingTest.setTotalView(totalView);
+                        requestDto.setView(totalView);
                         log.info("조회수 : {}", totalView);
                     }
 
                     crawlingUtil.waitForPage();
-                    String contentType = crawlingUtil.bodyData(kContentType);
-                    crawlingTest.setContentType(contentType);
-                    log.info("장르 : {}", contentType);
+                    String genre = crawlingUtil.bodyData(kContentType);
+                    requestDto.setGenre(genre);
+                    log.info("장르 : {}", genre);
 
                     try {
                         crawlingUtil.waitForPage();
                         String ratingData = crawlingUtil.bodyData(kRating);
                         Double rating = Double.parseDouble(ratingData);
-                        crawlingTest.setRating(rating);
+                        requestDto.setRating(rating);
                         log.info("별점 : {}", rating);
 
                     } catch (NoSuchElementException | TimeoutException e) {
-                        crawlingTest.setRating(0.0);
+                        requestDto.setRating(0.0);
                         log.error("별점 : 표본 부족으로 0.0 저장.");
 
                     }
@@ -174,22 +194,22 @@ public class KNovelService {
                     crawlingUtil.waitForPage();
                     String type = webDriver.getTitle();
                     if (type.contains("웹툰")) {
+                        requestDto.setType(Content.ContentType.COMICS);
                         log.info("작품 타입 : 웹툰");
-                        crawlingTest.setComicsOrBook("웹툰");
                     } else {
+                        requestDto.setType(Content.ContentType.NOVEL);
                         log.info("작품 타입 : 웹소설");
-                        crawlingTest.setComicsOrBook("웹소설");
                     }
 
-                    String thumbnailXpath = String.format("//img[@alt='%s']", "썸네일");
-                    String thumbnail = crawlingUtil.getThumbnail(thumbnailXpath, false);
-                    crawlingTest.setThumbnail(thumbnail);
-                    log.info("작품 썸네일 : {}", thumbnail);
+                    String imgUrlXpath = String.format("//img[@alt='%s']", "썸네일");
+                    String imgUrl = crawlingUtil.getThumbnail(imgUrlXpath, false);
+                    requestDto.setImgUrl(imgUrl);
+                    log.info("작품 썸네일 : {}", imgUrl);
 
-                    crawlingTest.setBookMark(0L);
-                    crawlingTest.setLikeCount(0L);
+                    requestDto.setBookMark(0L);
+                    requestDto.setLikeCount(0L);
 
-                    crawlingTestRepository.save(crawlingTest);
+                    crawlingUtil.saveData(requestDto, artUrl);
 
                     crawlingUtil.waitForPage();
                     webDriver.navigate().back();
@@ -219,8 +239,6 @@ public class KNovelService {
             }
 
         } finally {
-            webDriver.quit();
-            log.info("\n");
             log.info("크롤링 종료");
             log.info("=============================");
         }
@@ -231,13 +249,13 @@ public class KNovelService {
 
     // robots.txt 파일에 규정된 접근 금지 목록.
     // TODO : 사이트별 robots.txt 규약을 적응형으로 적용하게끔 수정 필요.
-    public void doNotEnterThisLink() {
-        disAllowedLink.add(kRobots1);
-        disAllowedLink.add(kRobots2);
+    private void doNotEnterThisLink() {
+        disAllowedLink.add(robotsTxtNo1);
+        disAllowedLink.add(robotsTxtNo2);
 
         for (String disAllowed : disAllowedLink) {
             log.info("접근 금지 링크 : {}", disAllowed);
         }
-    }
 
+    }
 }
