@@ -154,6 +154,35 @@ public class CrawlingUtil {
         }
     }
 
+    public void saveData(ContentRequestDto requestDto, String artUrl) {
+        Optional<Content> dataSave = contentRepository.findByUrl(artUrl);
+        if (dataSave.isPresent()) {
+
+            Content content = dataSave.get();
+            content.updateContent(requestDto);
+            contentRepository.save(content);
+        } else {
+
+            Content newContent = Content.builder()
+                    .title(requestDto.getTitle())
+                    .imgUrl(requestDto.getImgUrl())
+                    .description(requestDto.getDescription())
+                    .author(requestDto.getAuthor())
+                    .platform(requestDto.getPlatform())
+                    .view(requestDto.getView())
+                    .rating(requestDto.getRating())
+                    .type(requestDto.getType())
+                    .isEnd(requestDto.getIsEnd())
+                    .likeCount(requestDto.getLikeCount())
+                    .bookMark(requestDto.getBookMark())
+                    .url(requestDto.getUrl())
+                    .genre(requestDto.getGenre())
+                    .build();
+            contentRepository.save(newContent);
+        }
+
+    }
+
     // csv 파일로 변환하여 저장.
     public void exportToCsv() {
         log.info("파일 저장 메서드 실행");

@@ -1,20 +1,15 @@
 package com.sparta.elevenbookshelf.crawling.Service;
 
-import com.sparta.elevenbookshelf.crawling.CrawlingTest;
-import com.sparta.elevenbookshelf.crawling.CrawlingTestRepository;
 import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
 import com.sparta.elevenbookshelf.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.entity.Content;
 import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.C;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -63,7 +58,6 @@ public class KComicsService {
     @Value("${K_RATING}")
     private String kRating;
 
-    // TODO : 크롤링이 오래 걸리기 때문에 @Async 사용 고려하기.
     // 크롤링 메서드
     public void kComicsStart() {
         doNotEnterThisLink();
@@ -137,10 +131,10 @@ public class KComicsService {
                     String completeOrNot = crawlingUtil.metaData(kComplete, "content");
                     if (completeOrNot.contains("연재")) {
                         requestDto.setIsEnd(Content.ContentEnd.NOT);
-                        log.info("완결 유무 : 연재중");
+                        log.info("완결 유무 : NOT");
                     } else {
                         requestDto.setIsEnd(Content.ContentEnd.END);
-                        log.info("완결 유무 : 완결");
+                        log.info("완결 유무 : END");
                     }
 
                     crawlingUtil.waitForPage();
@@ -166,9 +160,9 @@ public class KComicsService {
                     }
 
                     crawlingUtil.waitForPage();
-                    String contentType = crawlingUtil.bodyData(kContentType);
-                    requestDto.setGenre(contentType);
-                    log.info("장르 : {}", contentType);
+                    String genre = crawlingUtil.bodyData(kContentType);
+                    requestDto.setGenre(genre);
+                    log.info("장르 : {}", genre);
 
                     try {
                         crawlingUtil.waitForPage();
@@ -201,31 +195,7 @@ public class KComicsService {
                     requestDto.setBookMark(0L);
                     requestDto.setLikeCount(0L);
 
-                    Optional<Content> updateOrCreate = contentRepository.findByUrl(artUrl);
-                    if (updateOrCreate.isPresent()) {
-                        Content content = updateOrCreate.get();
-                        content.updateContent(requestDto);
-                        contentRepository.save(content);
-
-                    } else {
-                        Content newContent = Content.builder()
-                                .title(requestDto.getTitle())
-                                .imgUrl(requestDto.getImgUrl())
-                                .description(requestDto.getDescription())
-                                .author(requestDto.getAuthor())
-                                .platform(requestDto.getPlatform())
-                                .view(requestDto.getView())
-                                .rating(requestDto.getRating())
-                                .type(requestDto.getType())
-                                .isEnd(requestDto.getIsEnd())
-                                .likeCount(requestDto.getLikeCount())
-                                .bookMark(requestDto.getBookMark())
-                                .url(requestDto.getUrl())
-                                .genre(requestDto.getGenre())
-                                .build();
-                        contentRepository.save(newContent);
-
-                    }
+                    crawlingUtil.saveData(requestDto, artUrl);
 
                     crawlingUtil.waitForPage();
                     webDriver.navigate().back();
@@ -255,8 +225,6 @@ public class KComicsService {
             }
 
         } finally {
-            webDriver.quit();
-            log.info("\n");
             log.info("크롤링 종료");
             log.info("=============================");
         }
