@@ -36,17 +36,4 @@ public class CrawlingController {
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-    @PostConstruct
-    public void test() {
-        mNovelService.mNovelsStart();
-//        kComicsService.kComicsStart();
-//        kNovelService.kNovelsStart();
-//        rNovelService.rNovelsStart();
-
-        crawlingUtil.exportToCsv();
-
-//        crawlingUtil.updateDatabase();
-    }
-
 }
