@@ -4,6 +4,7 @@ import com.sparta.elevenbookshelf.entity.Board;
 import com.sparta.elevenbookshelf.entity.Content;
 import com.sparta.elevenbookshelf.entity.Timestamp;
 import com.sparta.elevenbookshelf.entity.User;
+import com.sparta.elevenbookshelf.entity.mappingEntity.PostHashtag;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -12,6 +13,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -44,6 +47,9 @@ public abstract class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_id")
     private Content content;
+
+    @OneToMany(mappedBy = "post")
+    private Set<PostHashtag> postHashtags = new HashSet<>();
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
