@@ -222,7 +222,6 @@ public class RNovelService {
             }
 
         } finally {
-            webDriver.quit();
             log.info("리디 크롤링 종료");
             log.info("========================");
         }
