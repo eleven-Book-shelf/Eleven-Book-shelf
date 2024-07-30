@@ -1,0 +1,8 @@
+### 모든 크롤링 서비스 시작.
+POST localhost:8080/content/start/all
+
+### DB 크롤링 데이터 로컬에 저장.
+GET localhost:8080/content/local
+
+### 로컬 크롤링 데이터로 DB 업데이트.
+POST localhost:8080/content/local/update

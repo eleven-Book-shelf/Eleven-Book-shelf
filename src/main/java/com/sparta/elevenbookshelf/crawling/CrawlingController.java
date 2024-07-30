@@ -1,9 +1,9 @@
 package com.sparta.elevenbookshelf.crawling;
 
-import com.sparta.elevenbookshelf.crawling.Service.*;
-import jakarta.annotation.PostConstruct;
+import com.sparta.elevenbookshelf.crawling.Service.KPageService;
+import com.sparta.elevenbookshelf.crawling.Service.MNovelService;
+import com.sparta.elevenbookshelf.crawling.Service.RNovelService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CrawlingController {
 
     private final MNovelService mNovelService;
-    private final KComicsService kComicsService;
-    private final KNovelService kNovelService;
+    private final KPageService kPageService;
     private final RNovelService rNovelService;
     private final CrawlingUtil crawlingUtil;
 
@@ -26,12 +25,25 @@ public class CrawlingController {
     public ResponseEntity<Void> allCrawlingStart() {
 
         mNovelService.mNovelsStart();
-        kComicsService.kComicsStart();
-        kNovelService.kNovelsStart();
+        kPageService.serviceStart();
         rNovelService.rNovelsStart();
 
         crawlingUtil.exportToCsv();
 
+        crawlingUtil.updateDatabase();
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/local")
+    public ResponseEntity<Void> csvFileToLocal() {
+        crawlingUtil.exportToCsv();
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/local/update")
+    public ResponseEntity<Void> localToDataBase() {
         crawlingUtil.updateDatabase();
 
         return ResponseEntity.status(HttpStatus.OK).build();

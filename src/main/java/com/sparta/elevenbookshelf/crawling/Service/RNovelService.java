@@ -3,7 +3,6 @@ package com.sparta.elevenbookshelf.crawling.Service;
 import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
 import com.sparta.elevenbookshelf.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.entity.Content;
-import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
@@ -22,7 +21,6 @@ import java.util.Set;
 public class RNovelService {
 
     private final WebDriver webDriver;
-    private final ContentRepository contentRepository;
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
 
@@ -70,18 +68,8 @@ public class RNovelService {
 
 //                crawlingUtil.scrollController();
 
-                // 중복을 제거하기 위해 Set 사용
-                Set<String> uniqueLinks = new HashSet<>();
-
-                // 페이지 내의 모든 링크를 반복해서 찾고 중복 제거
-                WebElement linkBox = webDriver.findElement(By.cssSelector(rArtClass));
-                List<WebElement> linkElements = linkBox.findElements(By.cssSelector(rArtLink));
-                for (WebElement element : linkElements) {
-                    String uniqueLink = element.getAttribute("href");
-                    uniqueLinks.add(uniqueLink);
-                }
-                log.info("유일한 링크 개수 {}: ", uniqueLinks.size());
-
+                // 중복제거
+                Set<String> uniqueLinks = crawlingUtil.notDuplicatedLinks(By.cssSelector(rArtClass), By.cssSelector(rArtLink));
 
                 int index = 0;
                 for (String artUrl : uniqueLinks) {
@@ -149,7 +137,6 @@ public class RNovelService {
                         log.info("좋아요 수 : {}", likeCount);
 
                         try {
-
                             crawlingUtil.waitForPage();
                             String ratingData = crawlingUtil.bodyData(rRating);
                             String numberOnly = ratingData.replaceAll("[점명]","").trim();
@@ -214,6 +201,11 @@ public class RNovelService {
                 try {
                     page++;
                     log.info("다음 페이지로 이동 페이지 : {}", page);
+
+                    if (page == 5) {
+                        break;
+                    }
+
                 } catch (NoSuchElementException e) {
                     log.info("더 이상 페이지가 없습니다.");
                     break;
