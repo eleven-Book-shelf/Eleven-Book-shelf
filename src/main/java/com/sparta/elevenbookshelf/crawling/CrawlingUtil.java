@@ -1,8 +1,11 @@
 package com.sparta.elevenbookshelf.crawling;
 
 import com.sparta.elevenbookshelf.dto.ContentRequestDto;
+import com.sparta.elevenbookshelf.dto.ContentResponseDto;
+import com.sparta.elevenbookshelf.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.entity.Content;
 import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
+import com.sparta.elevenbookshelf.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -36,6 +39,7 @@ public class CrawlingUtil {
 
     private final WebDriver webDriver;
     private final ContentRepository contentRepository;
+    private final BoardService boardService;
 
     @Value("${CSV_FILE}")
     private String csvOutputDirectory;
@@ -187,6 +191,7 @@ public class CrawlingUtil {
             Content content = dataSave.get();
             content.updateContent(requestDto);
             contentRepository.save(content);
+
         } else {
 
             Content newContent = Content.builder()
@@ -205,6 +210,9 @@ public class CrawlingUtil {
                     .genre(requestDto.getGenre())
                     .build();
             contentRepository.save(newContent);
+            ContentResponseDto res = new ContentResponseDto(newContent);
+            PostRequestDto req = new PostRequestDto(res);
+            boardService.createPost(null,null,req);
         }
 
     }
