@@ -1,17 +1,16 @@
 package com.sparta.elevenbookshelf.crawling.Service;
 
-import com.sparta.elevenbookshelf.crawling.CrawlingTest;
-import com.sparta.elevenbookshelf.crawling.CrawlingTestRepository;
 import com.sparta.elevenbookshelf.crawling.CrawlingUtil;
-import jakarta.annotation.PostConstruct;
+import com.sparta.elevenbookshelf.dto.ContentRequestDto;
+import com.sparta.elevenbookshelf.entity.Content;
+import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.Element;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +22,7 @@ import java.util.Set;
 public class RNovelService {
 
     private final WebDriver webDriver;
-    private final CrawlingTestRepository crawlingTestRepository;
+    private final ContentRepository contentRepository;
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
 
@@ -55,7 +54,7 @@ public class RNovelService {
     private String rSiteName;
 
     @Value("${R_COMPLETE}")
-    private String rCompleteOrNot;
+    private String rIsEnd;
 
     public void rNovelsStart() {
         log.info("R NOVEL 시작");
@@ -86,14 +85,14 @@ public class RNovelService {
 
                 int index = 0;
                 for (String artUrl : uniqueLinks) {
-                    CrawlingTest crawlingTest = new CrawlingTest();
+                    ContentRequestDto requestDto = new ContentRequestDto();
                     log.info("현재 링크 위치 : {}/{}", ++index, uniqueLinks.size());
 
                     try {
                         log.info("작품 정보 URL : {}", artUrl);
                         crawlingUtil.waitForPage();
                         webDriver.get(artUrl);
-                        crawlingTest.setUrl(artUrl);
+                        requestDto.setUrl(artUrl);
 
                         // robots.txt 규약 위반시 이전 페이지로 이동.
                         if (crawlingUtil.checkTheLink(artUrl, disAllowedLink)) {
@@ -108,48 +107,58 @@ public class RNovelService {
 
                         crawlingUtil.waitForPage();
                         String title = crawlingUtil.metaData(rArtTitle, "content");
-                        crawlingTest.setTitle(title);
+                        requestDto.setTitle(title);
                         log.info("작품 제목 : {}", title);
 
                         crawlingUtil.waitForPage();
                         String author = crawlingUtil.bodyData(rAuthor);
-                        crawlingTest.setAuthor(author);
+                        requestDto.setAuthor(author);
                         log.info("작가 : {}", author);
 
                         crawlingUtil.waitForPage();
                         String site = crawlingUtil.metaData(rSiteName, "content");
-                        crawlingTest.setPlatform(site);
+                        requestDto.setPlatform(site);
                         log.info("작품 게시 사이트 : {}", site);
 
                         crawlingUtil.waitForPage();
-                        String completeOrNot = crawlingUtil.bodyData(rCompleteOrNot);
-                        crawlingTest.setCompleteOrNot(completeOrNot);
-                        log.info("완결 여부 : {}", completeOrNot);
+                        String isEnd = crawlingUtil.bodyData(rIsEnd);
+                        if (isEnd.contains("미완결")) {
+                            requestDto.setIsEnd(Content.ContentEnd.NOT);
+                            log.info("완결 여부 : NOT");
+                        } else {
+                            requestDto.setIsEnd(Content.ContentEnd.END);
+                            log.info("완결 여부 : END");
+                        }
 
                         crawlingUtil.waitForPage();
-                        String contentType = crawlingUtil.bodyData(rContentType);
-                        String contentTypeText = contentType.replace("웹툰", "웹소설");
-                        crawlingTest.setContentType(contentTypeText);
-                        log.info("장르 : {}", contentTypeText);
+                        String description = crawlingUtil.metaData("//meta[@name='description']","content");
+                        requestDto.setDescription(description);
+                        log.info("작품 소개 : {}", description);
+
+                        crawlingUtil.waitForPage();
+                        String genreType = crawlingUtil.bodyData(rContentType);
+                        String genre = genreType.replace("웹툰", "웹소설");
+                        requestDto.setGenre(genre);
+                        log.info("장르 : {}", genre);
 
                         crawlingUtil.waitForPage();
                         String likeCountText = crawlingUtil.bodyData(rLikeCount);
                         String likeCountNumber = likeCountText.replace(",", "");
                         Long likeCount = Long.parseLong(likeCountNumber);
-                        crawlingTest.setLikeCount(likeCount);
+                        requestDto.setLikeCount(likeCount);
                         log.info("좋아요 수 : {}", likeCount);
 
                         try {
-                            //TODO : 0명 이라는 텍스트 데이터도 있음.
+
                             crawlingUtil.waitForPage();
                             String ratingData = crawlingUtil.bodyData(rRating);
-                            String numberOnly = ratingData.replaceAll("점|명","").trim();
+                            String numberOnly = ratingData.replaceAll("[점명]","").trim();
                             Double rating = Double.parseDouble(numberOnly);
-                            crawlingTest.setRating(rating);
+                            requestDto.setRating(rating);
                             log.info("별점 : {}", rating);
 
                         } catch (NoSuchElementException | TimeoutException e) {
-                            crawlingTest.setRating(0.0);
+                            requestDto.setRating(0.0);
                             log.error("별점 : 표본 부족으로 0.0 저장.");
 
                         }
@@ -158,21 +167,21 @@ public class RNovelService {
                         String type = webDriver.getTitle();
                         if (type.contains("웹툰")) {
                             log.info("작품 타입 : 웹툰");
-                            crawlingTest.setComicsOrBook("웹툰");
+                            requestDto.setType(Content.ContentType.COMICS);
                         } else {
                             log.info("작품 타입 : 웹소설");
-                            crawlingTest.setComicsOrBook("웹소설");
+                            requestDto.setType(Content.ContentType.NOVEL);
                         }
 
                         crawlingUtil.waitForPage();
-                        String thumbnail = crawlingUtil.getThumbnail(".thumbnail", true);
-                        crawlingTest.setThumbnail(thumbnail);
-                        log.info("작품 썸네일 : {}", thumbnail);
+                        String imgUrl = crawlingUtil.getThumbnail(".thumbnail", true);
+                        requestDto.setImgUrl(imgUrl);
+                        log.info("작품 썸네일 : {}", imgUrl);
 
-                        crawlingTest.setTotalView(0.0);
-                        crawlingTest.setBookMark(0L);
+                        requestDto.setView(0.0);
+                        requestDto.setBookMark(0L);
 
-                        crawlingTestRepository.save(crawlingTest);
+                        crawlingUtil.saveData(requestDto, artUrl);
 
                         crawlingUtil.waitForPage();
                         webDriver.navigate().back();
