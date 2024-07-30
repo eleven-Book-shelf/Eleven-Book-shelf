@@ -37,4 +37,18 @@ public class CrawlingController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @GetMapping("/local")
+    public ResponseEntity<Void> csvFileToLocal() {
+        crawlingUtil.exportToCsv();
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/local/update")
+    public ResponseEntity<Void> localToDataBase() {
+        crawlingUtil.updateDatabase();
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
 }
