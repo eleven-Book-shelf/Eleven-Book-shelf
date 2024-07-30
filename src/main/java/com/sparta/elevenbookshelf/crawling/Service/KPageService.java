@@ -206,7 +206,7 @@ public class KPageService {
                     requestDto.setImgUrl(imgUrl);
                     log.info("작품 썸네일 : {}", imgUrl);
 
-                    requestDto.setBookMark(0L);
+                    requestDto.setBookMarkCount(0L);
                     requestDto.setLikeCount(0L);
 
                     crawlingUtil.saveData(requestDto, artUrl);

@@ -200,7 +200,7 @@ public class CrawlingUtil {
                     .type(requestDto.getType())
                     .isEnd(requestDto.getIsEnd())
                     .likeCount(requestDto.getLikeCount())
-                    .bookMark(requestDto.getBookMark())
+                    .bookMarkCount(requestDto.getBookMarkCount())
                     .url(requestDto.getUrl())
                     .genre(requestDto.getGenre())
                     .build();
@@ -231,7 +231,7 @@ public class CrawlingUtil {
                              "Genre",
                              "View",
                              "Rating",
-                             "BookMark",
+                             "BookMarkCount",
                              "LikeCount",
                              "Type",
                              "IsEnd",
@@ -251,7 +251,7 @@ public class CrawlingUtil {
                         data.getGenre(),
                         data.getView(),
                         data.getRating(),
-                        data.getBookMark(),
+                        data.getBookMarkCount(),
                         data.getLikeCount(),
                         data.getType().toString(),
                         data.getIsEnd().toString(),
@@ -315,7 +315,7 @@ public class CrawlingUtil {
                 .genre(csvRecord.get("Genre"))
                 .view(parseDoubleOrDefault(csvRecord.get("View")))
                 .rating(parseDoubleOrDefault(csvRecord.get("Rating")))
-                .bookMark(parseLongOrDefault(csvRecord.get("Bookmark")))
+                .bookMarkCount(parseLongOrDefault(csvRecord.get("BookMarkCount")))
                 .likeCount(parseLongOrDefault(csvRecord.get("LikeCount")))
                 .type(Content.ContentType.valueOf(csvRecord.get("Type").toUpperCase()))
                 .isEnd(Content.ContentEnd.valueOf(csvRecord.get("IsEnd").toUpperCase()))
@@ -335,7 +335,7 @@ public class CrawlingUtil {
         requestDto.setGenre(csvRecord.get("Genre"));
         requestDto.setView(parseDoubleOrDefault(csvRecord.get("View")));
         requestDto.setRating(parseDoubleOrDefault(csvRecord.get("Rating")));
-        requestDto.setBookMark(parseLongOrDefault(csvRecord.get("Bookmark")));
+        requestDto.setBookMarkCount(parseLongOrDefault(csvRecord.get("BookMarkCount")));
         requestDto.setLikeCount(parseLongOrDefault(csvRecord.get("LikeCount")));
         requestDto.setType(Content.ContentType.valueOf(csvRecord.get("Type").toUpperCase()));
         requestDto.setIsEnd(Content.ContentEnd.valueOf(csvRecord.get("IsEnd").toUpperCase()));
