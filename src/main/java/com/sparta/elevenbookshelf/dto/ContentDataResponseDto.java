@@ -16,7 +16,7 @@ public class ContentDataResponseDto {
     private String genre;
     private Double view;
     private Double rating;
-    private Long bookMark;
+    private Long bookMarkCount;
     private Long likeCount;
     private Content.ContentType type;
     private Content.ContentEnd isEnd;
@@ -32,7 +32,7 @@ public class ContentDataResponseDto {
         this.genre = content.getGenre();
         this.view = content.getView();
         this.rating = content.getRating();
-        this.bookMark = content.getBookMark();
+        this.bookMarkCount = content.getBookMarkCount();
         this.likeCount = content.getLikeCount();
         this.type = content.getType();
         this.isEnd = content.getIsEnd();
