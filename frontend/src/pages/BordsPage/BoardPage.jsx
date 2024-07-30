@@ -22,11 +22,13 @@ const BoardPage = () => {
         })
             .then(response => {
                 setPosts(response.data.posts);
+                console.log(response.data.posts);
                 setTotalPages(response.data.totalPages);
             })
             .catch(error => {
                 console.error("There was an error fetching the posts!", error);
             });
+
     }, [boardId, page]);
 
     useEffect(() => {
@@ -61,7 +63,7 @@ const BoardPage = () => {
                             {post.title}
                         </div>
                         <span className="board-meta">
-                            {post.author} | {post.date} | 조회 {post.views} | 댓글 {post.comments}
+                            {post.nickname} | {post.createdAt} | 조회 {post.viewCount}
                         </span>
                     </a>
                 ))}

@@ -255,7 +255,7 @@ public class KComicsService {
             }
 
         } finally {
-            webDriver.quit();
+//            webDriver.quit();
             log.info("\n");
             log.info("크롤링 종료");
             log.info("=============================");

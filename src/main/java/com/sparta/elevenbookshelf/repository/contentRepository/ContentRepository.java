@@ -13,5 +13,5 @@ public interface ContentRepository extends JpaRepository<Content, Long>, Queryds
 
     Optional<Content> findByUrl(String artUrl);
 
-//    Optional<List<Content>> findAllBy(String comics, int offset, int pagesize);
+    List<Content> findByType(Content.ContentType type);
 }

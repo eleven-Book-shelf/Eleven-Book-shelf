@@ -22,11 +22,11 @@ public class CrawlingController {
     private final RNovelService rNovelService;
     private final CrawlingUtil crawlingUtil;
 
-/*    @PostMapping("/start/all")
+    @PostMapping("/start/all")
     public ResponseEntity<Void> allCrawlingStart() {
 
-        mNovelService.mNovelsStart();
         kComicsService.kComicsStart();
+        mNovelService.mNovelsStart();
         kNovelService.kNovelsStart();
         rNovelService.rNovelsStart();
 
@@ -35,6 +35,6 @@ public class CrawlingController {
         crawlingUtil.updateDatabase();
 
         return ResponseEntity.status(HttpStatus.OK).build();
-    }*/
+    }
 
 }

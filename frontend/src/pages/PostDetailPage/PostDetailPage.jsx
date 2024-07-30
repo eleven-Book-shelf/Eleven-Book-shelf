@@ -38,7 +38,7 @@ const PostDetailPage = () => {
                 <h2 className="post-detail-title">{post.title}</h2>
                 <p className="post-detail-meta">작성자: {post.nickname} | {post.createdAt}</p>
                 <div className="post-detail-content">
-                    <p>{post.contents}</p>
+                    <p>{post.body}</p>
                 </div>
             </div>
             <CommentSection postId={postId} /> {/* CommentSection 사용 */}

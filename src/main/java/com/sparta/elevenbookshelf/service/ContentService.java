@@ -18,6 +18,23 @@ public class ContentService {
 
     private final ContentRepository contentRepository;
 
+    public List<ContentResponseDto> readContentWebtoon(int offset, int pagesize) {
+        List<Content> contents = contentRepository.findByType(Content.ContentType.COMICS);
+
+        return contents.stream()
+                .map(ContentResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ContentResponseDto> readContentWebnovel(int offset, int pagesize) {
+        List<Content> contents = contentRepository.findByType(Content.ContentType.NOVEL);
+
+        return contents.stream()
+                .map(ContentResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+
     public List<ContentResponseDto> readContent(int offset, int pagesize) {
 //        List<Content> contents = contentRepository.findAllBy("COMICS", offset, pagesize)
         List<Content> contents = contentRepository.findAll();
@@ -40,6 +57,7 @@ public class ContentService {
                 () -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT)
         );
     }
+
 
 
 }

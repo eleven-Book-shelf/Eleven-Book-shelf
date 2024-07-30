@@ -17,6 +17,24 @@ public class ContentController {
 
     private final ContentService contentService;
 
+    @GetMapping("/webtoon")
+    public ResponseEntity<List<ContentResponseDto>> readContentWebtoon(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize) {
+
+        return ResponseEntity.status(HttpStatus.OK).
+                body(contentService.readContentWebtoon(offset, pagesize));
+    }
+
+    @GetMapping("/webnovel")
+    public ResponseEntity<List<ContentResponseDto>> readContentWebnovel(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize) {
+
+        return ResponseEntity.status(HttpStatus.OK).
+                body(contentService.readContentWebnovel(offset, pagesize));
+    }
+
     @GetMapping
     public ResponseEntity<List<ContentResponseDto>> readContent(
             @RequestParam(value = "offset", defaultValue = "0") int offset,
