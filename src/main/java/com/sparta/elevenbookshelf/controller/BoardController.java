@@ -74,7 +74,7 @@ public class BoardController {
 
     //:::::::::::::::::// post //::::::::::::::::://
 
-    @PostMapping("/{boardId}")
+    @PostMapping("/{boardId}/posts")
     public ResponseEntity<PostResponseDto> createPost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long boardId,
@@ -85,7 +85,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
-    @GetMapping("/{boardId}/{postId}")
+    @GetMapping("/{boardId}/posts/{postId}")
     public ResponseEntity<PostResponseDto> readPost(
             @PathVariable Long boardId,
             @PathVariable Long postId) {
@@ -95,7 +95,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    @PutMapping("/{boardId}/{postId}")
+    @PutMapping("/{boardId}/posts/{postId}")
     public ResponseEntity<PostResponseDto> updatePost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long boardId,
@@ -107,7 +107,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    @DeleteMapping("/{boardId}/{postId}")
+    @DeleteMapping("/{boardId}/posts/{postId}")
     public ResponseEntity<?> deletePost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long boardId,
