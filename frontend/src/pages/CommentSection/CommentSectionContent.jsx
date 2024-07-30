@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import './CommentSection.css';
 
-const CommentSection = ({ postId }) => {
+const CommentSectionContent = ({postId}) => {
     const [comments, setComments] = useState([]);
     const [commentContent, setCommentContent] = useState('');
     const [replyContents, setReplyContents] = useState({});
@@ -10,11 +10,11 @@ const CommentSection = ({ postId }) => {
     const [loading, setLoading] = useState(true);
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editingContent, setEditingContent] = useState('');
-    const currentUserId = localStorage.getItem('userId');
+    const currentUserId = localStorage.getItem('userId'); // 현재 로그인한 사용자의 ID 가져오기
 
     const fetchComments = async () => {
         try {
-            const response = await axiosInstance.get(`/${postId}/comments`);
+            const response = await axiosInstance.get(`/${postId}/comments/content`);
             const commentsData = await Promise.all(response.data.map(async (comment) => {
                 const likeResponse = await axiosInstance.get(`/like/${comment.id}/likes`, {
                     headers: { Authorization: `${localStorage.getItem('Authorization')}` }
@@ -55,11 +55,11 @@ const CommentSection = ({ postId }) => {
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axiosInstance.post(`/${postId}/comments`, {
+            await axiosInstance.post(`/${postId}/comments/content`, {
                 contents: commentContent,
                 parentId: null
             }, {
-                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+                headers: {Authorization: `${localStorage.getItem('Authorization')}`}
             });
             fetchComments();
             setCommentContent('');
@@ -71,14 +71,14 @@ const CommentSection = ({ postId }) => {
     const handleReplySubmit = async (e, commentId, parentCommentId = null) => {
         e.preventDefault();
         try {
-            await axiosInstance.post(`/${postId}/comments`, {
+            await axiosInstance.post(`/${postId}/comments/content`, {
                 contents: replyContents[commentId] || '',
                 parentId: commentId
             }, {
-                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+                headers: {Authorization: `${localStorage.getItem('Authorization')}`}
             });
             fetchComments();  // 대댓글 작성 후 댓글 목록 다시 불러오기
-            setReplyContents({ ...replyContents, [commentId]: '' });
+            setReplyContents({...replyContents, [commentId]: ''});
             setActiveReplyId(null);
         } catch (error) {
             console.error("대댓글을 작성하는 중 오류가 발생했습니다!", error);
@@ -91,7 +91,7 @@ const CommentSection = ({ postId }) => {
     };
 
     const handleReplyContentChange = (e, commentId) => {
-        setReplyContents({ ...replyContents, [commentId]: e.target.value });
+        setReplyContents({...replyContents, [commentId]: e.target.value});
     };
 
     const handleEditClick = (commentId, content) => {
@@ -103,33 +103,6 @@ const CommentSection = ({ postId }) => {
             // Otherwise, open edit mode for this comment
             setEditingCommentId(commentId);
             setEditingContent(content);
-        }
-    };
-
-    const handleEditSubmit = async (e, commentId) => {
-        e.preventDefault();
-        try {
-            await axiosInstance.put(`/${postId}/comments/${commentId}`, {
-                contents: editingContent
-            }, {
-                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
-            });
-            fetchComments();
-            setEditingCommentId(null);
-            setEditingContent('');
-        } catch (error) {
-            console.error("댓글을 수정하는 중 오류가 발생했습니다!", error);
-        }
-    };
-
-    const handleDeleteClick = async (commentId) => {
-        try {
-            await axiosInstance.delete(`/${postId}/comments/${commentId}`, {
-                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
-            });
-            fetchComments();
-        } catch (error) {
-            console.error("댓글을 삭제하는 중 오류가 발생했습니다!", error);
         }
     };
 
@@ -147,6 +120,34 @@ const CommentSection = ({ postId }) => {
             fetchComments();
         } catch (error) {
             console.error("좋아요 처리 중 에러 발생:", error);
+        }
+    };
+
+
+    const handleEditSubmit = async (e, commentId) => {
+        e.preventDefault();
+        try {
+            await axiosInstance.put(`/${postId}/comments/${commentId}/content`, {
+                contents: editingContent
+            }, {
+                headers: {Authorization: `${localStorage.getItem('Authorization')}`}
+            });
+            fetchComments();
+            setEditingCommentId(null);
+            setEditingContent('');
+        } catch (error) {
+            console.error("댓글을 수정하는 중 오류가 발생했습니다!", error);
+        }
+    };
+
+    const handleDeleteClick = async (commentId) => {
+        try {
+            await axiosInstance.delete(`/${postId}/comments/${commentId}/content`, {
+                headers: {Authorization:`${localStorage.getItem('Authorization')}`}
+            });
+            fetchComments();
+        } catch (error) {
+            console.error("댓글을 삭제하는 중 오류가 발생했습니다!", error);
         }
     };
 
@@ -200,7 +201,6 @@ const CommentSection = ({ postId }) => {
                                     {comment.likedByUser ? '좋아요 취소' : '좋아요'}
                                 </button>
                             )}
-
                         </div>
                     )}
                     {activeReplyId === comment.id && (
@@ -251,4 +251,4 @@ const CommentSection = ({ postId }) => {
     );
 };
 
-export default CommentSection;
+export default CommentSectionContent;

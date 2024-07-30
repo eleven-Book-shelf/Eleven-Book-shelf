@@ -28,20 +28,27 @@ public class Comment extends Timestamp {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "post_id")
     private Post post;
+
+    @ManyToOne
+    @JoinColumn(name = "content_id")
+    private Content content;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
+    private int likes;
+
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
 
     @Builder
-    public Comment(String contents, User user, Post post, Comment parent){
+    public Comment(String contents, Content content ,User user, Post post, Comment parent){
         this.contents = contents;
         this.user = user;
+        this.content = content;
         this.post = post;
         this.parent = parent;
         this.children = new ArrayList<>();
@@ -59,7 +66,7 @@ public class Comment extends Timestamp {
         this.post = post;
     }
 
-    public void deleteChildren(Comment comment) {
-        this.children.remove(comment);
-    }
+    public void deleteChildren(Comment comment) {this.children.remove(comment);}
+
+    public void addlikes(int likes) {this.likes = likes;}
 }

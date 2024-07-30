@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import CommentSection from '../CommentSection/CommentSection';
+import CommentSectionContent from '../CommentSection/CommentSectionContent';
 import LikeBookmarkButtons from './LikeBookmarkButtons/LikeBookmarkButtons';
 import axiosInstance from '../../api/axiosInstance';
 import styles from './ContentDetailPage.module.css';
@@ -48,7 +48,7 @@ const ContentDetailPage = () => {
                     </div>
 
                     <div className='commentSection'>
-                        <CommentSection postId={cardId} />
+                        <CommentSectionContent postId={cardId} />
                     </div>
                 </div>
             </div>

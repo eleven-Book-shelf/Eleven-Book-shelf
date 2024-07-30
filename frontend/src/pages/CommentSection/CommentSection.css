@@ -23,8 +23,6 @@
     border-left: 3px solid rgb(224, 6, 6);
 }
 
-
-
 .comment * {
     margin-left: .4rem;
 }
@@ -183,6 +181,17 @@
 .reply-button:hover {
     background-color: #3b78e7;
 }
+.update_comment{
+    margin-right: 1rem;
+    margin-top: 1rem;
+}
+
+.update_comment > .left_button{
+    position: absolute;
+    right: .62rem;
+    bottom: 3rem;
+}
+
 .left_button{
     position: absolute;
     right: 1rem;

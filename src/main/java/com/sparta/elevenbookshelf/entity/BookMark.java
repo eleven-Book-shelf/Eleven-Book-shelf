@@ -1,10 +1,9 @@
 package com.sparta.elevenbookshelf.entity;
 
-import com.sparta.elevenbookshelf.entity.post.Post;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -23,16 +22,16 @@ public class BookMark {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
+    @JoinColumn(name = "content_id", nullable = false)
+    private Content content;
 
     private boolean status;
     private LocalDateTime createDate;
 
     @Builder
-    public BookMark(User user, Post post, boolean status) {
+    public BookMark(User user, Content content, boolean status) {
         this.user = user;
-        this.post = post;
+        this.content = content;
         this.status = status;
         this.createDate = LocalDateTime.now();
     }

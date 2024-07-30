@@ -33,4 +33,19 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
         return Optional.ofNullable(comments);
     }
+
+    @Override
+    public Optional<List<Comment>> findAllByContentIdAndParentIsNull(Long contentId, long offset, int pageSize) {
+        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, comment.id);
+
+        List<Comment> comments = jpaQueryFactory.selectFrom(comment)
+                .leftJoin(comment.children).fetchJoin()
+                .where(comment.content.id.eq(contentId).and(comment.parent.isNull()))
+                .offset(offset)
+                .limit(pageSize)
+                .orderBy(orderSpecifier)
+                .fetch();
+
+        return Optional.ofNullable(comments);
+    }
 }

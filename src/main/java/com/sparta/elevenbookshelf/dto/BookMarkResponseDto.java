@@ -13,11 +13,11 @@ public class BookMarkResponseDto {
     private String title;
     private String content;
 
-    public static BookMarkResponseDto fromPost(Post post) {
+/*    public static BookMarkResponseDto fromPost(Post post) {
         return new BookMarkResponseDto(
                 post.getId(),
                 post.getTitle(),
                 post.getBody()
         );
-    }
+    }*/
 }

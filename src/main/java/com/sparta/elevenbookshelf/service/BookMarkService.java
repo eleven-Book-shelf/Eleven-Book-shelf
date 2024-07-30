@@ -2,11 +2,10 @@ package com.sparta.elevenbookshelf.service;
 
 import com.sparta.elevenbookshelf.dto.BookMarkResponseDto;
 import com.sparta.elevenbookshelf.entity.*;
-import com.sparta.elevenbookshelf.entity.post.Post;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
-import com.sparta.elevenbookshelf.repository.BookMarkRepository;
-import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
+import com.sparta.elevenbookshelf.repository.bookMarkRepository.BookMarkRepository;
+import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,49 +20,42 @@ public class BookMarkService {
 
     private final BookMarkRepository bookmarkRepository;
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
+    private final ContentRepository contentRepository;
 
     @Transactional
-    public BookMarkResponseDto addBookMark(Long userId, Long postId) {
+    public void addBookMark(Long userId, Long contentId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT));
 
-        BookMark bookmark = bookmarkRepository.findByUserAndPost(user, post)
+        BookMark bookmark = bookmarkRepository.findByUserIdAndContentId(user.getId(), content.getId())
                 .orElse(BookMark.builder()
                         .user(user)
-                        .post(post)
+                        .content(content)
                         .status(true)
                         .build());
 
         bookmark.toggleStatus();
         bookmarkRepository.save(bookmark);
 
-        return BookMarkResponseDto.fromPost(post);
+//        return BookMarkResponseDto.fromPost(post);
     }
 
     @Transactional
-    public void removeBookMark(Long userId, Long postId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+    public void removeBookMark(Long userId, Long contentId) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT));
 
-        bookmarkRepository.deleteByUserAndPost(user, post);
+        bookmarkRepository.deleteByUserIdAndContentId(userId, contentId);
     }
 
-//    @Transactional
-//    public boolean isBookMarked(Long userId, Long postId) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-//        Post post = postRepository.findById(postId)
-//                .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
-//
-//        return bookmarkRepository.findByUserAndPost(user, post).isPresent();
-//    }
-
     @Transactional
+    public boolean isBookMarked(Long userId, Long contentId) {
+        return bookmarkRepository.existsByUserIdAndContentId(userId, contentId);
+    }
+
+/*    @Transactional
     public List<BookMarkResponseDto> getUserBookMarks(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
@@ -71,5 +63,5 @@ public class BookMarkService {
         return bookmarkRepository.findAllByUser(user).stream()
                 .map(bookmark -> BookMarkResponseDto.fromPost(bookmark.getPost()))
                 .collect(Collectors.toList());
-    }
+    }*/
 }
