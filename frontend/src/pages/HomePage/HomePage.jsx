@@ -33,6 +33,7 @@ const HomePage = ({onLogin}) => {
                             <Card
                                 img={ranking.imgUrl}
                                 title={ranking.title}
+                                author={ranking.author}
                                 description={ranking.description}
                                 genre={ranking.genre}
                                 rating={ranking.rating}

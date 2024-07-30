@@ -41,7 +41,7 @@ const CommentSection = ({postId}) => {
             }, {
                 headers: {Authorization: `${localStorage.getItem('Authorization')}`}
             });
-            fetchComments();  // 댓글 작성 후 댓글 목록 다시 불러오기
+            fetchComments();
             setCommentContent('');
         } catch (error) {
             console.error("댓글을 작성하는 중 오류가 발생했습니다!", error);
@@ -100,8 +100,6 @@ const CommentSection = ({postId}) => {
             await axiosInstance.delete(`/${postId}/comments/${commentId}`, {
                 headers: {Authorization:`${localStorage.getItem('Authorization')}`}
             });
-            console.log(postId)
-            console.log(commentId)
             fetchComments();
         } catch (error) {
             console.error("댓글을 삭제하는 중 오류가 발생했습니다!", error);

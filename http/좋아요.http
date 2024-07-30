@@ -9,5 +9,5 @@ Content-Type: application/json
 Authorization: {{access_token}}
 
 ### 크롤링
-POST http://localhost:8080/crawling/start/all
+POST http://localhost:8080/content/start/all
 Content-Type: application/json

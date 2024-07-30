@@ -59,5 +59,7 @@ public class Comment extends Timestamp {
         this.post = post;
     }
 
-
+    public void deleteChildren(Comment comment) {
+        this.children.remove(comment);
+    }
 }

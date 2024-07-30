@@ -61,7 +61,10 @@
     white-space: normal;
 }
 
-
+.card-author{
+    color: #797979;
+    margin: 0 0 0 0.2rem;
+}
 
 .card-genre {
     margin-top: 0.5rem;

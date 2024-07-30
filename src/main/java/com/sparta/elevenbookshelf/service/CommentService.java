@@ -10,6 +10,7 @@ import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.commentRepository.CommentRepository;
 import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -74,9 +75,14 @@ public class CommentService {
         return new CommentResponseDto(comment);
     }
 
+    @Transactional
     public void deleteComment(Long postId, Long commentId, User user) {
 
         Comment comment = getComment(postId, commentId, user);
+        if (comment.getParent() != null) {
+            Comment parentcomment = comment.getParent();
+            parentcomment.deleteChildren(comment);
+        }
 
         commentRepository.delete(comment);
     }

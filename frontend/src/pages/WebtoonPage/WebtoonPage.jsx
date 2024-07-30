@@ -14,13 +14,11 @@ const WebtoonPage = () => {
 
     const fetchContent = async () => {
         try {
-            const response = await axiosInstance.get(`/card`);
+            const response = await axiosInstance.get(`/card/webtoon`);
             const content = response.data.map(content => ({
                 ...content,
-                type: content.type === 'COMICS' ? 'webtoon' : 'webnovel'
             }));
             setRanking(content);
-            console.log(content)
         } catch (error) {
             console.error("컨텐츠를 불러오는 중 오류가 발생했습니다!", error);
         }
@@ -38,6 +36,7 @@ const WebtoonPage = () => {
                             <Card
                                 img={webtoon.imgUrl}
                                 title={webtoon.title}
+                                author={webtoon.author}
                                 description={webtoon.description}
                                 genre={webtoon.genre}
                                 rating={webtoon.rating}
