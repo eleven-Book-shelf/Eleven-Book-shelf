@@ -66,6 +66,10 @@ public class User extends Timestamp {
         this.posts.add(post);
     }
 
+    public void addHashtag(UserHashtag userHashtag) {
+        this.userHashtags.add(userHashtag);
+    }
+
     //:::::::::::::::::// enum //::::::::::::::::://
 
     @Getter

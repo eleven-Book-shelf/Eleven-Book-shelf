@@ -9,13 +9,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Hashtag extends Timestamp {
+public class Hashtag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +43,7 @@ public class Hashtag extends Timestamp {
     public Hashtag(String tag) {
         this.tier = 0.0;
         this.tag = tag;
-        this.count = 0;
+        this.count = 1;
     }
 
     public void incrementCount() {

@@ -11,10 +11,13 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class ContentHashtag extends Timestamp {
+public class ContentHashtag {
 
     @EmbeddedId
     private ContentHashtagId id;
+
+    @Builder.Default
+    private double score = 0.0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("contentId")
@@ -28,5 +31,9 @@ public class ContentHashtag extends Timestamp {
 
     public void createId() {
         this.id = new ContentHashtagId(content.getId(), hashtag.getId());
+    }
+
+    public void incrementScore (double score) {
+        this.score += score;
     }
 }

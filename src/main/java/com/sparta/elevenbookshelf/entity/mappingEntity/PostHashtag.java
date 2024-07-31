@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class PostHashtag extends Timestamp {
+public class PostHashtag {
 
     @EmbeddedId
     private PostHashtagId id;

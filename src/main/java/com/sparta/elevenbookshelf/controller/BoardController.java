@@ -3,6 +3,7 @@ package com.sparta.elevenbookshelf.controller;
 import com.sparta.elevenbookshelf.dto.*;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.BoardService;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -87,10 +88,11 @@ public class BoardController {
 
     @GetMapping("/{boardId}/posts/{postId}")
     public ResponseEntity<PostResponseDto> readPost(
+            @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
             @PathVariable Long boardId,
             @PathVariable Long postId) {
 
-        PostResponseDto res = boardService.readPost(boardId, postId);
+        PostResponseDto res = boardService.readPost(userPrincipal.getUser(), boardId, postId);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }

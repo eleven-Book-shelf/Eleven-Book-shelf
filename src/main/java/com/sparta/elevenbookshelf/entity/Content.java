@@ -92,8 +92,12 @@ public class Content {
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 
-    public void addReview(ReviewPost review) {
+    public void addReview (ReviewPost review) {
         this.reviews.add(review);
+    }
+
+    public void addHashtag (ContentHashtag contentHashtag) {
+        this.contentHashtags.add(contentHashtag);
     }
 
     public void updateContent(ContentRequestDto requestDto) {

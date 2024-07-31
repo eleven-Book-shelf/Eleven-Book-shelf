@@ -11,12 +11,13 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class UserHashtag extends Timestamp {
+public class UserHashtag {
 
     @EmbeddedId
     private UserHashtagId id;
 
-    private double score;
+    @Builder.Default
+    private double score = 0.0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
