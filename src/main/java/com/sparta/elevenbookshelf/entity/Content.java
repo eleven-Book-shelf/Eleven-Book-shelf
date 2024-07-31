@@ -120,4 +120,8 @@ public class Content {
         END,
         NOT
     }
+
+    public void setViewCount(Double view){
+        this.view = view;
+    }
 }

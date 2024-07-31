@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import Card from './Card/Card';
+import Card from '../../tool/Card/Card';
 import './HomePage.css';
 import axiosInstance from "../../api/axiosInstance";
 
@@ -14,8 +14,7 @@ const HomePage = ({onLogin}) => {
         try {
             const response = await axiosInstance.get(`/card`);
             const content = response.data.map(content => ({
-                ...content,
-                type: content.type === 'COMICS' ? 'webtoon' : 'webnovel'
+                ...content
             }));
             setRanking(content);
         } catch (error) {
@@ -29,7 +28,7 @@ const HomePage = ({onLogin}) => {
                 <h1>인기 웹툰 & 웹소설</h1>
                 <div className="grid">
                     {ranking.map((ranking, index) => (
-                        <a href={`/${ranking.type}/${ranking.id}`} key={index}>
+                        <a href={`/content/${ranking.id}`} key={index}>
                             <Card
                                 img={ranking.imgUrl}
                                 title={ranking.title}

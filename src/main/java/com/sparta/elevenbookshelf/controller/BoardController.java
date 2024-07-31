@@ -1,6 +1,9 @@
 package com.sparta.elevenbookshelf.controller;
 
-import com.sparta.elevenbookshelf.dto.*;
+import com.sparta.elevenbookshelf.dto.BoardRequestDto;
+import com.sparta.elevenbookshelf.dto.BoardResponseDto;
+import com.sparta.elevenbookshelf.dto.PostRequestDto;
+import com.sparta.elevenbookshelf.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.BoardService;
 import lombok.RequiredArgsConstructor;
@@ -58,13 +61,7 @@ public class BoardController {
 
         List<PostResponseDto> posts = boardService.readBoard(boardId, offset, pagesize);
         long totalPosts = boardService.getTotalPostsByBoard(boardId);
-        int totalPages = (int) Math.ceil((double) totalPosts / pagesize);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("posts", posts);
-        response.put("totalPages", totalPages);
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return getMapResponseEntity(pagesize, (double) totalPosts, posts);
     }
 
     @PutMapping("/{boardId}")
@@ -91,7 +88,7 @@ public class BoardController {
 
     //:::::::::::::::::// post //::::::::::::::::://
 
-    @PostMapping("/{boardId}")
+    @PostMapping("/{boardId}/post")
     public ResponseEntity<PostResponseDto> createPost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long boardId,
@@ -102,7 +99,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
-    @GetMapping("/{boardId}/{postId}")
+    @GetMapping("/{boardId}/post/{postId}")
     public ResponseEntity<PostResponseDto> readPost(
             @PathVariable Long boardId,
             @PathVariable Long postId) {
@@ -112,7 +109,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    @PutMapping("/{boardId}/{postId}")
+    @PutMapping("/{boardId}/post/{postId}")
     public ResponseEntity<PostResponseDto> updatePost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long boardId,
@@ -124,7 +121,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    @DeleteMapping("/{boardId}/{postId}")
+    @DeleteMapping("/deletePost/{boardId}/post/{postId}")
     public ResponseEntity<?> deletePost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long boardId,
@@ -133,6 +130,22 @@ public class BoardController {
         boardService.deletePost(userPrincipal.getUser(), boardId, postId);
 
         return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    //:::::::::::::::::// user //::::::::::::::::://
+
+    @GetMapping("/user/posts")
+    public ResponseEntity<Map<String, Object>> readUserPost(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "20") int pagesize) {
+
+        List<PostResponseDto> posts = boardService.readUserPost(
+                userPrincipal.getUser().getId(),
+                offset,
+                pagesize);
+        long totalPosts = boardService.getTotalPostsByBoard(userPrincipal.getUser().getId());
+        return getMapResponseEntity(pagesize, (double) totalPosts, posts);
     }
 
     //:::::::::::::::::// post //::::::::::::::::://
@@ -148,6 +161,18 @@ public class BoardController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }*/
+
+    //:::::::::::::::::// TOOL BOX //::::::::::::::::://
+
+    private static ResponseEntity<Map<String, Object>> getMapResponseEntity(int pagesize, double totalPosts, List<PostResponseDto> posts) {
+        int totalPages = (int) Math.ceil(totalPosts / pagesize);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("posts", posts);
+        response.put("totalPages", totalPages);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
 
 }

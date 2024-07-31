@@ -1,7 +1,6 @@
 package com.sparta.elevenbookshelf.entity;
 
 import com.sparta.elevenbookshelf.entity.post.Post;
-import com.sparta.elevenbookshelf.dto.UserRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -42,10 +41,10 @@ public class User extends Timestamp {
     private List<Post> posts;
 
     @Builder
-    public User(String username, String password,String email,String socialId ,Status status, Role role) {
+    public User(String username,String nickname ,String password,String email,String socialId ,Status status, Role role) {
         this.username = username;
         this.password = password;
-        this.nickname = username;
+        this.nickname = nickname;
         this.email = email;
         this.socialId = socialId;
         this.status = status;

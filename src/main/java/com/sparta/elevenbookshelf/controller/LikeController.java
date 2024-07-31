@@ -39,7 +39,7 @@ public class LikeController {
         return ResponseEntity.ok().body(likeService.getLikeComment(id, userPrincipal.getUser().getId()));
     }
 
-    //:::::::::::::::::// content //::::::::::::::::://
+    //:::::::::::::::::// Content //::::::::::::::::://
 
     @PostMapping("/{id}/likesContent")
     public ResponseEntity<Void> createLikeContent(
@@ -55,5 +55,37 @@ public class LikeController {
 
         likeService.deleteLikeContent(id, userPrincipal.getUser().getId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/likesContent")
+    public ResponseEntity<Boolean> getLikeContent(
+            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        return ResponseEntity.ok().body(likeService.getLikeContent(id, userPrincipal.getUser().getId()));
+    }
+
+    //:::::::::::::::::// post //::::::::::::::::://
+
+    @PostMapping("/{id}/likesPost")
+    public ResponseEntity<Void> createLikePost(
+            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        likeService.createLikePost(id, userPrincipal.getUser().getId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{id}/likesPost")
+    public ResponseEntity<Void> deleteLikePost(
+            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        likeService.deleteLikePost(id, userPrincipal.getUser().getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/likesPost")
+    public ResponseEntity<Boolean> getLikePost(
+            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        return ResponseEntity.ok().body(likeService.getLikePost(id, userPrincipal.getUser().getId()));
     }
 }

@@ -10,10 +10,8 @@ import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,19 +22,19 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserRepository userRepository;
-//    private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final JwtUtil jwtUtil;
+//    private final AuthenticationManager authenticationManager;
 
-    /*@Transactional
+    @Transactional
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        Authentication authentication = authenticationManager.authenticate(
+/*        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequestDto.getUsername(),
                         loginRequestDto.getPassword(),
                         null
                 )
-        );
+        );*/
 
         User user = getUsername(loginRequestDto);
 
@@ -46,7 +44,7 @@ public class AuthService {
         user.addRefreshToken(refeshToken);
 
         return new LoginResponseDto(accessToken, refeshToken);
-    }*/
+    }
 
     @Transactional
     public String logout(User userid){

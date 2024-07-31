@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
-import axiosInstance from './api/axiosInstance';  // 경로가 맞는지 확인하세요
+import axiosInstance from './api/axiosInstance';
 import Header from './Header/Header';
 import HeaderAuth from './Header/HeaderAuth';
 import HeaderOn from './Header/HeaderOn';
@@ -21,6 +21,7 @@ import WebnovelPage from './pages/WebnovelPage/WebnovelPage';
 import CommunityPage from './pages/CommunityPage/CommunityPage';
 import PostDetailPage from './pages/PostDetailPage/PostDetailPage';
 import NewPostPage from './pages/NewPostPage/NewPostPage';
+import NewPostReviewPage from './pages/NewPostPage/NewPostReviewPage';
 import BoardPage from "./pages/BordsPage/BoardPage";
 
 import './App.css';
@@ -69,8 +70,7 @@ const App = () => {
                     <Route path="/" element={<HomePage onLogin={handleLogin} />} />
                     <Route path="/webtoon" element={<WebtoonPage />} />
                     <Route path="/webnovel" element={<WebnovelPage />} />
-                    <Route path="/webtoon/:cardId" element={<ContentDetailPage />} />
-                    <Route path="/webnovel/:cardId" element={<ContentDetailPage />} />
+                    <Route path="/content/:cardId" element={<ContentDetailPage isLoggedIn={isLoggedIn} />} />
 
                     <Route path="/signup" element={<SignupPage />} />
                     <Route path="/login" element={<LoginPage />} />
@@ -82,7 +82,8 @@ const App = () => {
 
                     <Route path="/community" element={<CommunityPage />} />
                     <Route path="/community/board/:boardId/" element={<BoardPage />} />
-                    <Route path="/community/board/:boardId/post/:postId" element={<PostDetailPage />} />
+                    <Route path="/community/board/:boardId/post/:postId" element={<PostDetailPage isLoggedIn={isLoggedIn} />} />
+                    <Route path="/review/:contentId/new" element={<NewPostReviewPage />} />
                     <Route path="/community/board/:boardId/post/new" element={<NewPostPage />} />
                 </Routes>
             </div>

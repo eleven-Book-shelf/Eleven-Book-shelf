@@ -17,22 +17,21 @@ public class ContentService {
 
     private final ContentRepository contentRepository;
 
-    public List<ContentResponseDto> readContentWebtoon(int offset, int pagesize) {
-        List<Content> contents = contentRepository.findByType(Content.ContentType.COMICS);
+    public List<ContentResponseDto> readContentWebtoon(int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.getContentByConic(offset, pagesize,genre);
 
         return contents.stream()
                 .map(ContentResponseDto::new)
                 .collect(Collectors.toList());
     }
 
-    public List<ContentResponseDto> readContentWebnovel(int offset, int pagesize) {
-        List<Content> contents = contentRepository.findByType(Content.ContentType.NOVEL);
+    public List<ContentResponseDto> readContentWebnovel(int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.getContentByNovel(offset, pagesize, genre);
 
         return contents.stream()
                 .map(ContentResponseDto::new)
                 .collect(Collectors.toList());
     }
-
 
     public List<ContentResponseDto> readContent(int offset, int pagesize) {
 //        List<Content> contents = contentRepository.findAllBy("COMICS", offset, pagesize)
@@ -48,6 +47,30 @@ public class ContentService {
         return new ContentResponseDto(content);
     }
 
+    //::::::::::::::::::::::::// User BookMark //:::::::::::::::::::::::://
+
+    public List<ContentResponseDto> readContentWebtoonUser(Long userId, int offset, int pagesize) {
+        List<Content> contents = contentRepository.getContentByConicUser(userId, offset, pagesize);
+
+        return contents.stream()
+                .map(ContentResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ContentResponseDto> readContentWebnovelUser(Long userId, int offset, int pagesize) {
+        List<Content> contents = contentRepository.getContentByNovelUser(userId, offset, pagesize);
+
+        return contents.stream()
+                .map(ContentResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public void viewCount(Long cardId) {
+        Content content = contentRepository.findById(cardId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT));
+        content.setViewCount(content.getView() + 1);
+        contentRepository.save(content);
+    }
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 

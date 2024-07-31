@@ -18,6 +18,7 @@ public class ContentResponseDto {
     private String genre;
     private Double view;
     private Double rating;
+    private String url;
     private Content.ContentType type;
     private Content.ContentEnd isEnd;
     private List<PostResponseDto> posts = new ArrayList<>();
@@ -32,6 +33,7 @@ public class ContentResponseDto {
         this.genre = content.getGenre();
         this.view = content.getView();
         this.rating = content.getRating();
+        this.url = content.getUrl();
         this.type = content.getType();
         this.isEnd = content.getIsEnd();
         this.posts.addAll(content.getReviews().stream()

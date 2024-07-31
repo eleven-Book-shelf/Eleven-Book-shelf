@@ -1,9 +1,8 @@
 package com.sparta.elevenbookshelf.dto;
 
-import com.sparta.elevenbookshelf.entity.LikeBoard;
 import com.sparta.elevenbookshelf.entity.LikeComment;
+import com.sparta.elevenbookshelf.entity.LikePost;
 import lombok.Data;
-
 
 import java.time.LocalDateTime;
 
@@ -14,8 +13,8 @@ public class LikeResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public LikeResponseDto(LikeBoard like) {
-        id = like.getBoard().getId();
+    public LikeResponseDto(LikePost like) {
+        id = like.getPost().getId();
         createdAt = like.getCreatedAt();
         modifiedAt = like.getModifiedAt();
     }

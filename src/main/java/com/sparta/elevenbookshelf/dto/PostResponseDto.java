@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public class PostResponseDto {
 
     private Long id;
+    private Long userId;
     private String postType;
     private String title;
     private String body;
@@ -20,6 +21,8 @@ public class PostResponseDto {
     public PostResponseDto(Post post) {
 
         this.id = post.getId();
+        this.userId = post.getUser().getId();
+        this.postType = post.getPostType();
         this.viewCount = post.getViewCount();
         this.title = post.getTitle();
         this.body = post.getBody();

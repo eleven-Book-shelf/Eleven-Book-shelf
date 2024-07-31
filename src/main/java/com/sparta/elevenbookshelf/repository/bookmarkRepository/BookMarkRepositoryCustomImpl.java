@@ -2,9 +2,7 @@ package com.sparta.elevenbookshelf.repository.bookmarkRepository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.elevenbookshelf.entity.BookMark;
-import com.sparta.elevenbookshelf.entity.LikeComment;
 import com.sparta.elevenbookshelf.entity.QBookMark;
-import com.sparta.elevenbookshelf.entity.QLikeComment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +21,7 @@ public class BookMarkRepositoryCustomImpl implements BookMarkRepositoryCustom {
 
         BookMark foundBookMark = jpaQueryFactory.selectFrom(bookMark)
                 .where(bookMark.user.id.eq(userId)
-                        .and(bookMark.post.id.eq(postId)))
+                        .and(bookMark.content.id.eq(postId)))
                 .fetchOne();
 
         return Optional.ofNullable(foundBookMark);
@@ -46,7 +44,7 @@ public class BookMarkRepositoryCustomImpl implements BookMarkRepositoryCustom {
 
         jpaQueryFactory.delete(bookMark)
                 .where(bookMark.user.id.eq(userId)
-                        .and(bookMark.post.id.eq(postId)))
+                        .and(bookMark.content.id.eq(postId)))
                 .execute();
     }
 }

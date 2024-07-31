@@ -3,13 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import styles from './NewPostPage.module.css';
 
-const NewPostPage = () => {
-    const { boardId } = useParams();
+const NewPostReviewPage = () => {
+    const { contentId } = useParams();
     const navigate = useNavigate();
 
     const [title, setTitle] = useState('');
-    const [postType, setPostType] = useState('NORMAL');
     const [content, setContent] = useState('');
+    const [rating, setRating] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -17,30 +18,33 @@ const NewPostPage = () => {
         const token = localStorage.getItem('Authorization');
 
         const postData = {
-            postType,
+            postType: 'REVIEW',
             title,
             body: content,
-            contentId: null,
-            rating: null,
+            contentId,
+            rating,
         };
 
         try {
-            const response = await axiosInstance.post(`/boards/${boardId}/post`, postData, {
+            const response = await axiosInstance.post(`/boards/2/post`, postData, {
                 headers: {
                     Authorization: token,
                 }
             });
             if (response.status === 201) {
-                navigate(`/community/board/${boardId}`);
+                navigate(`/content/${contentId}`);
             }
+
         } catch (error) {
             console.error('Error creating post:', error);
+        } finally {
+            setLoading(false);  // 로딩 상태 해제
         }
     };
 
     return (
         <div className={styles.container}>
-            <h1>새 글 작성</h1>
+            <h1>리뷰 작성</h1>
             <form onSubmit={handleSubmit}>
                 <div className={styles['form-group']}>
                     <label htmlFor="title">제목</label>
@@ -54,15 +58,20 @@ const NewPostPage = () => {
                     />
                 </div>
                 <div className={styles['form-group']}>
-                    <label htmlFor="postType">카테고리</label>
+                    <label htmlFor="rating">별점</label>
                     <select
-                        id="postType"
-                        name="postType"
-                        value={postType}
-                        onChange={(e) => setPostType(e.target.value)}
+                        id="rating"
+                        name="rating"
+                        value={rating}
+                        onChange={(e) => setRating(Number(e.target.value))}
+                        required
                     >
-                        <option value="NORMAL">일반 토론</option>
-                        <option value="CONTENT">추천</option>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
                     </select>
                 </div>
                 <div className={styles['form-group']}>
@@ -76,11 +85,11 @@ const NewPostPage = () => {
                     ></textarea>
                 </div>
                 <div className={styles['form-group']}>
-                    <button type="submit" className={styles.button}>글 작성</button>
+                    <button type="submit" className={styles.button} disabled={loading}>글 작성</button>
                     <button
                         type="button"
                         className={`${styles.button} ${styles['button-secondary']}`}
-                        onClick={() => navigate(`/community/board/${boardId}`)}
+                        onClick={() => navigate(`/content/${contentId}`)}
                     >
                         취소
                     </button>
@@ -90,4 +99,4 @@ const NewPostPage = () => {
     );
 };
 
-export default NewPostPage;
+export default NewPostReviewPage;

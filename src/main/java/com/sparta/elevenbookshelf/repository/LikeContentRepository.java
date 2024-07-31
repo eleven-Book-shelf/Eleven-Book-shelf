@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface LikeContentRepository extends JpaRepository<LikeContent, Long> {
     Optional<LikeContent> findByUserIdAndContentId(Long contentId, Long commentId);
 
+    Boolean existsByContentIdAndUserId(Long contentId, Long userId);
 }

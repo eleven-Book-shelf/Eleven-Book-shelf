@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.dto;
 
+import com.sparta.elevenbookshelf.entity.Content;
 import com.sparta.elevenbookshelf.entity.post.Post;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,11 +14,11 @@ public class BookMarkResponseDto {
     private String title;
     private String content;
 
-/*    public static BookMarkResponseDto fromPost(Post post) {
+    public static BookMarkResponseDto fromPost(Content content) {
         return new BookMarkResponseDto(
-                post.getId(),
-                post.getTitle(),
-                post.getBody()
+                content.getId(),
+                content.getTitle(),
+                content.getUrl()
         );
-    }*/
+    }
 }

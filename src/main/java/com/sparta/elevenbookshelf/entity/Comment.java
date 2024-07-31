@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.repository.EntityGraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +31,6 @@ public class Comment extends Timestamp {
     private Post post;
 
     @ManyToOne
-    @JoinColumn(name = "content_id")
-    private Content content;
-
-    @ManyToOne
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
@@ -48,7 +43,6 @@ public class Comment extends Timestamp {
     public Comment(String contents, Content content ,User user, Post post, Comment parent){
         this.contents = contents;
         this.user = user;
-        this.content = content;
         this.post = post;
         this.parent = parent;
         this.children = new ArrayList<>();
@@ -68,5 +62,5 @@ public class Comment extends Timestamp {
 
     public void deleteChildren(Comment comment) {this.children.remove(comment);}
 
-    public void addlikes(int likes) {this.likes = likes;}
+    public void addLikes(int likes) {this.likes = likes;}
 }

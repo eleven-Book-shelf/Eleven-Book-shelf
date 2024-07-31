@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
+import PostList from '../../tool/PostList/PostList';
+import Pagination from '../../tool/Pagination/Pagination';
 import './BoardPage.css';
 
 const BoardPage = () => {
@@ -22,7 +24,6 @@ const BoardPage = () => {
         })
             .then(response => {
                 setPosts(response.data.posts);
-                console.log(response.data.posts);
                 setTotalPages(response.data.totalPages);
             })
             .catch(error => {
@@ -48,40 +49,15 @@ const BoardPage = () => {
     return (
         <div className="container">
             <div className="community-header">
-                <h1>{boardTitle}</h1>
+                <a href={`/community`}><h1>{boardTitle}</h1></a>
                 <a href={`/community/board/${boardId}/post/new`} className="button">새 글 작성</a>
             </div>
 
-            <div className="board-list">
-                {posts.map(post => (
-                    <a
-                        href={`/community/board/${boardId}/post/${post.id}`}
-                        className="board-item"
-                        key={post.id}
-                    >
-                        <div className="board-title">
-                            {post.title}
-                        </div>
-                        <span className="board-meta">
-                            {post.nickname} | {post.createdAt} | 조회 {post.viewCount}
-                        </span>
-                    </a>
-                ))}
-            </div>
+            <PostList posts={posts} boardId={boardId} />
 
-            <div className="pagination">
-                {[...Array(totalPages).keys()].map(pageNumber => (
-                    <button
-                        key={pageNumber + 1}
-                        onClick={() => handlePageClick(pageNumber + 1)}
-                        className={`page-link ${page === pageNumber + 1 ? 'active' : ''}`}
-                    >
-                        {pageNumber + 1}
-                    </button>
-                ))}
-            </div>
+            <Pagination currentPage={page} totalPages={totalPages} onPageClick={handlePageClick} />
         </div>
     );
-}
+};
 
 export default BoardPage;

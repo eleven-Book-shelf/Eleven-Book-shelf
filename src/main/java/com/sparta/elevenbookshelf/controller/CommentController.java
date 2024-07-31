@@ -60,46 +60,4 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
-    //:::::::::::::::::// content //::::::::::::::::://
-
-    @PostMapping("/comments/content")
-    public ResponseEntity<Void> createCommentContent(
-            @PathVariable Long postId,
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestBody CommentRequestDto commentRequestDto) {
-        commentService.createCommentContent(postId, userPrincipal, commentRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-
-    }
-
-    @GetMapping("/comments/content")
-    public ResponseEntity<List<CommentResponseDto>> readCommentsContent(
-            @PathVariable Long postId,
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize) {
-
-        return ResponseEntity.status(HttpStatus.OK).
-                body(commentService.readCommentsContent(postId, offset, pagesize));
-    }
-
-    @PutMapping("/comments/{commentId}/content")
-    public ResponseEntity<Void> updateCommentContent(
-            @PathVariable Long postId,
-            @PathVariable Long commentId,
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestBody CommentRequestDto commentRequestDto) {
-        commentService.updateCommentContent(postId, commentId, userPrincipal.getUser(), commentRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    @DeleteMapping("/comments/{commentId}/content")
-    public ResponseEntity<Void> deleteCommentContent(
-            @PathVariable Long postId,
-            @PathVariable Long commentId,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-
-        commentService.deleteCommentContent(postId, commentId, userPrincipal.getUser());
-        return ResponseEntity.ok().build();
-    }
-
 }

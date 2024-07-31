@@ -2,15 +2,17 @@ package com.sparta.elevenbookshelf.service;
 
 import com.sparta.elevenbookshelf.dto.LikeResponseDto;
 import com.sparta.elevenbookshelf.entity.*;
+import com.sparta.elevenbookshelf.entity.post.Post;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.BoardRepository;
 import com.sparta.elevenbookshelf.repository.LikeContentRepository;
+import com.sparta.elevenbookshelf.repository.LikePostRepository;
 import com.sparta.elevenbookshelf.repository.commentRepository.CommentRepository;
-import com.sparta.elevenbookshelf.repository.LikeCommentRepository;
 import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
+import com.sparta.elevenbookshelf.repository.likeCommentRepository.LikeCommentRepository;
+import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
-import com.sparta.elevenbookshelf.repository.likeRepository.LikeCommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +23,15 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class LikeService {
 
+    private final PostRepository postRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final ContentRepository contentRepository;
     private final CommentRepository commentRepository;
+
     private final LikeCommentRepository likeCommentRepository;
     private final LikeContentRepository likeContentRepository;
-    private final ContentRepository contentRepository;
+    private final LikePostRepository likePostRepository;
 
     //:::::::::::::::::// comment //::::::::::::::::://
 
@@ -52,7 +57,7 @@ public class LikeService {
                                                          .comment(comment)
                                                          .build());
 
-        comment.addlikes(likeCommentRepository.countByCommentId(comment.getId()));
+        comment.addLikes(likeCommentRepository.countByCommentId(comment.getId()));
 
         return new LikeResponseDto(likeComment);
     }
@@ -69,7 +74,7 @@ public class LikeService {
 
         likeCommentRepository.delete(likeComment);
 
-        comment.addlikes(likeCommentRepository.countByCommentId(comment.getId()));
+        comment.addLikes(likeCommentRepository.countByCommentId(comment.getId()));
 
     }
 
@@ -109,6 +114,53 @@ public class LikeService {
         likeContentRepository.delete(likeContent);
     }
 
+    public Boolean getLikeContent(Long ContentId, Long userId) {
+        return likeContentRepository.existsByContentIdAndUserId(ContentId, userId);
+    }
+
+    //:::::::::::::::::// Post //::::::::::::::::://
+
+    @Transactional
+    public void createLikePost(Long postId, Long userId) {
+        Post post = postRepository.findById(postId).orElseThrow(
+                ()-> new BusinessException(ErrorCode.NOTFOUND)
+        );
+
+        User user = getUser(userId);
+
+        if (Objects.equals(post.getUser().getId(), userId)) {
+            throw new BusinessException(ErrorCode.LIKE_ME);
+        }
+
+        if (likePostRepository.existsByUserIdAndPostId(userId, post.getId())) {
+            throw new BusinessException(ErrorCode.ALREADY_LIKE);
+        }
+
+        LikePost likePost = likePostRepository.save(LikePost.builder()
+                                                                     .user(user)
+                                                                     .post(post)
+                                                                     .build());
+
+        post.addLikes(likePostRepository.countByPostId(post.getId()));
+
+    }
+
+    public void deleteLikePost(Long postId, Long userId) {
+        Post post = postRepository.findById(postId).orElseThrow(
+                ()-> new BusinessException(ErrorCode.NOTFOUND)
+        );
+
+        LikePost likePost = likePostRepository.findByUserIdAndPostId(userId, post.getId()).orElseThrow(
+                () -> new BusinessException(ErrorCode.NOT_LIKE)
+        );
+
+        likePostRepository.delete(likePost);
+    }
+
+    public Boolean getLikePost(Long postId, Long userId) {
+        return likePostRepository.existsByUserIdAndPostId(userId,postId);
+    }
+
     //:::::::::::::::::// TOOL BOX //::::::::::::::::://
 
     private Content getContent(Long id) {
@@ -122,6 +174,5 @@ public class LikeService {
                 ()-> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
-
 
 }

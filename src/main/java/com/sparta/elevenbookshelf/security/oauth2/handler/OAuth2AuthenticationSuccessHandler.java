@@ -6,7 +6,6 @@ import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.AuthService;
-import com.sparta.elevenbookshelf.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +33,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String refreshToken = jwtService.generateRefreshToken(user.getUsername());
         authService.OAuth2login(user.getId(), accessToken ,refreshToken);
         response.addHeader(HttpHeaders.AUTHORIZATION, accessToken);
-        String redirectUrl = "http://localhost:1477/auth/callback?Authorization=" + accessToken;
+        String redirectUrl = "http://localhost:3000/auth/callback?Authorization=" + accessToken;
         response.sendRedirect(redirectUrl);
     }
 

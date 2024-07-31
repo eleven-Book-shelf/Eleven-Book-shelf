@@ -50,4 +50,16 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .orderBy(orderSpecifier)
                 .fetch();
     }
+
+    @Override
+    public List<Post> getPostsByUserId(Long userId, long offset, int pageSize) {
+        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, post.createdAt);
+
+        return jpaQueryFactory.selectFrom(post)
+                .where(post.user.id.eq(userId))
+                .offset(offset)
+                .limit(pageSize)
+                .orderBy(orderSpecifier)
+                .fetch();
+    }
 }

@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import styles from './MyPage.module.css';
 import axiosInstance from '../../api/axiosInstance';
-import MyCard from "./MyCard/MyCard";
+import MyCard from "../../tool/MyCard/MyCard";
+import PostList from '../../tool/PostList/PostList';
 
-Modal.setAppElement('#root'); // 모달을 사용하는 경우, 접근성을 위해 필요
+Modal.setAppElement('#root');
 
 const MyPage = () => {
     const [profile, setProfile] = useState(null);
@@ -13,6 +14,10 @@ const MyPage = () => {
     const [recentPosts, setRecentPosts] = useState([]);
     const [newUsername, setNewUsername] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [totalPages, setTotalPages] = useState(1);
+    const page = 1;
+    const offset = (page - 1) * 5;
+    const pagesize = 5;
 
     const fetchData = async () => {
         try {
@@ -20,33 +25,48 @@ const MyPage = () => {
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
             setProfile(profileResponse.data);
-            console.log('Profile data:', profileResponse.data);
 
-            const webtoonsData = [
-                { title: '전지적 독자 시점', author: '싱숑' },
-                { title: '나 혼자만 레벨업', author: '추공 / 장성락' },
-                { title: '여신강림', author: '야옹이' },
-                { title: '여신강림', author: '야옹이' }
-            ];
+            const fetchWebtoonsData = async () => {
+                try {
+                    const response = await axiosInstance.get(`/card/webtoon/bookmark`,{
+                        headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+                    });
+                    return response.data;
+                } catch (error) {
+                    console.error("웹툰 데이터를 불러오는 중 오류가 발생했습니다!", error);
+                    return [];
+                }
+            };
 
-            const webnovelsData = [
-                { title: '전생했더니 슬라임이었던 건에 대하여', author: '후세 츠라' },
-                { title: '재벌집 막내아들', author: '산경' },
-                { title: '달빛조각사', author: '남희성' },
-                { title: '달빛조각사', author: '남희성' }
-            ];
+            const fetchWebnovelsData = async () => {
+                try {
+                    const response = await axiosInstance.get(`/card/webnovel/bookmark`,{
+                        headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+                    });                    return response.data;
+                } catch (error) {
+                    console.error("웹소설 데이터를 불러오는 중 오류가 발생했습니다!", error);
+                    return [];
+                }
+            };
 
-            const postsData = [
-                { id: 1, title: '전지적 독자 시점 85화 리뷰 - 놀라운 반전!' },
-                { id: 2, title: '웹소설 추천 부탁드립니다' },
-                { id: 3, title: '나 혼자만 레벨업 vs 템빨 - 어떤 작품이 더 재밌나요?' }
-            ];
+            const webtoonsData = await fetchWebtoonsData();
+            const webnovelsData = await fetchWebnovelsData();
 
-            setBookmarkedWebtoons(webtoonsData);
-            setBookmarkedWebnovels(webnovelsData);
-            setRecentPosts(postsData);
+            const postsResponse = await axiosInstance.get(`/boards/user/posts`, {
+                params: { offset, pagesize },
+                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+            });
+
+            setBookmarkedWebtoons(Array.isArray(webtoonsData) ? webtoonsData : []);
+            setBookmarkedWebnovels(Array.isArray(webnovelsData) ? webnovelsData : []);
+            setRecentPosts(Array.isArray(postsResponse.data.posts) ? postsResponse.data.posts : []);
+            setTotalPages(postsResponse.data.totalPages);
+
         } catch (error) {
             console.error('데이터 불러오기 실패:', error);
+            setBookmarkedWebtoons([]);
+            setBookmarkedWebnovels([]);
+            setRecentPosts([]);
         }
     };
 
@@ -88,7 +108,7 @@ const MyPage = () => {
                 <h2 className={styles.sectionTitle}>북마크한 웹툰 <a href="/bookmarkedWebtoons" className={styles.more_btu}>더보기</a></h2>
                 <div className={styles.grid}>
                     {bookmarkedWebtoons.map((ranking, index) => (
-                        <a href={`/webtoon/${ranking.id}`} key={index}>
+                        <a href={`/content/${ranking.id}`} key={index}>
                             <MyCard
                                 title={ranking.title}
                                 author={ranking.author}
@@ -102,7 +122,7 @@ const MyPage = () => {
                 <h2 className={styles.sectionTitle}>북마크한 웹소설 <a href="/bookmarkedWebnovels" className={styles.more_btu}>더보기</a></h2>
                 <div className={styles.grid}>
                     {bookmarkedWebnovels.map((ranking, index) => (
-                        <a href={`/webnovel/${ranking.id}`} key={index}>
+                        <a href={`/content/${ranking.id}`} key={index}>
                             <MyCard
                                 title={ranking.title}
                                 author={ranking.author}
@@ -114,13 +134,7 @@ const MyPage = () => {
 
             <div className={styles.section}>
                 <h2>최근 작성한 게시글</h2>
-                <ul>
-                    {recentPosts.map(post => (
-                        <li key={post.id} className={styles.my_page_link}>
-                            <a href={`/community/board/${post.id}`}>{post.title}</a>
-                        </li>
-                    ))}
-                </ul>
+                <PostList posts={recentPosts} />
             </div>
 
             <Modal

@@ -13,7 +13,6 @@ import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.BoardRepository;
 import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
-import com.sparta.elevenbookshelf.repository.postRepository.PostRepositoryCustom;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -171,7 +170,6 @@ public class BoardService {
 
         if (post instanceof ReviewPost) {
             content.addReview((ReviewPost) post);
-            contentRepository.save(content);
         }
 
         postRepository.save(post);
@@ -193,9 +191,9 @@ public class BoardService {
         return new PostResponseDto(post);
     }
 
-    public List<PostResponseDto> readPostsByContent(Long boardId, Long contentId, long offset, int pagesize) {
+    public List<PostResponseDto> readPostsByContent(Long boardId, Long contentId, long offset, int pageSize) {
 
-        List<Post> posts = postRepository.getPostsByContent(contentId, offset, pagesize);
+        List<Post> posts = postRepository.getPostsByContent(contentId, offset, pageSize);
 
         return posts.stream().map(
                         PostResponseDto::new)
@@ -261,6 +259,15 @@ public class BoardService {
         return new ContentResponseDto(content);
     }
 
+    //::::::::::::::::::::::::// User //:::::::::::::::::::::::://
+
+    public List<PostResponseDto> readUserPost(Long userId , long offset, int pageSize) {
+        List<Post> posts = postRepository.getPostsByUserId(userId, offset, pageSize);
+
+        return posts.stream().map(
+                        PostResponseDto::new)
+                .toList();
+    }
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 
@@ -298,5 +305,6 @@ public class BoardService {
     private boolean isPostBoardEqual(Long boardId, Post post) {
         return post.getBoard().equals(getBoard(boardId));
     }
+
 
 }

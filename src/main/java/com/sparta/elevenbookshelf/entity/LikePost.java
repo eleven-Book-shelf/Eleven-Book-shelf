@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.entity;
 
+import com.sparta.elevenbookshelf.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,11 +9,11 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class LikeBoard extends Timestamp{
+public class LikePost extends Timestamp{
 
     @Id
-    @GeneratedValue
-    @Column(name = "like_board_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "like_post_id")
     private Long id;
 
     @ManyToOne
@@ -20,12 +21,12 @@ public class LikeBoard extends Timestamp{
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "board_id")
-    private Board board;
+    @JoinColumn(name = "psot_id")
+    private Post post;
 
     @Builder
-    public LikeBoard(User user, Board board) {
+    public LikePost(User user, Post post) {
         this.user = user;
-        this.board = board;
+        this.post = post;
     }
 }

@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 public class LikeContent extends Timestamp{
 
     @Id
-    @GeneratedValue
-    @Column(name = "like_board_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "like_content_id")
     private Long id;
 
     @ManyToOne
