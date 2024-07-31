@@ -18,7 +18,7 @@ public class ContentService {
     private final ContentRepository contentRepository;
 
     public List<ContentResponseDto> readContentWebtoon(int offset, int pagesize, String genre) {
-        List<Content> contents = contentRepository.getContentByConic(offset, pagesize,genre);
+        List<Content> contents = contentRepository.getContentByConic(offset, pagesize, genre);
 
         return contents.stream()
                 .map(ContentResponseDto::new)
@@ -33,9 +33,8 @@ public class ContentService {
                 .collect(Collectors.toList());
     }
 
-    public List<ContentResponseDto> readContent(int offset, int pagesize) {
-//        List<Content> contents = contentRepository.findAllBy("COMICS", offset, pagesize)
-        List<Content> contents = contentRepository.findAll();
+    public List<ContentResponseDto> readContent(int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.getContent(offset, pagesize,genre);
 
         return contents.stream()
                 .map(ContentResponseDto::new)
@@ -49,16 +48,16 @@ public class ContentService {
 
     //::::::::::::::::::::::::// User BookMark //:::::::::::::::::::::::://
 
-    public List<ContentResponseDto> readContentWebtoonUser(Long userId, int offset, int pagesize) {
-        List<Content> contents = contentRepository.getContentByConicUser(userId, offset, pagesize);
+    public List<ContentResponseDto> readContentWebtoonUser(Long userId, int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.getContentByConicUser(userId, offset, pagesize ,genre);
 
         return contents.stream()
                 .map(ContentResponseDto::new)
                 .collect(Collectors.toList());
     }
 
-    public List<ContentResponseDto> readContentWebnovelUser(Long userId, int offset, int pagesize) {
-        List<Content> contents = contentRepository.getContentByNovelUser(userId, offset, pagesize);
+    public List<ContentResponseDto> readContentWebnovelUser(Long userId, int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.getContentByNovelUser(userId, offset, pagesize , genre);
 
         return contents.stream()
                 .map(ContentResponseDto::new)
@@ -79,7 +78,6 @@ public class ContentService {
                 () -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT)
         );
     }
-
 
 
 }

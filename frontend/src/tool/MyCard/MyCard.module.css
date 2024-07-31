@@ -5,6 +5,7 @@
 }
 
 .card {
+    position: relative;
     border: 1px solid red;
     background-color: #fff;
     border-radius: 8px;

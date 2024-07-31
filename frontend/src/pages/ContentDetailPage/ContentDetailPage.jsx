@@ -28,7 +28,6 @@ const ContentDetailPage = ({ isLoggedIn }) => {
                 const response = await axiosInstance.get(`/card/${cardId}`);
                 setPost(response.data);
                 setTotalPages(Math.ceil(response.data.posts.length / itemsPerPage)); // 총 페이지 수 설정
-                console.log(response);
 
                 await axiosInstance.post(`/card/${cardId}/viewcount`);
             } catch (error) {
@@ -50,7 +49,6 @@ const ContentDetailPage = ({ isLoggedIn }) => {
     const platformColor = platformColors[post.platform] || '#ccc';
     const boardId = 2;
 
-    // 현재 페이지에 해당하는 게시물들만 가져오기
     const paginatedPosts = post.posts.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
     return (
@@ -69,14 +67,14 @@ const ContentDetailPage = ({ isLoggedIn }) => {
                         <h2>{post.title}</h2>
                         <p>작가: {post.author}</p>
                         <a href={post.url}>
-                            <div className='button'>
+                            <div className={styles.detail_button}>
                                 보러가기
                             </div>
                         </a>
                         {isLoggedIn && (
-                            <button className="button" onClick={() => navigate(`/review/${cardId}/new`)}>
+                            <div className={styles.detail_button} onClick={() => navigate(`/review/${cardId}/new`)}>
                                 리뷰 쓰기
-                            </button>
+                            </div>
                         )}
                     </div>
                 </div>

@@ -89,7 +89,7 @@ public class LikeService {
 
         Content content = getContent(ContentId);
 
-        if (likeCommentRepository.findByUserIdAndCommentId(userId, content.getId()).isPresent()) {
+        if (likeContentRepository.findByUserIdAndContentId(userId, content.getId()).isPresent()) {
             throw new BusinessException(ErrorCode.ALREADY_LIKE);
         }
 

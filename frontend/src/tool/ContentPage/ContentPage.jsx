@@ -29,7 +29,8 @@ const ContentPage = ({ type, title, genres, tabs }) => {
         if (loading) return;
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`/card/${type}`, {
+            const response = await axiosInstance.get(`/card${type}`, {
+                headers: { Authorization: `${localStorage.getItem('Authorization')}` },
                 params: { offset, pagesize: pageSize, genre: genre === '전체' ? '' : genre, tab }
             });
             const content = response.data.map(content => ({
@@ -96,6 +97,7 @@ const ContentPage = ({ type, title, genres, tabs }) => {
                         <Card
                             img={content.imgUrl}
                             title={content.title}
+                            platform={content.platform}
                             author={content.author}
                             description={content.description}
                             genre={content.genre}

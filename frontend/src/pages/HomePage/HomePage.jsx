@@ -1,47 +1,15 @@
-import React, {useEffect, useState} from 'react';
-import Card from '../../tool/Card/Card';
+import React from 'react';
 import './HomePage.css';
-import axiosInstance from "../../api/axiosInstance";
+import ContentPage from "../../tool/ContentPage/ContentPage";
 
 const HomePage = ({onLogin}) => {
-    const [ranking, setRanking] = useState([]);
-
-    useEffect(() => {
-        fetchContent();
-    }, []);
-
-    const fetchContent = async () => {
-        try {
-            const response = await axiosInstance.get(`/card`);
-            const content = response.data.map(content => ({
-                ...content
-            }));
-            setRanking(content);
-        } catch (error) {
-            console.error("컨텐츠를 불러오는 중 오류가 발생했습니다!", error);
-        }
-    };
-
     return (
-        <div className="container">
-            <div>
-                <h1>인기 웹툰 & 웹소설</h1>
-                <div className="grid">
-                    {ranking.map((ranking, index) => (
-                        <a href={`/content/${ranking.id}`} key={index}>
-                            <Card
-                                img={ranking.imgUrl}
-                                title={ranking.title}
-                                author={ranking.author}
-                                description={ranking.description}
-                                genre={ranking.genre}
-                                rating={ranking.rating}
-                            />
-                        </a>
-                    ))}
-                </div>
-            </div>
-        </div>
+        <ContentPage
+            type=""
+            title="인기 웹툰 & 웹소설"
+            genres={['전체', '판타지', '로맨스', '무협', '미스터리', 'SF']}
+            tabs={['실시간 랭킹', '월간 랭킹', '누적 랭킹']}
+        />
     );
 }
 

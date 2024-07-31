@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import styles from './MyPage.module.css';
 import axiosInstance from '../../api/axiosInstance';
-import MyCard from "../../tool/MyCard/MyCard";
+import Card from "../../tool/Card/Card";
 import PostList from '../../tool/PostList/PostList';
 
 Modal.setAppElement('#root');
@@ -16,8 +16,8 @@ const MyPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [totalPages, setTotalPages] = useState(1);
     const page = 1;
-    const offset = (page - 1) * 5;
-    const pagesize = 5;
+    const offset = (page - 1) * 4;
+    const pagesize = 4;
 
     const fetchData = async () => {
         try {
@@ -28,8 +28,9 @@ const MyPage = () => {
 
             const fetchWebtoonsData = async () => {
                 try {
-                    const response = await axiosInstance.get(`/card/webtoon/bookmark`,{
-                        headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+                    const response = await axiosInstance.get(`/card/webtoon/bookmark`, {
+                        headers: { Authorization: `${localStorage.getItem('Authorization')}` },
+                        params: { offset, pagesize }
                     });
                     return response.data;
                 } catch (error) {
@@ -40,9 +41,11 @@ const MyPage = () => {
 
             const fetchWebnovelsData = async () => {
                 try {
-                    const response = await axiosInstance.get(`/card/webnovel/bookmark`,{
-                        headers: { Authorization: `${localStorage.getItem('Authorization')}` }
-                    });                    return response.data;
+                    const response = await axiosInstance.get(`/card/webnovel/bookmark`, {
+                        headers: { Authorization: `${localStorage.getItem('Authorization')}` },
+                        params: { offset, pagesize }
+                    });
+                    return response.data;
                 } catch (error) {
                     console.error("웹소설 데이터를 불러오는 중 오류가 발생했습니다!", error);
                     return [];
@@ -109,9 +112,13 @@ const MyPage = () => {
                 <div className={styles.grid}>
                     {bookmarkedWebtoons.map((ranking, index) => (
                         <a href={`/content/${ranking.id}`} key={index}>
-                            <MyCard
+                            <Card
+                                img={ranking.imgUrl}
                                 title={ranking.title}
                                 author={ranking.author}
+                                description={ranking.description}
+                                genre={ranking.genre}
+                                rating={ranking.rating}
                             />
                         </a>
                     ))}
@@ -123,9 +130,13 @@ const MyPage = () => {
                 <div className={styles.grid}>
                     {bookmarkedWebnovels.map((ranking, index) => (
                         <a href={`/content/${ranking.id}`} key={index}>
-                            <MyCard
+                            <Card
+                                img={ranking.imgUrl}
                                 title={ranking.title}
                                 author={ranking.author}
+                                description={ranking.description}
+                                genre={ranking.genre}
+                                rating={ranking.rating}
                             />
                         </a>
                     ))}
