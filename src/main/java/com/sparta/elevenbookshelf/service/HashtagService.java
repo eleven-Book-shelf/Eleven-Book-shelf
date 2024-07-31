@@ -29,7 +29,14 @@ public class HashtagService {
     private final ContentHashtagRepository contentHashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
 
-    // TODO: 해시태그 갱신이 필요한 지점 : 컨텐츠 생성 시, 사용자가 게시글 조회시, 사용자가 컨텐츠 북마크 할 시, 사용자가 리뷰 작성 시
+    // TODO: 해시태그 갱신이 필요한 지점 :
+    //  BoardService
+    //  컨텐츠 생성 시 : createContent
+    //  사용자가 게시글 조회시 : readPost 가중치 작게
+    //  사용자가 리뷰 작성 시 : createPost 가중치 크게
+    //  BookmarkService
+    //  사용자가 컨텐츠 북마크 할 시 : addBookmark, removeBookmark 가중치 크게
+
     public Set<Hashtag> createHashtags(String preHashtag) {
 
         return inspectHashtag(parseHashtags(preHashtag));

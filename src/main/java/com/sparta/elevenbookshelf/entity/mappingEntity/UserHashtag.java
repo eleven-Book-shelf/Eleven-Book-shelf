@@ -4,35 +4,33 @@ import com.sparta.elevenbookshelf.entity.Hashtag;
 import com.sparta.elevenbookshelf.entity.Timestamp;
 import com.sparta.elevenbookshelf.entity.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class UserHashtag extends Timestamp {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private UserHashtagId id;
 
     private double score;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("hashtagId")
     @JoinColumn(name = "hashtag_id")
     private Hashtag hashtag;
 
-    @Builder
-    public UserHashtag (User user, Hashtag hashtag) {
-        this.score = 0.0;
-        this.user = user;
-        this.hashtag = hashtag;
+
+    public void createId() {
+        this.id = new UserHashtagId(user.getId(), hashtag.getId());
     }
 
     public void incrementScore(double score) {

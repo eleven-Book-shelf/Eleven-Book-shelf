@@ -4,33 +4,29 @@ import com.sparta.elevenbookshelf.entity.Content;
 import com.sparta.elevenbookshelf.entity.Hashtag;
 import com.sparta.elevenbookshelf.entity.Timestamp;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class ContentHashtag extends Timestamp {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "content_hashtag_id")
-    private Long id;
+    @EmbeddedId
+    private ContentHashtagId id;
 
-    @ManyToOne
-    @JoinColumn(name = "content_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("contentId")
+    @JoinColumn(name = "conten_id")
     private Content content;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("hashtagId")
     @JoinColumn(name = "hashtag_id")
     private Hashtag hashtag;
 
-    @Builder
-    public ContentHashtag (Content content, Hashtag hashtag) {
-
-        this.content = content;
-        this.hashtag = hashtag;
+    public void createId() {
+        this.id = new ContentHashtagId(content.getId(), hashtag.getId());
     }
 }

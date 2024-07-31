@@ -118,7 +118,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
-    //:::::::::::::::::// post //::::::::::::::::://
+    //:::::::::::::::::// content //::::::::::::::::://
 
     @PostMapping("/content")
     public ResponseEntity<ContentResponseDto> createContent(@RequestBody ContentRequestDto req){

@@ -9,6 +9,7 @@ public class PostRequestDto {
     private Long boardId;
     private String title;
     private String body;
+    private String hashtag;
     private Long contentId;
     private String prehashtag;
     private Double rating;
