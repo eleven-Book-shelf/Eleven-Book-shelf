@@ -1,3 +1,16 @@
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -32,6 +45,7 @@ body {
     display: inline-block;
     padding: 0.5rem 1rem;
     background-color: #4285f4;
+    border: 2px solid white;
     color: #fff;
     text-decoration: none;
     border-radius: 4px;
@@ -68,4 +82,61 @@ body {
     margin: 0;
     color: #666;
     font-size: 0.9rem;
+}
+
+.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+}
+.name{
+
+}
+
+.my_page_link {
+    list-style-type: none;
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #333;
+    text-decoration: none;
+}
+.my_page_link:hover, .my_page_link.active {
+    background-color: #4285f4;
+    color: #fff;
+    border-color: #4285f4;
+}
+
+.more_btu {
+    display: inline-block;
+    color: #6d6d6d;
+    font-size: 0.9rem;
+}
+
+.more_btu:hover {
+    color: #2d2d2d;
+}
+
+.sectionTitle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }

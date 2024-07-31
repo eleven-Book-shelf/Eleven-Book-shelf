@@ -5,7 +5,7 @@ Content-Type: application/json
 {
   "username": "username",
   "password": "password@1234",
-  "email": "test@gmail.com"
+  "email": "test1@gmail.com"
 }
 
 ### login
@@ -21,3 +21,9 @@ Content-Type: application/json
     client.global.set("access_token", response.body.accessToken);
     client.global.set("refresh_token", response.body.refreshToken);
 %}
+
+
+### 유저
+GET localhost:8080/user
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNTIzMDgxNDEyIiwiaWF0IjoxNzIxOTk1Mjk4LCLthqDtgbBf7IOd7ISxX-2DnOyKpO2KuCI6Iu2DnOyKpO2KuCIsImV4cCI6MTcyMjAwMTI5OH0.iwWc1oYKEBpF81b_9zsX9fUiPt4YgztN8NVDwZutXIc

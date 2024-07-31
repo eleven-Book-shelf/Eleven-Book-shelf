@@ -67,8 +67,8 @@ public class KPageService {
         kPage(kNovelPage, "K NOVEL");
         log.info("K NOVEL 종료.");
 
-//        kPage(kComicsPage, "K COMICS");
-//        log.info("K COMICS 종료. K PAGE 끝.");
+        kPage(kComicsPage, "K COMICS");
+        log.info("K COMICS 종료. K PAGE 끝.");
 
     }
 
@@ -81,7 +81,7 @@ public class KPageService {
 
         try {
             crawlingUtil.waitForPage();
-//            crawlingUtil.scrollToEndOfPage();
+            crawlingUtil.scrollToEndOfPage();
 
             List<WebElement> linkElements = crawlingUtil.waitForElements(By.cssSelector(pageArtLink), 10);
             log.info("찾은 링크 개수 {}: ", linkElements.size());

@@ -4,8 +4,6 @@ import com.sparta.elevenbookshelf.entity.Board;
 import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.repository.BoardRepository;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
-import com.sparta.elevenbookshelf.service.BoardService;
-import com.sparta.elevenbookshelf.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -30,7 +28,7 @@ public class InitDataRunner implements ApplicationRunner {
 
         // 관리자 생성
         if(userRepository.findById(1L).isEmpty()) {
-            User admin = new User("ADMIN", passwordEncoder.encode("1234"), "admin@admin.com", null, User.Status.NORMAL, User.Role.ADMIN);
+            User admin = new User("ADMIN","관리자", passwordEncoder.encode("1234"), "admin@admin.com", null, User.Status.NORMAL, User.Role.ADMIN);
             userRepository.save(admin);
         }
 
@@ -43,6 +41,8 @@ public class InitDataRunner implements ApplicationRunner {
             boards.add(ContentBoard);
             Board ReviewBoard = new Board("ReviewBoard");
             boards.add(ReviewBoard);
+            Board FreeBoard = new Board("FreeBoard");
+            boards.add(FreeBoard);
 
             boardRepository.saveAll(boards);
         }

@@ -27,31 +27,37 @@
     align-items: center;
     margin-bottom: 2rem;
 }
-.post-list {
+.board-list {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-.post-item {
+.board-item {
     padding: 1rem;
     border-bottom: 1px solid #eee;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.post-item:last-child {
+.board-item *{
+    display: inline-block;
+}
+.board-item:hover{
+    background-color: #dedede;
+}
+.board-item:last-child {
     border-bottom: none;
 }
-.post-title {
+.board-title {
     font-size: 1.1rem;
     font-weight: 500;
     color: #333;
     text-decoration: none;
 }
-.post-title:hover {
+.board-title:hover {
     color: #4285f4;
 }
-.post-meta {
+.board-meta {
     font-size: 0.9rem;
     color: #888;
 }

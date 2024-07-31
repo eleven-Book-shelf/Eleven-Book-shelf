@@ -7,3 +7,7 @@ Authorization: {{access_token}}
 DELETE http://localhost:8080/comments/1/likes
 Content-Type: application/json
 Authorization: {{access_token}}
+
+### 크롤링
+POST http://localhost:8080/content/start/all
+Content-Type: application/json

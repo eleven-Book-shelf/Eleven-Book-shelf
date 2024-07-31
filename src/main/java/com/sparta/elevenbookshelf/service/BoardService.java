@@ -97,18 +97,30 @@ public class BoardService {
 
     }
 
+    public String readBoardTitle(Long boardId) {
+        return getBoard(boardId).getTitle();
+    }
+
     //:::::::::::::::::// post //::::::::::::::::://
+
+    public long getTotalPostsByBoard(Long boardId) {
+        return postRepository.getTotalPostsByBoard(boardId);
+    }
 
     @Transactional
     public PostResponseDto createPost(User user, Long boardId, PostRequestDto req) {
 
-        Content content = contentRepository.findById(req.getContentId()).orElse(null);
+        Content content = null;
+
+        if (req.getContentId() != null) {
+            content = contentRepository.findById(req.getContentId()).orElse(null);
+        }
 
         Post post = switch (req.getPostType()) {
             case "NORMAL" -> {
                 Board board = null;
 
-                if(boardId != null) {
+                if (boardId != null) {
                     board = getBoard(boardId);
                 }
 
@@ -158,7 +170,6 @@ public class BoardService {
 
         if (post instanceof ReviewPost) {
             content.addReview((ReviewPost) post);
-            contentRepository.save(content);
         }
 
         postRepository.save(post);
@@ -166,8 +177,7 @@ public class BoardService {
         return new PostResponseDto(post);
     }
 
-
-
+    @Transactional
     public PostResponseDto readPost(Long boardId, Long postId) {
 
         Post post = getPost(postId);
@@ -176,12 +186,14 @@ public class BoardService {
             throw new BusinessException(ErrorCode.POST_NOT_FOUND);
         }
 
+        post.incrementViewCount();
+
         return new PostResponseDto(post);
     }
 
-    public List<PostResponseDto> readPostsByContent(Long boardId, Long contentId, long offset, int pagesize) {
+    public List<PostResponseDto> readPostsByContent(Long boardId, Long contentId, long offset, int pageSize) {
 
-        List<Post> posts = postRepository.getPostsByContent(contentId, offset, pagesize);
+        List<Post> posts = postRepository.getPostsByContent(contentId, offset, pageSize);
 
         return posts.stream().map(
                         PostResponseDto::new)
@@ -201,7 +213,7 @@ public class BoardService {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
-        post.updateBoard(getBoard(req.getBoardId()));
+        post.updateBoard(getBoard(boardId));
         post.updateTitle(req.getTitle());
         post.updateBody(req.getBody());
 
@@ -247,6 +259,15 @@ public class BoardService {
         return new ContentResponseDto(content);
     }
 
+    //::::::::::::::::::::::::// User //:::::::::::::::::::::::://
+
+    public List<PostResponseDto> readUserPost(Long userId , long offset, int pageSize) {
+        List<Post> posts = postRepository.getPostsByUserId(userId, offset, pageSize);
+
+        return posts.stream().map(
+                        PostResponseDto::new)
+                .toList();
+    }
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 
@@ -284,4 +305,6 @@ public class BoardService {
     private boolean isPostBoardEqual(Long boardId, Post post) {
         return post.getBoard().equals(getBoard(boardId));
     }
+
+
 }
