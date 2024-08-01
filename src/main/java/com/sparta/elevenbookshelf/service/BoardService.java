@@ -169,19 +169,19 @@ public class BoardService {
                 .build();
 
         Set<String> tags = hashtagService.parseHashtag(req.getPrehashtag());
-        Set<UserHashtag> userHashtags = new HashSet<>();
-        Set<ContentHashtag> contentHashtags = new HashSet<>();
+
 
         for (String tag : tags) {
             Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag);
 
             UserHashtag userHashtag = hashtagService.createOrUpdateUserHashtag(user, hashtag, CREATE_WEIGHT);
-            userHashtags.add(userHashtag);
             user.addHashtag(userHashtag);
 
             ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, CREATE_WEIGHT);
-            contentHashtags.add(contentHashtag);
             content.addHashtag(contentHashtag);
+
+            PostHashtag postHashtag = hashtagService.createOrUpdatePostHashtag(result, hashtag);
+            result.addHashtag(postHashtag);
         }
 
         user.addPost(result);
@@ -253,7 +253,8 @@ public class BoardService {
         return new PostResponseDto(post);
     }
 
-    // userhashtag, contenthashtag 갱신필요
+    // TODO : controller로 연결 필요
+    // userhashtag, contenthashtag 갱신 필요
     @Transactional
     public List<PostResponseDto> readPostsByContent(User user, Long boardId, Long contentId, long offset, int pagesize) {
 

@@ -82,4 +82,8 @@ public abstract class Post {
     public void updateBoard(Board board) {
         this.board = board;
     }
+
+    public void addHashtag(PostHashtag postHashtag) {
+        this.postHashtags.add(postHashtag);
+    }
 }

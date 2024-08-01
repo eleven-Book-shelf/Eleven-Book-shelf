@@ -9,8 +9,8 @@ import java.util.Optional;
 
 public interface HashtagRepository extends JpaRepository<Hashtag, Long> {
 
-    @Query("SELECT h FROM Hashtag h ORDER BY (SELECT COUNT(ph) FROM PostHashtag ph WHERE ph.hashtag = h) DESC")
-    List<Hashtag> findTop10ByOrderByPostsDesc();
+    @Query("SELECT h FROM Hashtag h ORDER BY h.count DESC")
+    List<Hashtag> findTop10ByCount();
 
     Optional<Hashtag> findByTag(String tag);
 }
