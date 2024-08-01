@@ -16,6 +16,7 @@ public class ContentResponseDto {
     private String author;
     private String platform;
     private String genre;
+    private String contentHashTag;
     private Double view;
     private Double rating;
     private String url;
@@ -31,6 +32,7 @@ public class ContentResponseDto {
         this.author = content.getAuthor();
         this.platform = content.getPlatform();
         this.genre = content.getGenre();
+        this.contentHashTag = content.getContentHashTag();
         this.view = content.getView();
         this.rating = content.getRating();
         this.url = content.getUrl();

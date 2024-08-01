@@ -13,6 +13,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.openqa.selenium.*;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -27,10 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -107,6 +105,17 @@ public class CrawlingUtil {
         WebElement element = waitForElement(By.xpath(xPath), 10);
         return element.getText();
     }
+
+    // 여러 클래스에서 텍스트 가져오기.
+    public List<String> getHashtags(String locate) {
+        List<WebElement> elements = waitForElements(By.xpath(locate), 10);
+        List<String> hashtags = new ArrayList<>();
+        for (WebElement element : elements) {
+            hashtags.add(element.getText());
+        }
+        return hashtags;
+    }
+
 
     // 썸네일 링크 가져오기
     public String getThumbnail(String selector, boolean isCssSelector) {
@@ -208,6 +217,7 @@ public class CrawlingUtil {
                     .bookMarkCount(requestDto.getBookMarkCount())
                     .url(requestDto.getUrl())
                     .genre(requestDto.getGenre())
+                    .contentHashTag(requestDto.getContentHashTag())
                     .build();
             contentRepository.save(newContent);
             ContentResponseDto res = new ContentResponseDto(newContent);
@@ -237,6 +247,7 @@ public class CrawlingUtil {
                              "Platform",
                              "Url",
                              "Genre",
+                             "ContentHashTag",
                              "View",
                              "Rating",
                              "BookMarkCount",
@@ -257,6 +268,7 @@ public class CrawlingUtil {
                         data.getPlatform(),
                         data.getUrl(),
                         data.getGenre(),
+                        data.getContentHashTag(),
                         data.getView(),
                         data.getRating(),
                         data.getBookMarkCount(),
@@ -321,6 +333,7 @@ public class CrawlingUtil {
                 .platform(csvRecord.get("Platform"))
                 .url(csvRecord.get("Url"))
                 .genre(csvRecord.get("Genre"))
+                .contentHashTag(csvRecord.get("ContentHashTag"))
                 .view(parseDoubleOrDefault(csvRecord.get("View")))
                 .rating(parseDoubleOrDefault(csvRecord.get("Rating")))
                 .bookMarkCount(parseLongOrDefault(csvRecord.get("BookMarkCount")))
@@ -341,6 +354,7 @@ public class CrawlingUtil {
         requestDto.setPlatform(csvRecord.get("Platform"));
         requestDto.setUrl(csvRecord.get("Url"));
         requestDto.setGenre(csvRecord.get("Genre"));
+        requestDto.setContentHashTag(csvRecord.get("ContentHashTag"));
         requestDto.setView(parseDoubleOrDefault(csvRecord.get("View")));
         requestDto.setRating(parseDoubleOrDefault(csvRecord.get("Rating")));
         requestDto.setBookMarkCount(parseLongOrDefault(csvRecord.get("BookMarkCount")));
