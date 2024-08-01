@@ -23,9 +23,9 @@ public class CrawlingService {
     // 크롤링 한 데이터를 저장한 후 파일 변환 후 로컬에 저장까지 만 구동.
     public void allCrawlingStart() {
 
-//        rNovelService.serviceStart();
+        rNovelService.serviceStart();
 //        mNovelService.serviceStart();
-        kPageService.serviceStart();
+//        kPageService.serviceStart();
 
         crawlingUtil.exportToCsv();
 

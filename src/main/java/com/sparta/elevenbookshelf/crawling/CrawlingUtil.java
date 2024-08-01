@@ -109,11 +109,21 @@ public class CrawlingUtil {
     // 여러 클래스에서 텍스트 가져오기.
     public List<String> getHashtags(String locate) {
         List<WebElement> elements = waitForElements(By.xpath(locate), 10);
-        List<String> hashtags = new ArrayList<>();
+        List<String> hashtagList = new ArrayList<>();
         for (WebElement element : elements) {
-            hashtags.add(element.getText());
+            String text = element.getText();
+            text = text.replaceAll("[\\s\\u00A0]+", "").trim();
+            if (!text.contains("#")) {
+                continue;
+            }
+            hashtagList.add(text);
         }
-        return hashtags;
+
+        if (hashtagList.isEmpty()) {
+            hashtagList.add("없음");
+        }
+
+        return hashtagList;
     }
 
 

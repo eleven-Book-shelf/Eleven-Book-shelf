@@ -59,6 +59,8 @@ public class KPageService {
     @Value("${K_RATING}")
     private String kRating;
 
+    @Value("${K_HASHTAG}")
+    private String kHashTag;
 
     public void serviceStart() {
 
@@ -152,7 +154,7 @@ public class KPageService {
                     }
 
                     crawlingUtil.waitForPage();
-                    String description = crawlingUtil.metaData("//meta[@name='description']","content");
+                    String description = crawlingUtil.metaData("//meta[@name='description']", "content");
                     requestDto.setDescription(description);
                     log.info("작품 소개. : {}", description);
 
@@ -207,13 +209,14 @@ public class KPageService {
                     log.info("작품 썸네일 : {}", imgUrl);
 
                     try {
-                        String hashTagUrl =  artUrl + "?tab_type=about";
+                        String hashTagUrl = artUrl + "?tab_type=about";
                         webDriver.get(hashTagUrl);
                         log.info("이동한 페이지 : {}", hashTagUrl);
-                        List<String> hashTags = crawlingUtil.getHashtags("//div[@class='flex w-full flex-wrap px-18pxr pb-10pxr']//span[@class='font-small2-bold text-ellipsis text-el-70 line-clamp-1']");
-                        String joinHashTags = String.join(", ", hashTags);
+                        List<String> hashTagList = crawlingUtil.getHashtags(kHashTag);
+                        String joinHashTags = String.join(",", hashTagList);
                         requestDto.setContentHashTag(joinHashTags);
                         log.info("해시태그 : {}", joinHashTags);
+
 
                     } catch (NoSuchElementException e) {
                         log.error("해시태그를 찾을 수 없습니다: {}", e.getMessage());
@@ -227,7 +230,10 @@ public class KPageService {
                     }
 
                     requestDto.setBookMarkCount(0L);
+                    log.info("북마크 카운트 없음 : 0");
+
                     requestDto.setLikeCount(0L);
+                    log.info("좋아요 카운트 없음 : 0");
 
                     crawlingUtil.saveData(requestDto, artUrl);
 
