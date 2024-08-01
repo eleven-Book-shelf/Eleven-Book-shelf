@@ -23,51 +23,51 @@ public class KPageService {
     private final Set<String> disAllowedLink = new HashSet<>();
     private final CrawlingUtil crawlingUtil;
 
-    @Value("${K_NOVEL_PAGE}")
+    @Value("${k.page.novel}")
     private String kNovelPage;
 
-    @Value("${K_COMICS_PAGE}")
+    @Value("${k.page.comics}")
     private String kComicsPage;
 
-    @Value("${K_ROBOTS1}")
+    @Value("${k.robots1}")
     private String robotsTxtNo1;
 
-    @Value("${K_ROBOTS2}")
+    @Value("${k.robots2}")
     private String robotsTxtNo2;
 
-    @Value("${K_ART_LINK}")
+    @Value("${k.art_link}")
     private String pageArtLink;
 
-    @Value("${K_TITLE}")
+    @Value("${k.title}")
     private String kTitle;
 
-    @Value("${K_AUTHOR}")
+    @Value("${k.author}")
     private String kAuthor;
 
-    @Value("${K_SITE}")
+    @Value("${k.site}")
     private String kSite;
 
-    @Value("${K_COMPLETE}")
+    @Value("${k.complete}")
     private String kComplete;
 
-    @Value("${K_TOTAL_VIEW}")
+    @Value("${k.total_view}")
     private String kTotalView;
 
-    @Value("${K_CONTENT_TYPE}")
+    @Value("${k.content_type}")
     private String kContentType;
 
-    @Value("${K_RATING}")
+    @Value("${k.rating}")
     private String kRating;
 
-    @Value("${K_HASHTAG}")
+    @Value("${k.hashtag}")
     private String kHashTag;
 
     public void serviceStart() {
 
         log.info("K PAGE 시작.");
 
-//        kPage(kNovelPage, "K NOVEL");
-//        log.info("K NOVEL 종료.");
+        kPage(kNovelPage, "K NOVEL");
+        log.info("K NOVEL 종료.");
 
         kPage(kComicsPage, "K COMICS");
         log.info("K COMICS 종료. K PAGE 끝.");
