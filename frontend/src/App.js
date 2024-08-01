@@ -10,6 +10,7 @@ import BookmarkedWebtoons from "./pages/MyPage/bookmarkedWebtoons/bookmarkedWebt
 import BookmarkedWebnovels from "./pages/MyPage/bookmarkedWebnovels/bookmarkedWebnovels";
 
 import LoginPage from './pages/LoginPage/LoginPage';
+import LoginFailurePage from './pages/LoginPage/LoginFailurePage'; // 추가
 import AuthCallback from './api/AuthCallback';
 import SignupPage from './pages/SignupPage/SignupPage';
 
@@ -74,9 +75,10 @@ const App = () => {
 
                     <Route path="/signup" element={<SignupPage />} />
                     <Route path="/login" element={<LoginPage />} />
+                    <Route path="/login/failure" element={<LoginFailurePage />} /> {/* 추가 */}
                     <Route path="/auth/callback" element={<AuthCallback onLogin={handleLogin} />} />
 
-                    <Route path="/mypage" element={<MyPage />} />
+                    <Route path="/mypage" element={<MyPage setIsLoggedIn={setIsLoggedIn} />} />
                     <Route path="/bookmarkedWebtoons" element={<BookmarkedWebtoons />} />
                     <Route path="/bookmarkedWebnovels" element={<BookmarkedWebnovels />} />
 

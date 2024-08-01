@@ -25,6 +25,11 @@ public class UserController {
         return ResponseEntity.noContent().build();
 
     }
+    @DeleteMapping("/signout")
+    public ResponseEntity<?> signOut(@AuthenticationPrincipal UserPrincipal user) {
+        userService.signOut(user.getUser().getId());
+        return ResponseEntity.noContent().build();
+    }
 
     @GetMapping
     public ResponseEntity<UserResponseDto> getProfile(@AuthenticationPrincipal UserPrincipal user) {
@@ -38,8 +43,6 @@ public class UserController {
         log.info("editProfile 실행");
         UserResponseDto res = userService.editProfile(user.getUser().getId() , username );
         return ResponseEntity.noContent().build();
-
     }
-
 
 }

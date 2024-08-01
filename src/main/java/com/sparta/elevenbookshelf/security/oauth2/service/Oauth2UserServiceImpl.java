@@ -1,6 +1,5 @@
 package com.sparta.elevenbookshelf.security.oauth2.service;
 
-
 import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import com.sparta.elevenbookshelf.security.SecurityConfig;
@@ -20,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +51,7 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
         } else if ("kakao".equals(provider)) {
             userInfo = new KakaoOAuth2UserInfo();
         } else {
-            throw new OAuth2AuthenticationException("Unsupported provider: " + provider);
+            throw new OAuth2AuthenticationException(new OAuth2Error("unsupported_provider"), "Unsupported provider: " + provider);
         }
 
         String socialId = userInfo.getProviderId(oAuth2User.getAttributes());
@@ -61,7 +61,7 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
         if (optionalUser.isEmpty()) {
             user = User.builder()
                     .username(provider + "_" + socialId)
-                    .nickname(provider + "_user_:" + socialId.substring(2,8))
+                    .nickname(userInfo.getNameFromAttributes(oAuth2User.getAttributes()))
                     .password(encoder.passwordEncoder().encode("default_password"))
                     .email(userInfo.getEmailFromAttributes(oAuth2User.getAttributes()))
                     .socialId(socialId)
@@ -71,9 +71,14 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
 
             userRepository.save(user);
             user.addRefreshToken(jwtService.generateRefreshToken(provider + "_" + socialId));
-        }
-        else {
+        } else {
             user = optionalUser.get();
+            if (user.getStatus() == User.Status.DELETED) {
+                throw new OAuth2AuthenticationException(new OAuth2Error("user_deleted"), "탈퇴한 사용자 입니다.");
+            }
+            if (user.getStatus() == User.Status.BLOCKED) {
+                throw new OAuth2AuthenticationException(new OAuth2Error("user_blocked"), "차단된 사용자 입니다.");
+            }
         }
 
         UserPrincipal userPrincipal = new UserPrincipal(user);
@@ -84,6 +89,5 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
         SecurityContextHolder.setContext(context);
 
         return userPrincipal;
-
     }
 }

@@ -1,7 +1,8 @@
-import React, {useEffect, useState} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import CommentSection from '../../tool/CommentSection/CommentSection';
+import PostList from '../../tool/PostList/PostList'; // PostList 임포트
 import './PostDetailPage.css';
 import styles from "../ContentDetailPage/ContentDetailPage.module.css";
 
@@ -12,8 +13,8 @@ const platformColors = {
     '네이버': '#00C73C'
 };
 
-const PostDetailPage = ({isLoggedIn}) => {
-    const {boardId, postId} = useParams();
+const PostDetailPage = ({ isLoggedIn }) => {
+    const { boardId, postId } = useParams();
     const [post, setPost] = useState(null);
     const [content, setContent] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -22,6 +23,9 @@ const PostDetailPage = ({isLoggedIn}) => {
     const [editedTitle, setEditedTitle] = useState('');
     const [editedContent, setEditedContent] = useState('');
     const [contentId, setContentId] = useState(null);
+    const [relatedPosts, setRelatedPosts] = useState([]); // 관련 포스트 상태 추가
+    const [totalPages, setTotalPages] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
     const userId = localStorage.getItem('userId'); // 로그인된 사용자의 ID를 가져옴
     const navigate = useNavigate();
 
@@ -35,7 +39,6 @@ const PostDetailPage = ({isLoggedIn}) => {
                 setEditedContent(postData.body);
                 setContentId(postData.contentId); // contentId 설정
                 setLoading(false);
-                console.log(response);
             } catch (error) {
                 console.error("There was an error fetching the post!", error);
                 setLoading(false);
@@ -49,7 +52,7 @@ const PostDetailPage = ({isLoggedIn}) => {
         const fetchLikeStatus = async () => {
             try {
                 const response = await axiosInstance.get(`/like/${postId}/likesPost`, {
-                    headers: {Authorization: `${localStorage.getItem('Authorization')}`}
+                    headers: { Authorization: `${localStorage.getItem('Authorization')}` }
                 });
                 setLiked(response.data);
             } catch (error) {
@@ -80,13 +83,29 @@ const PostDetailPage = ({isLoggedIn}) => {
         fetchContentDetail();
     }, [contentId]);
 
+    useEffect(() => {
+        const fetchRelatedPosts = async () => {
+            try {
+                const response = await axiosInstance.get(`/boards/${boardId}`, {
+                    params: { offset: (currentPage - 1) * 5, pagesize: 5 }
+                });
+                setRelatedPosts(response.data.posts);
+                setTotalPages(response.data.totalPages);
+            } catch (error) {
+                console.error("There was an error fetching related posts!", error);
+            }
+        };
+
+        fetchRelatedPosts();
+    }, [boardId, currentPage]);
+
     const handleLikeButtonClick = async () => {
-        const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
+        const headers = { Authorization: `${localStorage.getItem('Authorization')}` };
         try {
             if (liked) {
-                await axiosInstance.delete(`/like/${postId}/likesPost`, {headers});
+                await axiosInstance.delete(`/like/${postId}/likesPost`, { headers });
             } else {
-                await axiosInstance.post(`/like/${postId}/likesPost`, {}, {headers});
+                await axiosInstance.post(`/like/${postId}/likesPost`, {}, { headers });
             }
             setLiked(!liked);
         } catch (error) {
@@ -95,9 +114,9 @@ const PostDetailPage = ({isLoggedIn}) => {
     };
 
     const handleDelete = async () => {
-        const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
+        const headers = { Authorization: `${localStorage.getItem('Authorization')}` };
         try {
-            await axiosInstance.delete(`/boards/deletePost/${boardId}/post/${postId}`, {headers});
+            await axiosInstance.delete(`/boards/deletePost/${boardId}/post/${postId}`, { headers });
             navigate(`/community/board/${boardId}`);
         } catch (error) {
             console.error("There was an error deleting the post!", error);
@@ -109,17 +128,26 @@ const PostDetailPage = ({isLoggedIn}) => {
     };
 
     const handleSave = async () => {
-        const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
+        if (!editedTitle.trim()) {
+            alert('제목은 반드시 입력해야 합니다.');
+            return;
+        }
+
+        const headers = { Authorization: `${localStorage.getItem('Authorization')}` };
         try {
             await axiosInstance.put(`/boards/${boardId}/post/${postId}`, {
                 title: editedTitle,
                 body: editedContent
-            }, {headers});
-            setPost({...post, title: editedTitle, body: editedContent});
+            }, { headers });
+            setPost({ ...post, title: editedTitle, body: editedContent });
             setEditMode(false);
         } catch (error) {
             console.error("There was an error saving the post!", error);
         }
+    };
+
+    const handlePageClick = (pageNumber) => {
+        setCurrentPage(pageNumber);
     };
 
     if (loading) {
@@ -139,10 +167,10 @@ const PostDetailPage = ({isLoggedIn}) => {
             </div>
             <div className={`post-detail-container ${post.postType === "REVIEW" ? "review" : ""}`}>
                 {post.postType === "REVIEW" && content && (
-                    <div className={styles.post_img} style={{backgroundImage: `url(${content.imgUrl})`}}>
+                    <div className={styles.post_img} style={{ backgroundImage: `url(${content.imgUrl})` }}>
                         <div
                             className={styles.post_platform}
-                            style={{backgroundColor: platformColor}}
+                            style={{ backgroundColor: platformColor }}
                         >
                             {content.platform}
                         </div>
@@ -158,7 +186,6 @@ const PostDetailPage = ({isLoggedIn}) => {
                                 </div>
                             </a>
                         </div>
-
                     </div>
                 )}
                 <div className="post-detail">
@@ -219,7 +246,18 @@ const PostDetailPage = ({isLoggedIn}) => {
                     </div>
                 </div>
             </div>
-            <CommentSection postId={postId}/>
+            <CommentSection postId={postId} />
+            <div className="related-posts">
+                <h3>관련 포스트</h3>
+                <PostList
+                    posts={relatedPosts}
+                    boardId={boardId}
+                    currentPostId={postId}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageClick={handlePageClick}
+                />
+            </div>
         </div>
     );
 }

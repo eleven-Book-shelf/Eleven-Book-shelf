@@ -1,6 +1,7 @@
 package com.sparta.elevenbookshelf.controller;
 
 
+import com.sparta.elevenbookshelf.dto.ContentDataResponseDto;
 import com.sparta.elevenbookshelf.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.ContentService;
@@ -20,9 +21,18 @@ public class ContentController {
     private final ContentService contentService;
 
     //::::::::::::::::::::::::// normal //:::::::::::::::::::::::://
+    @GetMapping
+    public ResponseEntity<List<ContentDataResponseDto>> readContent(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
+            @RequestParam(value = "genre", required = false) String genre) {
+
+        return ResponseEntity.status(HttpStatus.OK).
+                body(contentService.readContent(offset, pagesize, genre));
+    }
 
     @GetMapping("/webtoon")
-    public ResponseEntity<List<ContentResponseDto>> readContentWebtoon(
+    public ResponseEntity<List<ContentDataResponseDto>> readContentWebtoon(
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
             @RequestParam(value = "genre", required = false) String genre) {
@@ -32,23 +42,13 @@ public class ContentController {
     }
 
     @GetMapping("/webnovel")
-    public ResponseEntity<List<ContentResponseDto>> readContentWebnovel(
+    public ResponseEntity<List<ContentDataResponseDto>> readContentWebnovel(
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
             @RequestParam(value = "genre", required = false) String genre) {
 
         return ResponseEntity.status(HttpStatus.OK).
                 body(contentService.readContentWebnovel(offset, pagesize, genre));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<ContentResponseDto>> readContent(
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestParam(value = "genre", required = false) String genre) {
-
-        return ResponseEntity.status(HttpStatus.OK).
-                body(contentService.readContent(offset, pagesize, genre));
     }
 
     @GetMapping("/{cardId}")
@@ -66,7 +66,7 @@ public class ContentController {
     //::::::::::::::::::::::::// User BookMark //:::::::::::::::::::::::://
 
     @GetMapping("/webtoon/bookmark")
-    public ResponseEntity<List<ContentResponseDto>> readContentWebtoonUser(
+    public ResponseEntity<List<ContentDataResponseDto>> readContentWebtoonUser(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "4") int pagesize,
@@ -77,7 +77,7 @@ public class ContentController {
     }
 
     @GetMapping("/webnovel/bookmark")
-    public ResponseEntity<List<ContentResponseDto>> readContentWebnovelUser(
+    public ResponseEntity<List<ContentDataResponseDto>> readContentWebnovelUser(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "4") int pagesize,

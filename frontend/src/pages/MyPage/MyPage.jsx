@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import styles from './MyPage.module.css';
 import axiosInstance from '../../api/axiosInstance';
-import Card from "../../tool/Card/Card";
+import CardGrid from './CardGrid';
+import ProfileHeader from './ProfileHeader';
 import PostList from '../../tool/PostList/PostList';
 
 Modal.setAppElement('#root');
 
-const MyPage = () => {
+const MyPage = ({ setIsLoggedIn }) => {
     const [profile, setProfile] = useState(null);
     const [bookmarkedWebtoons, setBookmarkedWebtoons] = useState([]);
     const [bookmarkedWebnovels, setBookmarkedWebnovels] = useState([]);
@@ -78,17 +79,37 @@ const MyPage = () => {
     }, []);
 
     const handleEditProfile = async () => {
-        try {
-            await axiosInstance.put('/user/edit', null, {
-                params: { username: newUsername },
-                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
-            });
-            // 프로필 수정 후 데이터 다시 가져오기
-            await fetchData();
-            setIsModalOpen(false);
-            setNewUsername('');
-        } catch (error) {
-            console.error('프로필 수정 실패:', error);
+        if (window.confirm('정말로 수정하시겠습니까?')) {
+            try {
+                await axiosInstance.put('/user/edit', null, {
+                    params: { username: newUsername },
+                    headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+                });
+                // 프로필 수정 후 데이터 다시 가져오기
+                await fetchData();
+                setIsModalOpen(false);
+                setNewUsername('');
+            } catch (error) {
+                console.error('프로필 수정 실패:', error);
+            }
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (window.confirm('정말로 탈퇴하시겠습니까?')) {
+            try {
+                await axiosInstance.delete('/user/signout', {
+                    headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+                });
+                // 탈퇴 후 로그아웃 및 리디렉션
+                localStorage.removeItem('Authorization');
+                localStorage.removeItem('userId');
+                setProfile(null);
+                setIsLoggedIn(false);
+                window.location.href = '/';
+            } catch (error) {
+                console.error('회원 탈퇴 실패:', error);
+            }
         }
     };
 
@@ -98,49 +119,20 @@ const MyPage = () => {
 
     return (
         <div className={styles.container}>
-            <div className={styles.profileHeader}>
-                <div className={styles.profileInfo}>
-                    <h1 className={styles.name}> {profile.nickname}</h1>
-                    <p>가입일: {profile.createdAt}</p>
-                    <p>이메일: {profile.email}</p>
-                    <button onClick={() => setIsModalOpen(true)} className={styles.button}>프로필 수정</button>
-                </div>
+            <ProfileHeader profile={profile} setIsModalOpen={setIsModalOpen} />
+
+            <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>
+                    북마크한 웹툰 <a href="/bookmarkedWebtoons" className={styles.more_btu}>더보기</a>
+                </h2>
+                <CardGrid items={bookmarkedWebtoons} />
             </div>
 
             <div className={styles.section}>
-                <h2 className={styles.sectionTitle}>북마크한 웹툰 <a href="/bookmarkedWebtoons" className={styles.more_btu}>더보기</a></h2>
-                <div className={styles.grid}>
-                    {bookmarkedWebtoons.map((ranking, index) => (
-                        <a href={`/content/${ranking.id}`} key={index}>
-                            <Card
-                                img={ranking.imgUrl}
-                                title={ranking.title}
-                                author={ranking.author}
-                                description={ranking.description}
-                                genre={ranking.genre}
-                                rating={ranking.rating}
-                            />
-                        </a>
-                    ))}
-                </div>
-            </div>
-
-            <div className={styles.section}>
-                <h2 className={styles.sectionTitle}>북마크한 웹소설 <a href="/bookmarkedWebnovels" className={styles.more_btu}>더보기</a></h2>
-                <div className={styles.grid}>
-                    {bookmarkedWebnovels.map((ranking, index) => (
-                        <a href={`/content/${ranking.id}`} key={index}>
-                            <Card
-                                img={ranking.imgUrl}
-                                title={ranking.title}
-                                author={ranking.author}
-                                description={ranking.description}
-                                genre={ranking.genre}
-                                rating={ranking.rating}
-                            />
-                        </a>
-                    ))}
-                </div>
+                <h2 className={styles.sectionTitle}>
+                    북마크한 웹소설 <a href="/bookmarkedWebnovels" className={styles.more_btu}>더보기</a>
+                </h2>
+                <CardGrid items={bookmarkedWebnovels} />
             </div>
 
             <div className={styles.section}>
@@ -164,6 +156,7 @@ const MyPage = () => {
                 />
                 <button onClick={handleEditProfile}>저장</button>
                 <button onClick={() => setIsModalOpen(false)}>취소</button>
+                <button onClick={handleDeleteAccount} className={styles.deleteButton}>회원 탈퇴</button>
             </Modal>
         </div>
     );

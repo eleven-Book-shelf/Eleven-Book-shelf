@@ -28,7 +28,6 @@ public class User extends Timestamp {
 
     private String refreshToken;
 
-
     private String socialId;
 
     @Enumerated(EnumType.STRING)
@@ -55,6 +54,9 @@ public class User extends Timestamp {
         this.nickname = username;
     }
 
+    public void signOut(){
+        this.status = Status.DELETED;
+    }
 
     public void deleteRefreshToken() {
         this.refreshToken = "out";

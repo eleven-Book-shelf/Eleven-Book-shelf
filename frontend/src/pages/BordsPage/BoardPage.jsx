@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import PostList from '../../tool/PostList/PostList';
-import Pagination from '../../tool/Pagination/Pagination';
 import './BoardPage.css';
 
 const BoardPage = () => {
@@ -53,9 +52,13 @@ const BoardPage = () => {
                 <a href={`/community/board/${boardId}/post/new`} className="button">새 글 작성</a>
             </div>
 
-            <PostList posts={posts} boardId={boardId} />
-
-            <Pagination currentPage={page} totalPages={totalPages} onPageClick={handlePageClick} />
+            <PostList
+                posts={posts}
+                boardId={boardId}
+                currentPage={page}
+                totalPages={totalPages}
+                onPageClick={handlePageClick}
+            />
         </div>
     );
 };

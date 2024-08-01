@@ -41,6 +41,7 @@
     color:white;
     font-weight: bolder;
     text-align: center;
+    transform: translateY(-24%) translateX(2%);
     box-shadow: 0 .2rem 5px rgba(0, 0, 0, 0.5);
 }
 .card-img {

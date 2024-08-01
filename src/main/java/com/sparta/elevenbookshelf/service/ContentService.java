@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.service;
 
+import com.sparta.elevenbookshelf.dto.ContentDataResponseDto;
 import com.sparta.elevenbookshelf.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.entity.Content;
 import com.sparta.elevenbookshelf.exception.BusinessException;
@@ -17,27 +18,27 @@ public class ContentService {
 
     private final ContentRepository contentRepository;
 
-    public List<ContentResponseDto> readContentWebtoon(int offset, int pagesize, String genre) {
-        List<Content> contents = contentRepository.getContentByConic(offset, pagesize, genre);
-
-        return contents.stream()
-                .map(ContentResponseDto::new)
-                .collect(Collectors.toList());
-    }
-
-    public List<ContentResponseDto> readContentWebnovel(int offset, int pagesize, String genre) {
-        List<Content> contents = contentRepository.getContentByNovel(offset, pagesize, genre);
-
-        return contents.stream()
-                .map(ContentResponseDto::new)
-                .collect(Collectors.toList());
-    }
-
-    public List<ContentResponseDto> readContent(int offset, int pagesize, String genre) {
+    public List<ContentDataResponseDto> readContent(int offset, int pagesize, String genre) {
         List<Content> contents = contentRepository.getContent(offset, pagesize,genre);
 
         return contents.stream()
-                .map(ContentResponseDto::new)
+                .map(ContentDataResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ContentDataResponseDto> readContentWebtoon(int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.getContentByConic(offset, pagesize, genre);
+
+        return contents.stream()
+                .map(ContentDataResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ContentDataResponseDto> readContentWebnovel(int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.getContentByNovel(offset, pagesize, genre);
+
+        return contents.stream()
+                .map(ContentDataResponseDto::new)
                 .collect(Collectors.toList());
     }
 
@@ -48,19 +49,19 @@ public class ContentService {
 
     //::::::::::::::::::::::::// User BookMark //:::::::::::::::::::::::://
 
-    public List<ContentResponseDto> readContentWebtoonUser(Long userId, int offset, int pagesize, String genre) {
+    public List<ContentDataResponseDto> readContentWebtoonUser(Long userId, int offset, int pagesize, String genre) {
         List<Content> contents = contentRepository.getContentByConicUser(userId, offset, pagesize ,genre);
 
         return contents.stream()
-                .map(ContentResponseDto::new)
+                .map(ContentDataResponseDto::new)
                 .collect(Collectors.toList());
     }
 
-    public List<ContentResponseDto> readContentWebnovelUser(Long userId, int offset, int pagesize, String genre) {
+    public List<ContentDataResponseDto> readContentWebnovelUser(Long userId, int offset, int pagesize, String genre) {
         List<Content> contents = contentRepository.getContentByNovelUser(userId, offset, pagesize , genre);
 
         return contents.stream()
-                .map(ContentResponseDto::new)
+                .map(ContentDataResponseDto::new)
                 .collect(Collectors.toList());
     }
 

@@ -32,7 +32,7 @@
 
 .postDetail {
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -42,6 +42,7 @@
 
 .leftColumn {
     flex: 1;
+    max-width: 420px;
 }
 
 .rightColumn {
@@ -156,8 +157,8 @@
 .detail_button:hover{
     background-color: #0f3d89;
     color: #ffefef;
-
 }
+
 .button_container {
     display: flex;
     gap: 1rem;
