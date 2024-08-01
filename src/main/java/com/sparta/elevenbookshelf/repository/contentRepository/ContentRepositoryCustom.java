@@ -16,4 +16,5 @@ public interface ContentRepositoryCustom {
 
     List<Content> getContentByNovelUser(Long userId, long offset, int pageSize, String genre);
 
+    List<Content> search(int offset, int pagesize, String search);
 }

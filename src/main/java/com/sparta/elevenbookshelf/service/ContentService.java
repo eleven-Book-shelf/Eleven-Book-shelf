@@ -9,7 +9,9 @@ import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,4 +83,20 @@ public class ContentService {
     }
 
 
+    public Set<String> getAllContentHashTags() {
+        List<String> contentHashTagsList = contentRepository.findAllByContentHashTag();
+
+        return contentHashTagsList.stream()
+                .flatMap(tags -> Arrays.stream(tags.split("#")))
+                .filter(tag -> !tag.isEmpty())
+                .collect(Collectors.toSet());
+    }
+
+    public List<ContentDataResponseDto> contentSearch(int offset, int pagesize, String search) {
+        List<Content> contents = contentRepository.search(offset, pagesize ,search);
+
+        return contents.stream()
+                .map(ContentDataResponseDto::new)
+                .collect(Collectors.toList());
+    }
 }
