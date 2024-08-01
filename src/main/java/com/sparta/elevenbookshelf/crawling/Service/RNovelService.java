@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -53,6 +54,9 @@ public class RNovelService {
 
     @Value("${R_COMPLETE}")
     private String rIsEnd;
+
+    @Value("${R_HASHTAG}")
+    private String rHashTag;
 
     public void serviceStart() {
         log.info("R NOVEL 시작");
@@ -164,6 +168,23 @@ public class RNovelService {
                         String imgUrl = crawlingUtil.getThumbnail(".thumbnail", true);
                         requestDto.setImgUrl(imgUrl);
                         log.info("작품 썸네일 : {}", imgUrl);
+
+                        try {
+                            List<String> hashTags = crawlingUtil.getHashtags(rHashTag);
+                            String hashTag = String.join(",", hashTags);
+                            requestDto.setContentHashTag(hashTag);
+                            log.info("해시태그 : {}", hashTag);
+
+                        } catch (NoSuchElementException e) {
+                            log.error("해시태그를 찾을 수 없습니다: {}", e.getMessage());
+                            requestDto.setContentHashTag("없음");
+                        } catch (TimeoutException e) {
+                            log.error("해시태그를 찾는 시간 초과. {}", e.getMessage());
+                            requestDto.setContentHashTag("없음");
+                        } catch (Exception e) {
+                            log.error("해시태그를 찾는 중 에러 발생. {}", e.getMessage());
+                            requestDto.setContentHashTag("없음");
+                        }
 
                         requestDto.setView(0.0);
                         requestDto.setBookMarkCount(0L);

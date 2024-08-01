@@ -13,6 +13,7 @@ public class ContentRequestDto {
     private String platform;
     private String url;
     private String genre;
+    private String contentHashTag;
     private Double view;
     private Double rating;
     private Long bookMarkCount;

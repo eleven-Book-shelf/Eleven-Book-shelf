@@ -34,6 +34,8 @@ public class Content {
 
     private String genre;
 
+    private String contentHashTag;
+
     private Double view;
 
     private Double rating;
@@ -59,6 +61,7 @@ public class Content {
                    String platform,
                    String url,
                    String genre,
+                   String contentHashTag,
                    Double view,
                    Double rating,
                    Long bookMarkCount,
@@ -75,6 +78,7 @@ public class Content {
         this.platform = platform;
         this.url = url;
         this.genre = genre;
+        this.contentHashTag = contentHashTag;
         this.view = view;
         this.rating = rating;
         this.type = type;
@@ -97,6 +101,7 @@ public class Content {
         this.platform = requestDto.getPlatform();
         this.url = requestDto.getUrl();
         this.genre = requestDto.getGenre();
+        this.contentHashTag = requestDto.getContentHashTag();
         this.view = requestDto.getView();
         this.rating = requestDto.getRating();
         this.bookMarkCount = requestDto.getBookMarkCount();

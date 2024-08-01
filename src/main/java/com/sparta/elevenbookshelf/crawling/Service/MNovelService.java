@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -50,6 +51,9 @@ public class MNovelService {
 
     @Value("${M_TOTAL_VIEW}")
     private String mTotalCount;
+
+    @Value("${M_HASHTAG}")
+    private String mHashTag;
 
     public void serviceStart() {
         doNotEnterThisLink();
@@ -150,6 +154,23 @@ public class MNovelService {
                     requestDto.setImgUrl(imgUrl);
                     log.info("작품 썸네일 : {}", imgUrl);
 
+                    try {
+                        List<String> hashTags = crawlingUtil.getHashtags(mHashTag);
+                        String hashTag = String.join(",", hashTags);
+                        requestDto.setContentHashTag(hashTag);
+                        log.info("해시태그 : {}", hashTag);
+
+                    } catch (NoSuchElementException e) {
+                        log.error("해시태그를 찾을 수 없습니다: {}", e.getMessage());
+                        requestDto.setContentHashTag("없음");
+                    } catch (TimeoutException e) {
+                        log.error("해시태그를 찾는 시간 초과. {}", e.getMessage());
+                        requestDto.setContentHashTag("없음");
+                    } catch (Exception e) {
+                        log.error("해시태그를 찾는 중 에러 발생. {}", e.getMessage());
+                        requestDto.setContentHashTag("없음");
+                    }
+
                     requestDto.setRating(0.0);
                     log.info("현재 사이트 레이팅 지수 없음. 0.0으로 고정.");
 
@@ -179,7 +200,6 @@ public class MNovelService {
                     crawlingUtil.waitForPage();
 
                 }
-
 
             }
 
