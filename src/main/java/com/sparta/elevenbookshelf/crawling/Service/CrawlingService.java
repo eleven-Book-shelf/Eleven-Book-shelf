@@ -24,8 +24,8 @@ public class CrawlingService {
     public void allCrawlingStart() {
 
         rNovelService.serviceStart();
-        mNovelService.serviceStart();
-        kPageService.serviceStart();
+//        mNovelService.serviceStart();
+//        kPageService.serviceStart();
 
         crawlingUtil.exportToCsv();
 
