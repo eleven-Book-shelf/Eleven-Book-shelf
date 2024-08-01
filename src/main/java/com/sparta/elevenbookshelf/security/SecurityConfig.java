@@ -73,6 +73,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
+                                                   .requestMatchers("/hc", "/env").permitAll()
                                                    .requestMatchers("/auth/login").permitAll()
                                                    .requestMatchers("/user/signup").permitAll()
                                                    .requestMatchers("/user/email/**").permitAll()
