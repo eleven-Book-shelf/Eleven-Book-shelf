@@ -15,6 +15,7 @@ const MyPage = ({ setIsLoggedIn }) => {
     const [recentPosts, setRecentPosts] = useState([]);
     const [newUsername, setNewUsername] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false); // 수정 모드 상태 추가
     const [totalPages, setTotalPages] = useState(1);
     const page = 1;
     const offset = (page - 1) * 4;
@@ -87,8 +88,9 @@ const MyPage = ({ setIsLoggedIn }) => {
                 });
                 // 프로필 수정 후 데이터 다시 가져오기
                 await fetchData();
-                setIsModalOpen(false);
+                setIsEditMode(false);
                 setNewUsername('');
+                setIsModalOpen(false); // 수정 후 모달 닫기
             } catch (error) {
                 console.error('프로필 수정 실패:', error);
             }
@@ -119,7 +121,11 @@ const MyPage = ({ setIsLoggedIn }) => {
 
     return (
         <div className={styles.container}>
-            <ProfileHeader profile={profile} setIsModalOpen={setIsModalOpen} />
+            <ProfileHeader
+                profile={profile}
+                setIsModalOpen={setIsModalOpen}
+                setIsEditMode={setIsEditMode}
+            />
 
             <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>
@@ -143,20 +149,29 @@ const MyPage = ({ setIsLoggedIn }) => {
             <Modal
                 isOpen={isModalOpen}
                 onRequestClose={() => setIsModalOpen(false)}
-                contentLabel="프로필 수정"
+                contentLabel="유저 설정"
                 className={styles.modal}
                 overlayClassName={styles.overlay}
             >
-                <h2>프로필 수정</h2>
-                <input
-                    type="text"
-                    value={newUsername}
-                    onChange={(e) => setNewUsername(e.target.value)}
-                    placeholder="새 닉네임 입력"
-                />
-                <button onClick={handleEditProfile}>저장</button>
-                <button onClick={() => setIsModalOpen(false)}>취소</button>
-                <button onClick={handleDeleteAccount} className={styles.deleteButton}>회원 탈퇴</button>
+                <h2>유저 설정</h2>
+                {isEditMode ? (
+                    <div>
+                        <input
+                            type="text"
+                            value={newUsername}
+                            onChange={(e) => setNewUsername(e.target.value)}
+                            placeholder="새 닉네임 입력"
+                        />
+                        <button className={styles.deleteButton} onClick={handleEditProfile}>프로필 수정</button>
+                        <button className={styles.deleteButton} onClick={() => setIsEditMode(false)}>취소</button>
+                    </div>
+                ) : (
+                    <div>
+                        <button className={styles.deleteButton} onClick={() => setIsEditMode(true)}>프로필 수정</button>
+                        <button onClick={handleDeleteAccount} className={styles.deleteButton}>회원 탈퇴</button>
+                        <button className={styles.deleteButton} onClick={() => setIsModalOpen(false)}>닫기</button>
+                    </div>
+                )}
             </Modal>
         </div>
     );

@@ -7,7 +7,7 @@ const ProfileHeader = ({ profile, setIsModalOpen }) => (
             <h1 className={styles.name}> {profile.nickname}</h1>
             <p>가입일: {profile.createdAt}</p>
             <p>이메일: {profile.email}</p>
-            <button onClick={() => setIsModalOpen(true)} className={styles.button}>프로필 수정</button>
+            <button onClick={() => setIsModalOpen(true)} className={styles.button}>유저 설정</button>
         </div>
     </div>
 );
