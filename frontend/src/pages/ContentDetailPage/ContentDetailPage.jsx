@@ -106,8 +106,6 @@ const ContentDetailPage = ({ isLoggedIn }) => {
                     totalPages={totalPages}
                     onPageClick={handlePageClick}
                 />
-
-                <Pagination currentPage={page} totalPages={totalPages} onPageClick={handlePageClick} />
             </div>
         </div>
     );
