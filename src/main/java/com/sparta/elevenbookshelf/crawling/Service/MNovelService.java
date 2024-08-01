@@ -10,50 +10,52 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "MService")
-@EnableScheduling
+@Slf4j(topic = "MNovelService")
 public class MNovelService {
 
     private final WebDriver webDriver;
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
 
-    @Value("${M_PAGE}")
+    @Value("${m.page}")
     private String mPage;
 
-    @Value("${M_ART_LINK}")
+    @Value("${m.art_link}")
     private String mArtLink;
 
-    @Value("${HEADER_ART_TITLE}")
+    @Value("${header.art_title}")
     private String mArtTitle;
 
-    @Value("${M_AUTHOR}")
+    @Value("${m.author}")
     private String mAuthor;
 
-    @Value("${HEADER_SITE_NAME}")
+    @Value("${header.site_name}")
     private String mSite;
 
-    @Value("${M_CONTENT_TYPE}")
+    @Value("${m.content_type}")
     private String mContentType;
 
-    @Value("${M_LIKE_COUNT}")
+    @Value("${m.like_count}")
     private String mLikeCount;
 
-    @Value("${M_BOOK_MARK}")
+    @Value("${m.book_mark}")
     private String mBookMark;
 
-    @Value("${M_TOTAL_VIEW}")
+    @Value("${m.total_view}")
     private String mTotalCount;
 
-    public void mNovelsStart() {
+    @Value("${m.hashtag}")
+    private String mHashTag;
+
+    public void serviceStart() {
         doNotEnterThisLink();
         log.info("M NOVEL 시작");
 
@@ -126,7 +128,7 @@ public class MNovelService {
                     String bookMarkData = crawlingUtil.bodyData(mBookMark);
                     String bookMarkNumber = bookMarkData.replace(",", "");
                     Long bookMark = Long.parseLong(bookMarkNumber);
-                    requestDto.setBookMark(bookMark);
+                    requestDto.setBookMarkCount(bookMark);
                     log.info("북마크 수 : {}", bookMark);
 
                     crawlingUtil.waitForPage();
@@ -151,6 +153,23 @@ public class MNovelService {
                     String imgUrl = crawlingUtil.getThumbnail(imgUrlClass, true);
                     requestDto.setImgUrl(imgUrl);
                     log.info("작품 썸네일 : {}", imgUrl);
+
+                    try {
+                        List<String> hashTags = crawlingUtil.getHashtags(mHashTag);
+                        String hashTag = String.join(",", hashTags);
+                        requestDto.setContentHashTag(hashTag);
+                        log.info("해시태그 : {}", hashTag);
+
+                    } catch (NoSuchElementException e) {
+                        log.error("해시태그를 찾을 수 없습니다: {}", e.getMessage());
+                        requestDto.setContentHashTag("없음");
+                    } catch (TimeoutException e) {
+                        log.error("해시태그를 찾는 시간 초과. {}", e.getMessage());
+                        requestDto.setContentHashTag("없음");
+                    } catch (Exception e) {
+                        log.error("해시태그를 찾는 중 에러 발생. {}", e.getMessage());
+                        requestDto.setContentHashTag("없음");
+                    }
 
                     requestDto.setRating(0.0);
                     log.info("현재 사이트 레이팅 지수 없음. 0.0으로 고정.");
@@ -181,7 +200,6 @@ public class MNovelService {
                     crawlingUtil.waitForPage();
 
                 }
-
 
             }
 

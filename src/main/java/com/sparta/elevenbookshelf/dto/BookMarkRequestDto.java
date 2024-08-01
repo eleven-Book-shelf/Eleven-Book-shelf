@@ -1,6 +1,5 @@
 package com.sparta.elevenbookshelf.dto;
 
-import com.sparta.elevenbookshelf.entity.BookMark;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

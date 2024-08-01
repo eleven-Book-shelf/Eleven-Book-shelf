@@ -1,12 +1,13 @@
 package com.sparta.elevenbookshelf.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class PostRequestDto {
 
     private String postType;
-    private Long boardId;
     private String title;
     private String body;
     private Long contentId;
@@ -14,7 +15,6 @@ public class PostRequestDto {
 
     public PostRequestDto(ContentResponseDto res) {
         this.postType = "CONTENT";
-        this.boardId = 1L;
         this.contentId = res.getId();
     }
 }

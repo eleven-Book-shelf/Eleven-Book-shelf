@@ -94,9 +94,6 @@ spring:
                 format_sql: true
                 show_sql: true
                 use_sql_comments: true
-    config:
-      activate:
-        on-profile: common
     security:
         oauth2:
             client:
@@ -138,3 +135,52 @@ spring:
                       scope:
                         - email
                       client-name: Naver
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+header:
+  art_title: ${HEADER_ART_TITLE}
+  site_name: ${HEADER_SITE_NAME}
+
+r:
+  page: ${R_PAGE}
+  art_class: ${R_ART_CLASS}
+  art_link: ${R_ART_LINK}
+  site_name: ${R_SITE_NAME}
+  author: ${R_AUTHOR}
+  content_type: ${R_CONTENT_TYPE}
+  like_count: ${R_LIKE_COUNT}
+  rating: ${R_RATING}
+  complete: ${R_COMPLETE}
+  hashtag: ${R_HASHTAG}
+
+m:
+  page: ${M_PAGE}
+  art_link: ${M_ART_LINK}
+  author: ${M_AUTHOR}
+  content_type: ${M_CONTENT_TYPE}
+  like_count: ${M_LIKE_COUNT}
+  book_mark: ${M_BOOK_MARK}
+  total_view: ${M_TOTAL_VIEW}
+  hashtag: ${M_HASHTAG}
+
+k:
+  page:
+    novel: ${K_NOVEL_PAGE}
+    comics: ${K_COMICS_PAGE}
+  art_link: ${K_ART_LINK}
+  title: ${K_TITLE}
+  author: ${K_AUTHOR}
+  site: ${K_SITE}
+  complete: ${K_COMPLETE}
+  total_view: ${K_TOTAL_VIEW}
+  content_type: ${K_CONTENT_TYPE}
+  rating: ${K_RATING}
+  hashtag: ${K_HASHTAG}
+  robots1: ${K_ROBOTS1}
+  robots2: ${K_ROBOTS2}
+
+csv:
+  file: ${CSV_FILE}
+  file_locate: ${CSV_FILE_LOCATE}

@@ -9,6 +9,7 @@ import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,19 +22,19 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final JwtUtil jwtUtil;
+//    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        Authentication authentication = authenticationManager.authenticate(
+/*        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequestDto.getUsername(),
                         loginRequestDto.getPassword(),
                         null
                 )
-        );
+        );*/
 
         User user = getUsername(loginRequestDto);
 
@@ -45,12 +46,29 @@ public class AuthService {
         return new LoginResponseDto(accessToken, refeshToken);
     }
 
-    public void logout(User userid){
+    @Transactional
+    public String logout(User userid){
         User user = getUser(userid.getId());
         user.deleteRefreshToken();
+        return "";
     }
 
+    @Transactional
+    public String refresh(String header) {
+        jwtUtil.isTokenValidate(header);
+        Claims claims = jwtUtil.extractAllClaims(header);
+        User user = getUser(claims.getSubject());
+        if(jwtUtil.isRefreshTokenValidate(user.getUsername())) {
+            return jwtService.generateRefreshToken(user.getUsername());
+        }
+        return null;
+    }
 
+    @Transactional
+    public void OAuth2login(Long userId,String accessToken ,String refreshJwt) {
+        User user = getUser(userId);
+        user.addRefreshToken(refreshJwt);
+    }
 
 
     //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
@@ -61,12 +79,17 @@ public class AuthService {
         );
     }
 
+    private User getUser(String username) {
+        return userRepository.findByUsername(username).orElseThrow(
+                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
+        );
+    }
+
     private User getUsername(LoginRequestDto loginRequestDto) {
         return userRepository.findByUsername(loginRequestDto.getUsername()).orElseThrow(
                 () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
-
 
 
 }

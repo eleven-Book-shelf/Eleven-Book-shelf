@@ -2,10 +2,11 @@ package com.sparta.elevenbookshelf.entity.post;
 
 import com.sparta.elevenbookshelf.entity.Board;
 import com.sparta.elevenbookshelf.entity.Content;
-import com.sparta.elevenbookshelf.entity.Timestamp;
 import com.sparta.elevenbookshelf.entity.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -30,14 +31,14 @@ public abstract class Post {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 750)
     private String body;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
 
@@ -53,12 +54,23 @@ public abstract class Post {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
+    @Column(nullable = false)
+    private int viewCount;
+
+    @Column(nullable = false)
+    private int likes;
+
     public Post (String title, String body, User user, Board board, Content content) {
         this.title = title;
         this.body = body;
         this.user = user;
         this.board = board;
         this.content = content;
+        this.viewCount = 0; // 초기 조회수는 0으로 설정
+    }
+
+    public String getPostType() {
+        return this.getClass().getAnnotation(DiscriminatorValue.class).value();
     }
 
     public void updateTitle(String title) {
@@ -75,5 +87,11 @@ public abstract class Post {
 
     public void updateBoard(Board board) {
         this.board = board;
+    }
+
+    public void addLikes(int likes) {this.likes = likes;}
+
+    public void incrementViewCount() {
+        this.viewCount++;
     }
 }

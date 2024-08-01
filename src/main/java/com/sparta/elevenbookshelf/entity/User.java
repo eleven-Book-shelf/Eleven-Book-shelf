@@ -19,6 +19,8 @@ public class User extends Timestamp {
     @Column(unique = true)
     private String username;
 
+    private String nickname;
+
     private String password;
 
     @Column(unique = true)
@@ -39,17 +41,23 @@ public class User extends Timestamp {
     private List<Post> posts;
 
     @Builder
-    public User(String username, String password,String email,String socialId ,Status status, Role role) {
+    public User(String username,String nickname ,String password,String email,String socialId ,Status status, Role role) {
         this.username = username;
         this.password = password;
+        this.nickname = nickname;
         this.email = email;
         this.socialId = socialId;
         this.status = status;
         this.role = role;
     }
 
+    public void updateProfile(String username){
+        this.nickname = username;
+    }
+
+
     public void deleteRefreshToken() {
-        this.refreshToken = null;
+        this.refreshToken = "out";
     }
 
     public void addRefreshToken(String RefreshToken) {

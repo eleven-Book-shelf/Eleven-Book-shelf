@@ -34,11 +34,13 @@ public class Content {
 
     private String genre;
 
+    private String contentHashTag;
+
     private Double view;
 
     private Double rating;
 
-    private Long bookMark;
+    private Long bookMarkCount;
 
     private Long likeCount;
 
@@ -59,9 +61,10 @@ public class Content {
                    String platform,
                    String url,
                    String genre,
+                   String contentHashTag,
                    Double view,
                    Double rating,
-                   Long bookMark,
+                   Long bookMarkCount,
                    Long likeCount,
                    ContentType type,
                    ContentEnd isEnd
@@ -75,11 +78,12 @@ public class Content {
         this.platform = platform;
         this.url = url;
         this.genre = genre;
+        this.contentHashTag = contentHashTag;
         this.view = view;
         this.rating = rating;
         this.type = type;
         this.isEnd = isEnd;
-        this.bookMark = bookMark;
+        this.bookMarkCount = bookMarkCount;
         this.likeCount = likeCount;
     }
 
@@ -97,9 +101,10 @@ public class Content {
         this.platform = requestDto.getPlatform();
         this.url = requestDto.getUrl();
         this.genre = requestDto.getGenre();
+        this.contentHashTag = requestDto.getContentHashTag();
         this.view = requestDto.getView();
         this.rating = requestDto.getRating();
-        this.bookMark = requestDto.getBookMark();
+        this.bookMarkCount = requestDto.getBookMarkCount();
         this.likeCount = requestDto.getLikeCount();
         this.type = requestDto.getType();
         this.isEnd = requestDto.getIsEnd();
@@ -119,5 +124,9 @@ public class Content {
     public enum ContentEnd {
         END,
         NOT
+    }
+
+    public void setViewCount(Double view){
+        this.view = view;
     }
 }

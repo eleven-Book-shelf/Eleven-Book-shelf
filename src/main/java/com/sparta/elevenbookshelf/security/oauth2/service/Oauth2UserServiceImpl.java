@@ -61,6 +61,7 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
         if (optionalUser.isEmpty()) {
             user = User.builder()
                     .username(provider + "_" + socialId)
+                    .nickname(provider + "_user_:" + socialId.substring(2,8))
                     .password(encoder.passwordEncoder().encode("default_password"))
                     .email(userInfo.getEmailFromAttributes(oAuth2User.getAttributes()))
                     .socialId(socialId)

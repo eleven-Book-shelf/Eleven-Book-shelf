@@ -5,9 +5,11 @@ import com.sparta.elevenbookshelf.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.entity.Content;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -16,45 +18,47 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "RService")
-@EnableScheduling
+@Slf4j(topic = "RNovelService")
 public class RNovelService {
 
     private final WebDriver webDriver;
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
 
-    @Value("${R_PAGE}")
+    @Value("${r.page}")
     private String rPage;
 
-    @Value("${R_ART_CLASS}")
+    @Value("${r.art_class}")
     private String rArtClass;
 
-    @Value("${R_ART_LINK}")
+    @Value("${r.art_link}")
     private String rArtLink;
 
-    @Value("${R_AUTHOR}")
+    @Value("${r.author}")
     private String rAuthor;
 
-    @Value("${R_CONTENT_TYPE}")
+    @Value("${r.content_type}")
     private String rContentType;
 
-    @Value("${R_LIKE_COUNT}")
+    @Value("${r.like_count}")
     private String rLikeCount;
 
-    @Value("${R_RATING}")
+    @Value("${r.rating}")
     private String rRating;
 
-    @Value("${HEADER_ART_TITLE}")
+    @Value("${header.art_title}")
     private String rArtTitle;
 
-    @Value("${R_SITE_NAME}")
+    @Value("${r.site_name}")
     private String rSiteName;
 
-    @Value("${R_COMPLETE}")
+    @Value("${r.complete}")
     private String rIsEnd;
 
-    public void rNovelsStart() {
+    @Value("${r.hashtag}")
+    private String rHashTag;
+
+    public void serviceStart() {
         log.info("R NOVEL 시작");
         String baseUrl = rPage;
         int page = 1;
@@ -165,8 +169,25 @@ public class RNovelService {
                         requestDto.setImgUrl(imgUrl);
                         log.info("작품 썸네일 : {}", imgUrl);
 
+                        try {
+                            List<String> hashTags = crawlingUtil.getHashtags(rHashTag);
+                            String hashTag = String.join(",", hashTags);
+                            requestDto.setContentHashTag(hashTag);
+                            log.info("해시태그 : {}", hashTag);
+
+                        } catch (NoSuchElementException e) {
+                            log.error("해시태그를 찾을 수 없습니다: {}", e.getMessage());
+                            requestDto.setContentHashTag("없음");
+                        } catch (TimeoutException e) {
+                            log.error("해시태그를 찾는 시간 초과. {}", e.getMessage());
+                            requestDto.setContentHashTag("없음");
+                        } catch (Exception e) {
+                            log.error("해시태그를 찾는 중 에러 발생. {}", e.getMessage());
+                            requestDto.setContentHashTag("없음");
+                        }
+
                         requestDto.setView(0.0);
-                        requestDto.setBookMark(0L);
+                        requestDto.setBookMarkCount(0L);
 
                         crawlingUtil.saveData(requestDto, artUrl);
 
