@@ -16,13 +16,13 @@ import java.util.Date;
 @Slf4j(topic = "JwtService")
 public class JwtService {
 
-    @Value("${JWT_SECRET_KEY}")
+    @Value("${jwt.key}")
     private String SecretKey;
 
-    @Value("${ACCESS_EXPIRE_TIME}")
+    @Value("${jwt.access-expire-time}")
     private long accessExpireTime;
 
-    @Value("${REFRESH_EXPIRE_TIME}")
+    @Value("${jwt.refresh-expire-time}")
     private long refreshExpireTime;
 
     private Key key;
