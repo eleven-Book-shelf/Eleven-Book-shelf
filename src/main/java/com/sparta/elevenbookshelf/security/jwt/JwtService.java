@@ -31,12 +31,14 @@ public class JwtService {
 
     @PostConstruct
     public void init() {
+
         byte[] bytes = Base64.getDecoder().decode(SecretKey);
         key = Keys.hmacShaKeyFor(bytes);
     }
 
     // 엑세스 토큰
     public String generateAccessToken(String username) {
+
         log.info("generateAccessToken 메서드 실행");
         return createToken(username, accessExpireTime);
 
@@ -44,6 +46,7 @@ public class JwtService {
 
     // 리프레쉬 토큰
     public String generateRefreshToken(String username) {
+
         log.info("generateRefreshToken 메서드 실행");
         return createToken(username, refreshExpireTime);
 
