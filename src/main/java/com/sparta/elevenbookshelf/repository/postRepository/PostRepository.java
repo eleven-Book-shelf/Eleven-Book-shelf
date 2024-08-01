@@ -21,4 +21,5 @@ public interface PostRepository extends JpaRepository<Post, Long>,
 
     @Query("SELECT p FROM ContentPost p")
     List<ContentPost> findAllContentPost();
+
 }

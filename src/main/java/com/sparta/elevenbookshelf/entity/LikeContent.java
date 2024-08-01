@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class LikeBoard extends Timestamp{
+public class LikeContent extends Timestamp{
 
     @Id
-    @GeneratedValue
-    @Column(name = "like_board_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "like_content_id")
     private Long id;
 
     @ManyToOne
@@ -20,12 +20,12 @@ public class LikeBoard extends Timestamp{
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "board_id")
-    private Board board;
+    @JoinColumn(name = "content_id")
+    private Content content;
 
     @Builder
-    public LikeBoard(User user, Board board) {
+    public LikeContent(User user, Content content) {
         this.user = user;
-        this.board = board;
+        this.content = content;
     }
 }

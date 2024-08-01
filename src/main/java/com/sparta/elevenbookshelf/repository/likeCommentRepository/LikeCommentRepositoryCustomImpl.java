@@ -1,4 +1,4 @@
-package com.sparta.elevenbookshelf.repository.likeRepository;
+package com.sparta.elevenbookshelf.repository.likeCommentRepository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.elevenbookshelf.entity.LikeComment;

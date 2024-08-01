@@ -18,8 +18,11 @@ public class ContentResponseDto {
     private String author;
     private List<String> hashtags = new ArrayList<>();
     private String platform;
+    private String genre;
+    private String contentHashTag;
     private Double view;
     private Double rating;
+    private String url;
     private Content.ContentType type;
     private Content.ContentEnd isEnd;
     private List<PostResponseDto> posts = new ArrayList<>();
@@ -34,8 +37,11 @@ public class ContentResponseDto {
                 .map(contentHashtag -> contentHashtag.getHashtag().getTag())
                 .toList());
         this.platform = content.getPlatform();
+        this.genre = content.getGenre();
+        this.contentHashTag = content.getContentHashTag();
         this.view = content.getView();
         this.rating = content.getRating();
+        this.url = content.getUrl();
         this.type = content.getType();
         this.isEnd = content.getIsEnd();
         this.posts.addAll(content.getReviews().stream()

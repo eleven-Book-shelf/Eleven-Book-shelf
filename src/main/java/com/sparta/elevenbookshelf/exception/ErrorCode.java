@@ -37,7 +37,10 @@ public enum ErrorCode {
     ALREADY_LIKE(HttpStatus.BAD_REQUEST, "이미 좋아요 하였습니다."),
     NOT_LIKE(HttpStatus.BAD_REQUEST, "좋아요 하지 않았습니다."),
 
-    POST_INVALID(HttpStatus.BAD_REQUEST, "잘못된 게시글 요청입니다." )
+    POST_INVALID(HttpStatus.BAD_REQUEST, "잘못된 게시글 요청입니다." ),
+
+    //Content
+    NOT_FOUND_CONTENT(HttpStatus.BAD_REQUEST, "컨탠츠를 찾을 수 없습니다." )
 
     ;
 

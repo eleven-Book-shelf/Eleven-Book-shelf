@@ -1,64 +1,159 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import Modal from 'react-modal';
 import styles from './MyPage.module.css';
+import axiosInstance from '../../api/axiosInstance';
+import MyCard from "../../tool/MyCard/MyCard";
+import PostList from '../../tool/PostList/PostList';
+
+Modal.setAppElement('#root');
 
 const MyPage = () => {
+    const [profile, setProfile] = useState(null);
+    const [bookmarkedWebtoons, setBookmarkedWebtoons] = useState([]);
+    const [bookmarkedWebnovels, setBookmarkedWebnovels] = useState([]);
+    const [recentPosts, setRecentPosts] = useState([]);
+    const [newUsername, setNewUsername] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [totalPages, setTotalPages] = useState(1);
+    const page = 1;
+    const offset = (page - 1) * 5;
+    const pagesize = 5;
+
+    const fetchData = async () => {
+        try {
+            const profileResponse = await axiosInstance.get('/user', {
+                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+            });
+            setProfile(profileResponse.data);
+
+            const fetchWebtoonsData = async () => {
+                try {
+                    const response = await axiosInstance.get(`/card/webtoon/bookmark`,{
+                        headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+                    });
+                    return response.data;
+                } catch (error) {
+                    console.error("웹툰 데이터를 불러오는 중 오류가 발생했습니다!", error);
+                    return [];
+                }
+            };
+
+            const fetchWebnovelsData = async () => {
+                try {
+                    const response = await axiosInstance.get(`/card/webnovel/bookmark`,{
+                        headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+                    });                    return response.data;
+                } catch (error) {
+                    console.error("웹소설 데이터를 불러오는 중 오류가 발생했습니다!", error);
+                    return [];
+                }
+            };
+
+            const webtoonsData = await fetchWebtoonsData();
+            const webnovelsData = await fetchWebnovelsData();
+
+            const postsResponse = await axiosInstance.get(`/boards/user/posts`, {
+                params: { offset, pagesize },
+                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+            });
+
+            setBookmarkedWebtoons(Array.isArray(webtoonsData) ? webtoonsData : []);
+            setBookmarkedWebnovels(Array.isArray(webnovelsData) ? webnovelsData : []);
+            setRecentPosts(Array.isArray(postsResponse.data.posts) ? postsResponse.data.posts : []);
+            setTotalPages(postsResponse.data.totalPages);
+
+        } catch (error) {
+            console.error('데이터 불러오기 실패:', error);
+            setBookmarkedWebtoons([]);
+            setBookmarkedWebnovels([]);
+            setRecentPosts([]);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const handleEditProfile = async () => {
+        try {
+            await axiosInstance.put('/user/edit', null, {
+                params: { username: newUsername },
+                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+            });
+            // 프로필 수정 후 데이터 다시 가져오기
+            await fetchData();
+            setIsModalOpen(false);
+            setNewUsername('');
+        } catch (error) {
+            console.error('프로필 수정 실패:', error);
+        }
+    };
+
+    if (!profile) {
+        return <div>로딩 중...</div>;
+    }
+
     return (
-        <div>
-            <div className={styles.container}>
-                <div className={styles.profileHeader}>
-                    <div className={styles.profileInfo}>
-                        <h1>홍길동</h1>
-                        <p>가입일: 2022년 3월 15일</p>
-                        <p>이메일: hong@example.com</p>
-                        <a href="/mypage/edit" className={styles.button}>프로필 수정</a>
-                    </div>
-                </div>
-
-                <div className={styles.section}>
-                    <h2>북마크한 웹툰</h2>
-                    <div className={styles.grid}>
-                        <div className={styles.card}>
-                            <h3>전지적 독자 시점</h3>
-                            <p>작가: 싱숑</p>
-                        </div>
-                        <div className={styles.card}>
-                            <h3>나 혼자만 레벨업</h3>
-                            <p>작가: 추공 / 장성락</p>
-                        </div>
-                        <div className={styles.card}>
-                            <h3>여신강림</h3>
-                            <p>작가: 야옹이</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className={styles.section}>
-                    <h2>북마크한 웹소설</h2>
-                    <div className={styles.grid}>
-                        <div className={styles.card}>
-                            <h3>전생했더니 슬라임이었던 건에 대하여</h3>
-                            <p>작가: 후세 츠라</p>
-                        </div>
-                        <div className={styles.card}>
-                            <h3>재벌집 막내아들</h3>
-                            <p>작가: 산경</p>
-                        </div>
-                        <div className={styles.card}>
-                            <h3>달빛조각사</h3>
-                            <p>작가: 남희성</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className={styles.section}>
-                    <h2>최근 작성한 게시글</h2>
-                    <ul>
-                        <li><a href="/community/post/12345">전지적 독자 시점 85화 리뷰 - 놀라운 반전!</a></li>
-                        <li><a href="/community/post/12346">웹소설 추천 부탁드립니다</a></li>
-                        <li><a href="/community/post/12347">나 혼자만 레벨업 vs 템빨 - 어떤 작품이 더 재밌나요?</a></li>
-                    </ul>
+        <div className={styles.container}>
+            <div className={styles.profileHeader}>
+                <div className={styles.profileInfo}>
+                    <h1 className={styles.name}> {profile.nickname}</h1>
+                    <p>가입일: {profile.createdAt}</p>
+                    <p>이메일: {profile.email}</p>
+                    <button onClick={() => setIsModalOpen(true)} className={styles.button}>프로필 수정</button>
                 </div>
             </div>
+
+            <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>북마크한 웹툰 <a href="/bookmarkedWebtoons" className={styles.more_btu}>더보기</a></h2>
+                <div className={styles.grid}>
+                    {bookmarkedWebtoons.map((ranking, index) => (
+                        <a href={`/content/${ranking.id}`} key={index}>
+                            <MyCard
+                                title={ranking.title}
+                                author={ranking.author}
+                            />
+                        </a>
+                    ))}
+                </div>
+            </div>
+
+            <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>북마크한 웹소설 <a href="/bookmarkedWebnovels" className={styles.more_btu}>더보기</a></h2>
+                <div className={styles.grid}>
+                    {bookmarkedWebnovels.map((ranking, index) => (
+                        <a href={`/content/${ranking.id}`} key={index}>
+                            <MyCard
+                                title={ranking.title}
+                                author={ranking.author}
+                            />
+                        </a>
+                    ))}
+                </div>
+            </div>
+
+            <div className={styles.section}>
+                <h2>최근 작성한 게시글</h2>
+                <PostList posts={recentPosts} />
+            </div>
+
+            <Modal
+                isOpen={isModalOpen}
+                onRequestClose={() => setIsModalOpen(false)}
+                contentLabel="프로필 수정"
+                className={styles.modal}
+                overlayClassName={styles.overlay}
+            >
+                <h2>프로필 수정</h2>
+                <input
+                    type="text"
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
+                    placeholder="새 닉네임 입력"
+                />
+                <button onClick={handleEditProfile}>저장</button>
+                <button onClick={() => setIsModalOpen(false)}>취소</button>
+            </Modal>
         </div>
     );
 };

@@ -58,6 +58,10 @@ body, html {
     background-color: #FEE500;
     color: #000;
 }
+.google-btn {
+    background-color: #af1b1b;
+    color: #ffffff;
+}
 .login-link {
     margin-top: 1.5rem;
     font-size: 0.9rem;

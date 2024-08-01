@@ -6,6 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.elevenbookshelf.entity.post.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,6 +31,13 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .fetch();
     }
 
+    @Transactional(readOnly = true)
+    public Long getTotalPostsByBoard(Long boardId) {
+        return jpaQueryFactory.selectFrom(post)
+                .where(post.board.id.eq(boardId))
+                .fetchCount();
+    }
+
     @Override
     public List<Post> getPostsByContent(Long contentId, long offset, int pagesize) {
 
@@ -39,6 +47,18 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .where(post.content.id.eq(contentId))
                 .offset(offset)
                 .limit(pagesize)
+                .orderBy(orderSpecifier)
+                .fetch();
+    }
+
+    @Override
+    public List<Post> getPostsByUserId(Long userId, long offset, int pageSize) {
+        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, post.createdAt);
+
+        return jpaQueryFactory.selectFrom(post)
+                .where(post.user.id.eq(userId))
+                .offset(offset)
+                .limit(pageSize)
                 .orderBy(orderSpecifier)
                 .fetch();
     }

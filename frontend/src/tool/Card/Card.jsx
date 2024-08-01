@@ -1,15 +1,15 @@
 import React from 'react';
 import './Card.css';
 
-const Card = ({ title, description, genre, rating }) => {
-    return (
-        <div className="card">
+const Card = ({img, title, author,description, genre, rating}) => {
+    return (<div className="card">
+            <div className="card-img" style={{backgroundImage: `url(${img})`}}></div>
             <h2 className="card-title">{title}</h2>
+            <h6 className="card-author">{author}</h6>
             <p className="card-description">{description}</p>
             <p className="card-genre">장르: {genre}</p>
             <p className="card-rating">평점: {rating}</p>
-        </div>
-    );
+        </div>);
 }
 
 export default Card;

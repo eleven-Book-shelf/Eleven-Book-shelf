@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Comment {
+public class Comment extends Timestamp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,18 +27,20 @@ public class Comment {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "post_id")
     private Post post;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
+    private int likes;
+
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
 
     @Builder
-    public Comment(String contents, User user, Post post, Comment parent){
+    public Comment(String contents, Content content ,User user, Post post, Comment parent){
         this.contents = contents;
         this.user = user;
         this.post = post;
@@ -58,5 +60,7 @@ public class Comment {
         this.post = post;
     }
 
+    public void deleteChildren(Comment comment) {this.children.remove(comment);}
 
+    public void addLikes(int likes) {this.likes = likes;}
 }

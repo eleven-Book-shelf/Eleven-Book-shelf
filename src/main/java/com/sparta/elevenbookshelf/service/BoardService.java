@@ -111,12 +111,24 @@ public class BoardService {
 
     }
 
+    public String readBoardTitle(Long boardId) {
+        return getBoard(boardId).getTitle();
+    }
+
     //:::::::::::::::::// post //::::::::::::::::://
+
+    public long getTotalPostsByBoard(Long boardId) {
+        return postRepository.getTotalPostsByBoard(boardId);
+    }
 
     @Transactional
     public PostResponseDto createPost(User user, Long boardId, PostRequestDto req) {
 
-        Content content = contentRepository.findById(req.getContentId()).orElse(null);
+        Content content = null;
+
+        if (req.getContentId() != null) {
+            content = contentRepository.findById(req.getContentId()).orElse(null);
+        }
 
         Post post = switch (req.getPostType()) {
 
@@ -250,6 +262,8 @@ public class BoardService {
             }
         }
 
+        post.incrementViewCount();
+
         return new PostResponseDto(post);
     }
 
@@ -337,6 +351,15 @@ public class BoardService {
         return new ContentResponseDto(content);
     }
 
+    //::::::::::::::::::::::::// User //:::::::::::::::::::::::://
+
+    public List<PostResponseDto> readUserPost(Long userId , long offset, int pageSize) {
+        List<Post> posts = postRepository.getPostsByUserId(userId, offset, pageSize);
+
+        return posts.stream().map(
+                        PostResponseDto::new)
+                .toList();
+    }
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 

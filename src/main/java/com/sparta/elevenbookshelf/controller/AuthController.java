@@ -4,6 +4,7 @@ import com.sparta.elevenbookshelf.dto.LoginRequestDto;
 import com.sparta.elevenbookshelf.dto.LoginResponseDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,11 +28,20 @@ public class AuthController {
     }
 
     @PatchMapping("/logout")
-    public ResponseEntity<Void> logout(@AuthenticationPrincipal UserPrincipal userPrincipal){
-        authService.logout(userPrincipal.getUser());
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<String> logout(@AuthenticationPrincipal UserPrincipal userPrincipal){
+        return ResponseEntity.status(HttpStatus.OK).body(authService.logout(userPrincipal.getUser()));
     }
 
+    @PatchMapping("/login")
+    public ResponseEntity<String> login(@AuthenticationPrincipal UserPrincipal userPrincipal){
+        return ResponseEntity.status(HttpStatus.OK).body("씨발");
+    }
 
+    @PatchMapping("/refresh")
+    public ResponseEntity<?> refresh(HttpServletRequest request){
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.AUTHORIZATION,authService.refresh(request.getHeader(HttpHeaders.AUTHORIZATION)))
+                .body("null");
+    }
 
 }
