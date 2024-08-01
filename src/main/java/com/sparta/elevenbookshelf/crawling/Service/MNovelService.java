@@ -25,34 +25,34 @@ public class MNovelService {
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
 
-    @Value("${M_PAGE}")
+    @Value("${m.page}")
     private String mPage;
 
-    @Value("${M_ART_LINK}")
+    @Value("${m.art_link}")
     private String mArtLink;
 
-    @Value("${HEADER_ART_TITLE}")
+    @Value("${header.art_title}")
     private String mArtTitle;
 
-    @Value("${M_AUTHOR}")
+    @Value("${m.author}")
     private String mAuthor;
 
-    @Value("${HEADER_SITE_NAME}")
+    @Value("${header.site_name}")
     private String mSite;
 
-    @Value("${M_CONTENT_TYPE}")
+    @Value("${m.content_type}")
     private String mContentType;
 
-    @Value("${M_LIKE_COUNT}")
+    @Value("${m.like_count}")
     private String mLikeCount;
 
-    @Value("${M_BOOK_MARK}")
+    @Value("${m.book_mark}")
     private String mBookMark;
 
-    @Value("${M_TOTAL_VIEW}")
+    @Value("${m.total_view}")
     private String mTotalCount;
 
-    @Value("${M_HASHTAG}")
+    @Value("${m.hashtag}")
     private String mHashTag;
 
     public void serviceStart() {

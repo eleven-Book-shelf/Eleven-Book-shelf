@@ -39,10 +39,10 @@ public class CrawlingUtil {
     private final ContentRepository contentRepository;
     private final BoardService boardService;
 
-    @Value("${CSV_FILE}")
+    @Value("${csv.file}")
     private String csvOutputDirectory;
 
-    @Value("${CSV_FILE_LOCATE}")
+    @Value("${csv.file_locate}")
     private String csvFileLocate;
 
     // robots.txt 규약 준수를 위한 URL 검사 메서드.
