@@ -27,7 +27,7 @@ const ContentDetailPage = ({ isLoggedIn }) => {
             try {
                 const response = await axiosInstance.get(`/card/${cardId}`);
                 setPost(response.data);
-                setTotalPages(Math.ceil(response.data.posts.length / itemsPerPage)); 
+                setTotalPages(Math.ceil(response.data.posts.length / itemsPerPage));
                 await axiosInstance.post(`/card/${cardId}/viewcount`);
             } catch (error) {
                 console.error('Error fetching content detail:', error);
@@ -55,7 +55,7 @@ const ContentDetailPage = ({ isLoggedIn }) => {
             <div className={styles.postDetail}>
                 <div className={styles.leftColumn}>
                     <a href={post.url}>
-                        <div className={styles.post_img} style={{ backgroundImage: `url(${post.imgUrl})` }}>
+                        <div className={styles.content_img} style={{ backgroundImage: `url(${post.imgUrl})` }}>
                             <div
                                 className={styles.post_platform}
                                 style={{ backgroundColor: platformColor }}
@@ -99,7 +99,13 @@ const ContentDetailPage = ({ isLoggedIn }) => {
                     <a href={`/community/board/2`}><h2 className="review_head" >리뷰 보드</h2></a>
                 </div>
 
-                <PostList posts={paginatedPosts} boardId={boardId} />
+                <PostList
+                    posts={paginatedPosts}
+                    boardId={boardId}
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onPageClick={handlePageClick}
+                />
 
                 <Pagination currentPage={page} totalPages={totalPages} onPageClick={handlePageClick} />
             </div>

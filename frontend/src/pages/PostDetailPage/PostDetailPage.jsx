@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import CommentSection from '../../tool/CommentSection/CommentSection';
 import PostList from '../../tool/PostList/PostList'; // PostList 임포트
@@ -13,8 +13,8 @@ const platformColors = {
     '네이버': '#00C73C'
 };
 
-const PostDetailPage = ({ isLoggedIn }) => {
-    const { boardId, postId } = useParams();
+const PostDetailPage = ({isLoggedIn}) => {
+    const {boardId, postId} = useParams();
     const [post, setPost] = useState(null);
     const [content, setContent] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -52,7 +52,7 @@ const PostDetailPage = ({ isLoggedIn }) => {
         const fetchLikeStatus = async () => {
             try {
                 const response = await axiosInstance.get(`/like/${postId}/likesPost`, {
-                    headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+                    headers: {Authorization: `${localStorage.getItem('Authorization')}`}
                 });
                 setLiked(response.data);
             } catch (error) {
@@ -87,7 +87,7 @@ const PostDetailPage = ({ isLoggedIn }) => {
         const fetchRelatedPosts = async () => {
             try {
                 const response = await axiosInstance.get(`/boards/${boardId}`, {
-                    params: { offset: (currentPage - 1) * 5, pagesize: 5 }
+                    params: {offset: (currentPage - 1) * 5, pagesize: 5}
                 });
                 setRelatedPosts(response.data.posts);
                 setTotalPages(response.data.totalPages);
@@ -100,12 +100,12 @@ const PostDetailPage = ({ isLoggedIn }) => {
     }, [boardId, currentPage]);
 
     const handleLikeButtonClick = async () => {
-        const headers = { Authorization: `${localStorage.getItem('Authorization')}` };
+        const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
         try {
             if (liked) {
-                await axiosInstance.delete(`/like/${postId}/likesPost`, { headers });
+                await axiosInstance.delete(`/like/${postId}/likesPost`, {headers});
             } else {
-                await axiosInstance.post(`/like/${postId}/likesPost`, {}, { headers });
+                await axiosInstance.post(`/like/${postId}/likesPost`, {}, {headers});
             }
             setLiked(!liked);
         } catch (error) {
@@ -114,9 +114,9 @@ const PostDetailPage = ({ isLoggedIn }) => {
     };
 
     const handleDelete = async () => {
-        const headers = { Authorization: `${localStorage.getItem('Authorization')}` };
+        const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
         try {
-            await axiosInstance.delete(`/boards/deletePost/${boardId}/post/${postId}`, { headers });
+            await axiosInstance.delete(`/boards/deletePost/${boardId}/post/${postId}`, {headers});
             navigate(`/community/board/${boardId}`);
         } catch (error) {
             console.error("There was an error deleting the post!", error);
@@ -133,13 +133,13 @@ const PostDetailPage = ({ isLoggedIn }) => {
             return;
         }
 
-        const headers = { Authorization: `${localStorage.getItem('Authorization')}` };
+        const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
         try {
             await axiosInstance.put(`/boards/${boardId}/post/${postId}`, {
                 title: editedTitle,
                 body: editedContent
-            }, { headers });
-            setPost({ ...post, title: editedTitle, body: editedContent });
+            }, {headers});
+            setPost({...post, title: editedTitle, body: editedContent});
             setEditMode(false);
         } catch (error) {
             console.error("There was an error saving the post!", error);
@@ -167,31 +167,33 @@ const PostDetailPage = ({ isLoggedIn }) => {
             </div>
             <div className={`post-detail-container ${post.postType === "REVIEW" ? "review" : ""}`}>
                 {post.postType === "REVIEW" && content && (
-                    <div className={styles.post_img} style={{ backgroundImage: `url(${content.imgUrl})` }}>
+                    <div className={styles.post_img} style={{backgroundImage: `url(${content.imgUrl})`}}>
                         <div
                             className={styles.post_platform}
-                            style={{ backgroundColor: platformColor }}
+                            style={{backgroundColor: platformColor}}
                         >
                             {content.platform}
-                        </div>
-                        <div className={styles.button_container}>
-                            <a href={content.url}>
-                                <div className={styles.content_detail_button}>
-                                    보러가기
-                                </div>
-                            </a>
-                            <a href={`/content/${content.id}`}>
-                                <div className={styles.content_detail_button}>
-                                    상세페이지
-                                </div>
-                            </a>
                         </div>
                     </div>
                 )}
                 <div className="post-detail">
                     {post.postType === "REVIEW" && content && (
                         <div className="post-detail_2">
-                            <h2 className={styles.contentDetailTitle}>{content.title}</h2>
+                            <div className={styles.button_container}>
+                                <h2 className={styles.contentDetailTitle}>{content.title}</h2>
+                                <div className={styles.content_detail_buttons}>
+                                    <a href={content.url}>
+                                        <div className={styles.content_detail_button}>
+                                            보러가기
+                                        </div>
+                                    </a>
+                                    <a href={`/content/${content.id}`}>
+                                        <div className={styles.content_detail_button}>
+                                            상세페이지
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
                             <p className={styles.contentDetailMeta}>작가: {content.author} </p>
                             <div className={styles.postDetailContent}>
                                 <p>{content.description}</p>
@@ -246,7 +248,7 @@ const PostDetailPage = ({ isLoggedIn }) => {
                     </div>
                 </div>
             </div>
-            <CommentSection postId={postId} />
+            <CommentSection postId={postId}/>
             <div className="related-posts">
                 <h3>관련 포스트</h3>
                 <PostList
