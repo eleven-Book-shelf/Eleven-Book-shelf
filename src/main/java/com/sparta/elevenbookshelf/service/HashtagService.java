@@ -1,6 +1,8 @@
 package com.sparta.elevenbookshelf.service;
 
 import com.sparta.elevenbookshelf.dto.PostResponseDto;
+import com.sparta.elevenbookshelf.dto.UserHashtagRequestDto;
+import com.sparta.elevenbookshelf.dto.UserHashtagResponseDto;
 import com.sparta.elevenbookshelf.entity.Content;
 import com.sparta.elevenbookshelf.entity.Hashtag;
 import com.sparta.elevenbookshelf.entity.User;
@@ -88,11 +90,6 @@ public class HashtagService {
                 postHashtag.createId();
         }
 
-
-
-        log.info("postHashtag.post.body : " + postHashtag.getPost().getBody());
-        log.info("postHashtag.hashtag.tag : " + postHashtag.getHashtag().getTag());
-
         return postHashtagRepository.save(postHashtag);
     }
 
@@ -141,6 +138,31 @@ public class HashtagService {
         return Arrays.stream(preHashtag.split("[#/]"))
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
+    }
+
+    @Transactional
+    public UserHashtagResponseDto UpdateUserHashtags (Long userId, UserHashtagRequestDto req) {
+
+        User user = getUser(userId);
+
+        Set<String> tags = parseHashtag(req.getTags());
+        Set<UserHashtag> userHashtags = new HashSet<>();
+
+        for (String tag : tags) {
+
+            Hashtag hashtag = createOrUpdateHashtag(tag);
+
+            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, 10.0);
+            user.addHashtag(userHashtag);
+            userHashtags.add(userHashtag);
+        }
+
+        userRepository.save(user);
+        userHashtagRepository.saveAll(userHashtags);
+
+        return new UserHashtagResponseDto(user.getUserHashtags().stream()
+                .map(UserHashtag::getHashtag)
+                .toList());
     }
 
 
