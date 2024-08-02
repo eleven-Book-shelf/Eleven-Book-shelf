@@ -1,9 +1,11 @@
 package com.sparta.elevenbookshelf.dto;
 
+import com.sparta.elevenbookshelf.entity.Content;
 import com.sparta.elevenbookshelf.entity.post.Post;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Data
 public class PostResponseDto {
@@ -15,11 +17,11 @@ public class PostResponseDto {
     private String body;
     private String nickname;
     private Long boardId;
+    private Long contentId;
     private LocalDateTime createdAt;
     private int viewCount;
 
     public PostResponseDto(Post post) {
-
         this.id = post.getId();
         this.userId = post.getUser().getId();
         this.postType = post.getPostType();
@@ -28,6 +30,7 @@ public class PostResponseDto {
         this.body = post.getBody();
         this.nickname = post.getUser().getNickname();
         this.boardId = post.getBoard().getId();
+        this.contentId = Optional.ofNullable(post.getContent()).map(Content::getId).orElse(null);
         this.createdAt = post.getCreatedAt();
     }
 }

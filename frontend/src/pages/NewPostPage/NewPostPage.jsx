@@ -62,7 +62,6 @@ const NewPostPage = () => {
                         onChange={(e) => setPostType(e.target.value)}
                     >
                         <option value="NORMAL">일반 토론</option>
-                        <option value="CONTENT">추천</option>
                     </select>
                 </div>
                 <div className={styles['form-group']}>

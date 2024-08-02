@@ -32,7 +32,7 @@
 
 .postDetail {
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -42,6 +42,7 @@
 
 .leftColumn {
     flex: 1;
+    max-width: 420px;
 }
 
 .rightColumn {
@@ -81,6 +82,20 @@
     margin-bottom: 1rem;
 }
 
+.contentDetailTitle{
+    position: relative;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: .5rem;
+    margin-top: .5rem;
+}
+
+.contentDetailMeta{
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 1rem;
+}
+
 .postDetailContent {
     line-height: 1.8;
     margin-bottom: 2rem;
@@ -96,6 +111,19 @@
     border-radius: 1.2rem ;
     width: 280px;
     height: 400px;
+    object-fit: cover;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: right;
+    position: relative;
+    margin-bottom: 1.2rem;
+    background-position: center;
+    background-size: cover;
+}
+.content_img {
+    border-radius: 1.2rem ;
+    width: 400px;
+    height: 580px;
     object-fit: cover;
     flex-direction: row-reverse;
     align-items: center;
@@ -123,4 +151,65 @@
     min-height: 450px;
     margin: 2rem auto 10rem;
     padding: 0 1rem;
+}
+
+.detail_button{
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    background-color: #4285f4;
+    margin-right: .5rem;
+    margin-left: .5rem;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+.detail_button:hover{
+    background-color: #0f3d89;
+    color: #ffefef;
+}
+
+.button_container {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    position: relative;
+    bottom: -107%;
+    left: -5px;
+}
+
+.content_detail_buttons{
+    display: flex;
+    position: relative;
+    bottom: -107%;
+    left: -5px;
+    gap: 1rem;
+}
+
+.content_detail_button {
+    display: flex;
+    padding: 0.4rem 1rem;
+    background-color: #4285f4;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+    border: none;
+    cursor: pointer;
+    flex-direction: row;
+    z-index: 99;
+}
+
+.content_detail_button > a {
+    text-decoration: none;
+}
+
+.content_detail_button:hover {
+    background-color: #0f3d89;
+    color: #ffefef;
 }

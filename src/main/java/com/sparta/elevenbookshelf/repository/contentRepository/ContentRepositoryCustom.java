@@ -7,12 +7,15 @@ import java.util.List;
 public interface ContentRepositoryCustom {
     List<Content> findTop50ByView();
 
-    List<Content> getContentByConic(long offset, int pagesize, String genre);
+    List<Content> getContent(long offset, int pageSize, String genre);
 
-    List<Content> getContentByNovel(long offset, int pagesize, String genre);
+    List<Content> getContentByConic(long offset, int pageSize, String genre);
 
-    List<Content> getContentByConicUser(Long userId, long offset, int pagesize);
+    List<Content> getContentByNovel(long offset, int pageSize, String genre);
 
-    List<Content> getContentByNovelUser(Long userId, long offset, int pagesize);
+    List<Content> getContentByConicUser(Long userId, long offset, int pageSize, String genre);
 
+    List<Content> getContentByNovelUser(Long userId, long offset, int pageSize, String genre);
+
+    List<Content> search(int offset, int pagesize, String search);
 }

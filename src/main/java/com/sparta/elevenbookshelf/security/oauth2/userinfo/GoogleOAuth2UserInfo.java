@@ -24,7 +24,7 @@ public class GoogleOAuth2UserInfo implements OAuth2UserInfo {
         String name = (String) attributes.get("name");
 
         if (name == null) {
-            return "Unknown";
+            return  (String) attributes.get("email");
         }
 
         return name;

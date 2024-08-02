@@ -10,7 +10,7 @@ const CommunityPage = () => {
         axiosInstance.get('/boards')
             .then(response => {
                 const boardsWithPosts = response.data
-                    .filter(board => board.id !== 1)  // 보드 ID가 1인 항목 제외
+                    .filter(board => board.id !== 1)
                     .map(board => {
                         return axiosInstance.get(`/boards/${board.id}`, {
                             params: { offset: 0, pagesize: 3 }
@@ -32,7 +32,7 @@ const CommunityPage = () => {
     }, []);
 
     return (
-        <div className={styles.container}>
+        <div className={styles.c_container}>
             <div className={styles.communityHeader}>
                 <h1>커뮤니티</h1>
             </div>

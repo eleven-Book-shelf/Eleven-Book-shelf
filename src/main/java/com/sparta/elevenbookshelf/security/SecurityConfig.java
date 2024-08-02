@@ -5,6 +5,7 @@ import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationEntryPoint;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationFilter;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
+import com.sparta.elevenbookshelf.security.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import com.sparta.elevenbookshelf.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
 import com.sparta.elevenbookshelf.service.AuthService;
@@ -57,6 +58,12 @@ public class SecurityConfig {
     }
 
     @Bean
+    public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler() {
+        log.info("@Bean OAuth2AuthenticationFailureHandler 실행");
+        return new OAuth2AuthenticationFailureHandler();
+    }
+
+    @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         log.info("@Bean jwtAuthenticationFilter 실행");
         return new JwtAuthenticationFilter(jwtUtil, userDetailsService);
@@ -83,14 +90,6 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
-/*                                                   .requestMatchers("/auth/login").permitAll()
-                                                   .requestMatchers("/user/signup").permitAll()
-                                                   .requestMatchers("/user/email/**").permitAll()
-                                                   .requestMatchers("/auth/reissue").permitAll()
-                                                   .requestMatchers(HttpMethod.GET, "/boards/**").permitAll()
-                                                   .requestMatchers(HttpMethod.GET,  "/comments/**").permitAll()
-                                                   .requestMatchers("/login.html").permitAll()
-                                                   .requestMatchers("/admin/**").hasRole("ADMIN")*/
                                                    .anyRequest().permitAll()
         );
 
@@ -99,6 +98,7 @@ public class SecurityConfig {
         http.oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
                 .loginPage("http://localhost:3000/login")
                 .successHandler(oAuth2AuthenticationSuccessHandler())
+                .failureHandler(oAuth2AuthenticationFailureHandler())
         );
 
         return http.build();

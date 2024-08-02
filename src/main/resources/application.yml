@@ -5,6 +5,7 @@ jwt:
 
 server:
   port: 8080
+
 spring:
   application:
     name: eleven-book
@@ -16,6 +17,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+      dialect: org.hibernate.dialect.MySQLDialect
     properties:
       hibernate:
         default_batch_fetch_size: 1000

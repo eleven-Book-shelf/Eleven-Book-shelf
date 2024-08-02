@@ -61,6 +61,9 @@ public class User extends Timestamp {
         this.nickname = username;
     }
 
+    public void signOut(){
+        this.status = Status.DELETED;
+    }
 
     public void deleteRefreshToken() {
         this.refreshToken = "out";

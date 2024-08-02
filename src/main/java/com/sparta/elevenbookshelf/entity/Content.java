@@ -140,4 +140,8 @@ public class Content {
     public void setViewCount(Double view){
         this.view = view;
     }
+
+    public void addBockMarkCount(){
+        this.bookMarkCount++;
+    }
 }

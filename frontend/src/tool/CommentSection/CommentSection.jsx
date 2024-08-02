@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import './CommentSection.css';
 
-const CommentSection = ({ postId }) => {
+const CommentSection = ({ postId, isLoggedIn }) => {
     const [comments, setComments] = useState([]);
     const [commentContent, setCommentContent] = useState('');
     const [replyContents, setReplyContents] = useState({});
@@ -16,14 +16,20 @@ const CommentSection = ({ postId }) => {
         try {
             const response = await axiosInstance.get(`/${postId}/comments`);
             const commentsData = await Promise.all(response.data.map(async (comment) => {
-                const likeResponse = await axiosInstance.get(`/like/${comment.id}/likes`, {
-                    headers: { Authorization: `${localStorage.getItem('Authorization')}` }
-                });
-
-                const children = await Promise.all((comment.children || []).map(async (child) => {
-                    const childLikeResponse = await axiosInstance.get(`/like/${child.id}/likes`, {
+                let likeResponse = { data: false };
+                if (isLoggedIn) {
+                    likeResponse = await axiosInstance.get(`/like/${comment.id}/likes`, {
                         headers: { Authorization: `${localStorage.getItem('Authorization')}` }
                     });
+                }
+
+                const children = await Promise.all((comment.children || []).map(async (child) => {
+                    let childLikeResponse = { data: false };
+                    if (isLoggedIn) {
+                        childLikeResponse = await axiosInstance.get(`/like/${child.id}/likes`, {
+                            headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+                        });
+                    }
                     return {
                         ...child,
                         likes: child.likes || 0,
@@ -47,10 +53,9 @@ const CommentSection = ({ postId }) => {
         }
     };
 
-
     useEffect(() => {
         fetchComments();
-    }, [postId]);
+    }, [postId, isLoggedIn]);
 
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
@@ -158,18 +163,18 @@ const CommentSection = ({ postId }) => {
                     <p className="comment-username">{comment.nickname}</p>
                     {editingCommentId === comment.id ? (
                         <form className="update_comment" onSubmit={(e) => handleEditSubmit(e, comment.id)}>
-                        <textarea
-                            value={editingContent}
-                            onChange={(e) => setEditingContent(e.target.value)}
-                            className="edit-textarea"
-                        ></textarea>
+                            <textarea
+                                value={editingContent}
+                                onChange={(e) => setEditingContent(e.target.value)}
+                                className="edit-textarea"
+                            ></textarea>
                             <button type="submit" className="button left_button">수정 완료</button>
                         </form>
                     ) : (
                         <p className="comment-content">{comment.contents}</p>
                     )}
                     <p className="comment-meta"> {comment.createdAt} 좋아요 {comment.likes}</p>
-                    {currentUserId && (
+                    {isLoggedIn && (
                         <div className="buttons">
                             <button
                                 className="reply-button"
@@ -200,19 +205,18 @@ const CommentSection = ({ postId }) => {
                                     {comment.likedByUser ? '좋아요 취소' : '좋아요'}
                                 </button>
                             )}
-
                         </div>
                     )}
                     {activeReplyId === comment.id && (
                         <form className="reply-form"
                               onSubmit={(e) => handleReplySubmit(e, comment.id, parentCommentId)}>
-                        <textarea
-                            name="reply"
-                            placeholder="답글을 입력하세요..."
-                            value={replyContents[comment.id] || ''}
-                            onChange={(e) => handleReplyContentChange(e, comment.id)}
-                            className="reply-textarea"
-                        ></textarea>
+                            <textarea
+                                name="reply"
+                                placeholder="답글을 입력하세요..."
+                                value={replyContents[comment.id] || ''}
+                                onChange={(e) => handleReplyContentChange(e, comment.id)}
+                                className="reply-textarea"
+                            ></textarea>
                             <button type="submit" className="button left_button">답글 작성</button>
                         </form>
                     )}
@@ -234,7 +238,7 @@ const CommentSection = ({ postId }) => {
         <div className="comment-section">
             <h3>댓글 ({comments.length})</h3>
             {renderComments(comments)}
-            {currentUserId && (
+            {isLoggedIn && (
                 <form className="comment-form" onSubmit={handleCommentSubmit}>
                     <h3>댓글 작성</h3>
                     <textarea

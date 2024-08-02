@@ -78,7 +78,7 @@ public class BookMarkService {
 
         bookmark.toggleStatus();
         bookmarkRepository.save(bookmark);
-
+        content.addBockMarkCount();
         return BookMarkResponseDto.fromPost(content);
     }
 
