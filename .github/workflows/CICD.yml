@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "dev" ]
 
 permissions:
   contents: read
@@ -15,10 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Install JDK 11
+      - name: Install JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Build with Gradle
@@ -76,6 +76,7 @@ jobs:
           script_stop: true
           script: |
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/live_server:latest
+            cd /home/ubuntu  # docker-compose 파일이 있는 디렉토리로 이동
             sudo docker-compose -f docker-compose-${{env.TARGET_UPSTREAM}}.yml up -d
       
       - name: Check deploy server URL
