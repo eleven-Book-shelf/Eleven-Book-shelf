@@ -1,8 +1,80 @@
-jwt:
-  access-expire-time: ${ACCESS_EXPIRE_TIME}
-  key: ${JWT_SECRET_KEY}
-  refresh-expire-time: ${REFRESH_EXPIRE_TIME}
+spring:
+  profiles:
+    active: local
+    group:
+      local: local, common, secret
+      blue: blue, common, secret
+      green: green, common, secret
 
+server:
+  env: blue
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  security:
+    oauth2:
+      client:
+          kakao:
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+          naver:
+            redirect-uri: http://localhost:8080/login/oauth2/code/naver
+
+server:
+  port: 8080
+  serverAddress: localhost
+
+serverName: local_server
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: blue
+  security:
+    oauth2:
+      client:
+        kakao:
+          redirect-uri: http://54.180.132.230/login/oauth2/code/kakao
+        naver:
+          redirect-uri: http://54.180.132.230/login/oauth2/code/naver
+
+server:
+  port: 8080
+  serverAddress: 54.180.132.230
+
+serverName: blue_server
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: green
+  security:
+    oauth2:
+      client:
+        kakao:
+          redirect-uri: http://54.180.132.230/login/oauth2/code/kakao
+        naver:
+          redirect-uri: http://54.180.132.230/login/oauth2/code/naver
+
+server:
+  port: 8081
+  serverAddress: 54.180.132.230
+
+serverName: green_server
+
+---
+
+
+jwt:
+    access-expire-time: ${ACCESS_EXPIRE_TIME}
+    key: ${JWT_SECRET_KEY}
+    refresh-expire-time: ${REFRESH_EXPIRE_TIME}
 server:
   port: 8080
 
