@@ -25,6 +25,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
 
     }
+
     @DeleteMapping("/signout")
     public ResponseEntity<?> signOut(@AuthenticationPrincipal UserPrincipal user) {
         userService.signOut(user.getUser().getId());
