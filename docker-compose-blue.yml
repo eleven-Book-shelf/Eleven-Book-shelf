@@ -11,10 +11,10 @@ services:
       - ENV=secret
 
 
-#  webapp:
-#    image: your-webapp-image:latest  # 여기에 사용할 이미지를 지정하세요
-#    container_name: webapp
-#    ports:
-#      - "8080:8080"  # 필요에 따라 포트를 변경하세요
-#    env_file:
-#      - ".env"
+  webapp:
+    image: your-webapp-image:latest  # 여기에 사용할 이미지를 지정하세요
+    container_name: webapp
+    ports:
+      - "8080:8080"  # 필요에 따라 포트를 변경하세요
+    env_file:
+      - ".env"
