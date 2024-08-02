@@ -72,7 +72,8 @@ public abstract class Post {
         this.user = user;
         this.board = board;
         this.content = content;
-        this.viewCount = 0; // 초기 조회수는 0으로 설정
+        this.viewCount = 0;
+        this.likes = 0; // 초기 조회수는 0으로 설정
     }
 
     public String getPostType() {

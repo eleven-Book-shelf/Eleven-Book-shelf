@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.service;
 
+import com.sparta.elevenbookshelf.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.entity.Content;
 import com.sparta.elevenbookshelf.entity.Hashtag;
 import com.sparta.elevenbookshelf.entity.User;
@@ -7,11 +8,15 @@ import com.sparta.elevenbookshelf.entity.mappingEntity.ContentHashtag;
 import com.sparta.elevenbookshelf.entity.mappingEntity.PostHashtag;
 import com.sparta.elevenbookshelf.entity.mappingEntity.UserHashtag;
 import com.sparta.elevenbookshelf.entity.post.Post;
+import com.sparta.elevenbookshelf.exception.BusinessException;
+import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
 import com.sparta.elevenbookshelf.repository.hashtagRepository.ContentHashtagRepository;
 import com.sparta.elevenbookshelf.repository.hashtagRepository.HashtagRepository;
 import com.sparta.elevenbookshelf.repository.hashtagRepository.PostHashtagRepository;
 import com.sparta.elevenbookshelf.repository.hashtagRepository.UserHashtagRepository;
+import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
+import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +36,15 @@ public class HashtagService {
     private final UserHashtagRepository userHashtagRepository;
 
     private final ContentRepository contentRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     // TODO: controller로 연결
-    public List<Hashtag> readTop10Hashtags() {
+    public List<String> readTop10Hashtags() {
 
-        return hashtagRepository.findTop10ByCount();
+        List<Hashtag> topHashtags = hashtagRepository.findTop10ByCount();
+
+        return topHashtags.stream().map(Hashtag::getTag).toList();
     }
 
 
@@ -63,15 +72,26 @@ public class HashtagService {
     @Transactional
     public PostHashtag createOrUpdatePostHashtag(Post post, Hashtag hashtag) {
 
+        log.info(post.getBody());
+
         Optional<PostHashtag> optionalPostHashtag = postHashtagRepository.findByPostIdAndHashtagId(post.getId(), hashtag.getId());
         PostHashtag postHashtag;
 
-        postHashtag = optionalPostHashtag.orElseGet(()->PostHashtag.builder()
-                .post(post)
-                .hashtag(hashtag)
-                .build());
+        if(optionalPostHashtag.isPresent()) {
+            postHashtag = optionalPostHashtag.get();
+        } else {
+                postHashtag = PostHashtag.builder()
+                        .post(post)
+                        .hashtag(hashtag)
+                        .build();
 
-        postHashtag.createId();
+                postHashtag.createId();
+        }
+
+
+
+        log.info("postHashtag.post.body : " + postHashtag.getPost().getBody());
+        log.info("postHashtag.hashtag.tag : " + postHashtag.getHashtag().getTag());
 
         return postHashtagRepository.save(postHashtag);
     }
@@ -118,16 +138,35 @@ public class HashtagService {
 
     public Set<String> parseHashtag (String preHashtag) {
 
-        return Arrays.stream(preHashtag.split("[#,]"))
+        return Arrays.stream(preHashtag.split("[#/]"))
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
     }
 
-    // 해시태그 유사도 계산 부분
-    public Map<Double, Content> calculateSimilarity (User user) {
 
-        // 조회수가 높은 50개의 컨텐츠 가져오기
-        List<Content> contents = contentRepository.findTop50ByView();
+    @Transactional
+    public List<PostResponseDto> recommendContentByUserHashtag (Long userId, long offset, int pagesize) {
+
+        User user = getUser(userId);
+
+        List<Content> contents = calculateSimilarity(user);
+        List<PostResponseDto> result = new ArrayList<>();
+
+        for (int i = (int) offset; i < i + pagesize; i++) {
+            Content content = contents.get(i);
+            Post post = postRepository.findByContentId(content.getId()).orElseGet(null);
+            result.add(new PostResponseDto(post));
+        }
+
+        return result;
+
+    }
+
+    // 해시태그 유사도 계산 부분
+    public List<Content> calculateSimilarity (User user) {
+
+        // 컨텐츠 가져오기
+        List<Content> contents = contentRepository.findAll();
 
         // 차이를 저장할 맵
         Map<Double, Content> resultMap = new HashMap<>();
@@ -188,7 +227,9 @@ public class HashtagService {
             resultMap.put(operateEuclideanDistance(aList, bList),content);
         }
 
-        return sortMapByKey(resultMap);
+        Map<Double, Content> sortedMap = sortMapByKey(resultMap);
+        Collection<Content> values = sortedMap.values();
+        return new ArrayList<>(values);
     }
 
     private Double operateEuclideanDistance (List<Double> a, List<Double> b) {
@@ -211,5 +252,12 @@ public class HashtagService {
             result.put(entry.getKey(), entry.getValue());
         }
         return result;
+    }
+
+    private User getUser(Long userId) {
+
+        return userRepository.findById(userId).orElseThrow(
+                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
+        );
     }
 }

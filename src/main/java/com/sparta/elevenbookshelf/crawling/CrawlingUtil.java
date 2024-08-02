@@ -229,10 +229,11 @@ public class CrawlingUtil {
                     .genre(requestDto.getGenre())
                     .contentHashTag(requestDto.getContentHashTag())
                     .build();
+
             contentRepository.save(newContent);
             ContentResponseDto res = new ContentResponseDto(newContent);
             PostRequestDto req = new PostRequestDto(res);
-            boardService.createPost(null,null,req);
+            boardService.createPost(null,null, req);
         }
 
     }

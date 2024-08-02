@@ -1,7 +1,6 @@
 package com.sparta.elevenbookshelf.entity.mappingEntity;
 
 import com.sparta.elevenbookshelf.entity.Hashtag;
-import com.sparta.elevenbookshelf.entity.Timestamp;
 import com.sparta.elevenbookshelf.entity.User;
 import jakarta.persistence.*;
 import lombok.*;

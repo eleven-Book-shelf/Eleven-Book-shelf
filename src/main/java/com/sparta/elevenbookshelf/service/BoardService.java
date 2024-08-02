@@ -16,17 +16,22 @@ import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.BoardRepository;
 import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
+import com.sparta.elevenbookshelf.repository.hashtagRepository.ContentHashtagRepository;
+import com.sparta.elevenbookshelf.repository.hashtagRepository.PostHashtagRepository;
+import com.sparta.elevenbookshelf.repository.hashtagRepository.UserHashtagRepository;
 import com.sparta.elevenbookshelf.repository.postRepository.PostRepository;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+@Slf4j(topic = "BoardService")
 @Service
 @RequiredArgsConstructor
 public class BoardService {
@@ -42,11 +47,16 @@ public class BoardService {
     private final ContentRepository contentRepository;
 
     private final HashtagService hashtagService;
+    private final UserHashtagRepository userHashtagRepository;
+    private final ContentHashtagRepository contentHashtagRepository;
+    private final PostHashtagRepository postHashtagRepository;
 
     //:::::::::::::::::// board //::::::::::::::::://
 
     @Transactional
-    public BoardResponseDto createBoard(User user, BoardRequestDto req) {
+    public BoardResponseDto createBoard(Long userId, BoardRequestDto req) {
+
+        User user = getUser(userId);
 
         if(!isUserAdmin(user)){
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
@@ -83,7 +93,9 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponseDto updateBoard(User user, Long boardId, BoardRequestDto req) {
+    public BoardResponseDto updateBoard(Long userId, Long boardId, BoardRequestDto req) {
+
+        User user = getUser(userId);
 
         if(!isUserAdmin(user)){
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
@@ -99,7 +111,9 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteBoard(User user, Long boardId) {
+    public void deleteBoard(Long userId, Long boardId) {
+
+        User user = getUser(userId);
 
         if(!isUserAdmin(user)){
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
@@ -122,21 +136,15 @@ public class BoardService {
     }
 
     @Transactional
-    public PostResponseDto createPost(User user, Long boardId, PostRequestDto req) {
-
-        Content content = null;
-
-        if (req.getContentId() != null) {
-            content = contentRepository.findById(req.getContentId()).orElse(null);
-        }
+    public PostResponseDto createPost(Long userId, Long boardId, PostRequestDto req) {
 
         Post post = switch (req.getPostType()) {
 
-            case "NORMAL" -> createNormalPost(user, boardId, req);
+            case "NORMAL" -> createNormalPost(userId, boardId, req);
 
-            case "REVIEW" -> createReviewPost(user, content, req);
+            case "REVIEW" -> createReviewPost(userId, req);
 
-            case "CONTENT" -> createContentPost(content);
+            case "CONTENT" -> createContentPost(req);
 
             default -> throw new BusinessException(ErrorCode.POST_INVALID);
         };
@@ -144,8 +152,10 @@ public class BoardService {
         return new PostResponseDto(post);
     }
 
-    //
-    private NormalPost createNormalPost(User user, Long boardId, PostRequestDto req) {
+    @Transactional
+    protected NormalPost createNormalPost(Long userId, Long boardId, PostRequestDto req) {
+
+        User user = getUser(userId);
 
         Board board = getBoard(boardId);
 
@@ -158,18 +168,20 @@ public class BoardService {
 
         user.addPost(result);
 
+        userRepository.save(user);
+
         return postRepository.save(result);
     }
 
     // userhashtag, contenthashtag 갱신 필요
-    private ReviewPost createReviewPost(User user, Content content, PostRequestDto req) {
-        if (req.getRating() == null) {
-            throw new IllegalStateException("리뷰 게시글에는 평점이 있어야 합니다.");
-        }
+    @Transactional
+    protected ReviewPost createReviewPost(Long userId, PostRequestDto req) {
 
-        if (content == null) {
-            throw new IllegalStateException("리뷰 게시글에는 컨텐츠가 있어야 합니다.");
-        }
+        User user = getUser(userId);
+
+        Content content = getContent(req.getContentId());
+
+        log.info(req.getBody());
 
         ReviewPost result = ReviewPost.builder()
                 .title(req.getTitle())
@@ -178,10 +190,12 @@ public class BoardService {
                 .board(getBoard(2L))
                 .content(content)
                 .rating(req.getRating())
+                .postHashtags(new HashSet<>())
                 .build();
 
-        Set<String> tags = hashtagService.parseHashtag(req.getPrehashtag());
+        postRepository.save(result);
 
+        Set<String> tags = hashtagService.parseHashtag(req.getPrehashtag());
 
         for (String tag : tags) {
             Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag);
@@ -199,11 +213,21 @@ public class BoardService {
         user.addPost(result);
         content.addReview(result);
 
-        return postRepository.save(result);
+        userRepository.save(user);
+        userHashtagRepository.saveAll(user.getUserHashtags());
+        contentRepository.save(content);
+        contentHashtagRepository.saveAll(content.getContentHashtags());
+        postHashtagRepository.saveAll(result.getPostHashtags());
+
+        return result;
     }
 
     // contenthashtag 갱신 필요
-    private ContentPost createContentPost(Content content) {
+    @Transactional
+    protected ContentPost createContentPost(PostRequestDto req) {
+
+        Content content = getContent(req.getContentId());
+
         if (content == null) {
             throw new IllegalStateException("컨텐츠 게시글에는 컨텐츠가 있어야 합니다.");
         }
@@ -216,23 +240,26 @@ public class BoardService {
                 .content(content)
                 .build();
 
-        Set<String> tags = hashtagService.parseHashtag(content.getGenre());
-        Set<ContentHashtag> contentHashtags = new HashSet<>();
+        Set<String> tags = hashtagService.parseHashtag(content.getGenre() + content.getContentHashTag());
 
         for (String tag : tags) {
             Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag);
 
             ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, 0.0);
-            contentHashtags.add(contentHashtag);
             content.addHashtag(contentHashtag);
         }
+
+        contentRepository.save(content);
+        contentHashtagRepository.saveAll(content.getContentHashtags());
 
         return postRepository.save(result);
     }
 
     // userhashtag, contenthashtag 갱신필요
     @Transactional
-    public PostResponseDto readPost(User user, Long boardId, Long postId) {
+    public PostResponseDto readPost(Long userId, Long boardId, Long postId) {
+
+        User user = getUser(userId);
 
         Post post = getPost(postId);
 
@@ -240,26 +267,34 @@ public class BoardService {
             throw new BusinessException(ErrorCode.POST_NOT_FOUND);
         }
 
-        if(user != null && post.getContent() != null && post.getPostHashtags() != null) {
+        if(user != null && (post.getContent() != null || post.getPostHashtags() != null)) {
+
+            log.info("in if phrase");
 
             Content content = post.getContent();
+            log.info("content post read : " + content.getTitle());
 
-            Set<PostHashtag> tags = post.getPostHashtags();
-            Set<UserHashtag> userHashtags = new HashSet<>();
-            Set<ContentHashtag> contentHashtags = new HashSet<>();
+            Set<ContentHashtag> contentHashtags = content.getContentHashtags();
+            Set<PostHashtag> postHashtags = post.getPostHashtags();
 
-            for (PostHashtag tag : tags) {
+            Set<Hashtag> hashtags = contentHashtags.stream().map(ContentHashtag::getHashtag).collect(Collectors.toSet());
+            hashtags.addAll(postHashtags.stream().map(PostHashtag::getHashtag).collect(Collectors.toSet()));
 
-                Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag.getHashtag().getTag());
+            for (Hashtag tag : hashtags) {
+
+                Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag.getTag());
 
                 UserHashtag userHashtag = hashtagService.createOrUpdateUserHashtag(user, hashtag, READ_WEIGHT);
-                userHashtags.add(userHashtag);
                 user.addHashtag(userHashtag);
 
                 ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, READED_WEIGHT);
-                contentHashtags.add(contentHashtag);
                 content.addHashtag(contentHashtag);
             }
+
+            userRepository.save(user);
+            userHashtagRepository.saveAll(user.getUserHashtags());
+            contentRepository.save(content);
+            contentHashtagRepository.saveAll(content.getContentHashtags());
         }
 
         post.incrementViewCount();
@@ -269,8 +304,9 @@ public class BoardService {
 
     // TODO : controller로 연결 필요
     // userhashtag, contenthashtag 갱신 필요
-    @Transactional
-    public List<PostResponseDto> readPostsByContent(User user, Long boardId, Long contentId, long offset, int pagesize) {
+    public List<PostResponseDto> readPostsByContent(Long userId, Long boardId, Long contentId, long offset, int pagesize) {
+
+        User user = getUser(userId);
 
         List<Post> posts = postRepository.getPostsByContent(contentId, offset, pagesize);
 
@@ -278,13 +314,24 @@ public class BoardService {
             Content content = getContent(contentId);
 
             Set<ContentHashtag> contentHashtags = content.getContentHashtags();
+            Set<ContentHashtag> newContentHashtags = new HashSet<>();
+            Set<UserHashtag> userHashtags = new HashSet<>();
 
-            for (ContentHashtag contentHashtag : contentHashtags) {
+            for (ContentHashtag tag : contentHashtags) {
 
-                hashtagService.createOrUpdateHashtag(contentHashtag.getHashtag().getTag());
-                hashtagService.createOrUpdateUserHashtag(user, contentHashtag.getHashtag(), SEARCH_WEIGHT);
-                hashtagService.createOrUpdateContentHashtag(content, contentHashtag.getHashtag(), SEARCH_WEIGHT);
+                Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag.getHashtag().getTag());
+
+                UserHashtag userHashtag = hashtagService.createOrUpdateUserHashtag(user, hashtag, READ_WEIGHT);
+                user.addHashtag(userHashtag);
+                userHashtags.add(userHashtag);
+
+                ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, READED_WEIGHT);
+                content.addHashtag(contentHashtag);
+                newContentHashtags.add(contentHashtag);
             }
+
+            userHashtagRepository.saveAll(userHashtags);
+            contentHashtagRepository.saveAll(newContentHashtags);
         }
 
         return posts.stream().map(
@@ -293,7 +340,9 @@ public class BoardService {
     }
 
     @Transactional
-    public PostResponseDto updatePost(User user, Long boardId, Long postId, PostRequestDto req) {
+    public PostResponseDto updatePost(Long userId, Long boardId, Long postId, PostRequestDto req) {
+
+        User user = getUser(userId);
 
         Post post = getPost(postId);
 
@@ -315,7 +364,9 @@ public class BoardService {
     }
 
     @Transactional
-    public void deletePost(User user, Long boardId, Long postId) {
+    public void deletePost(Long userId, Long boardId, Long postId) {
+
+        User user = getUser(userId);
 
         Post post = getPost(postId);
 

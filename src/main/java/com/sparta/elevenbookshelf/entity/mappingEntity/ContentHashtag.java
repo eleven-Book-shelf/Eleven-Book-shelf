@@ -21,7 +21,7 @@ public class ContentHashtag {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("contentId")
-    @JoinColumn(name = "conten_id")
+    @JoinColumn(name = "content_id")
     private Content content;
 
     @ManyToOne(fetch = FetchType.LAZY)

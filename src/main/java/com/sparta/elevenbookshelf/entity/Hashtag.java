@@ -55,6 +55,6 @@ public class Hashtag {
     }
 
     public void updateTier() {
-        this.tier = this.count/10;
+        this.tier = (double) this.count /10;
     }
 }

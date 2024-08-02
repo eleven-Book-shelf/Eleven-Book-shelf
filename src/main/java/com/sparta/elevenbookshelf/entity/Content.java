@@ -53,7 +53,7 @@ public class Content {
     @Enumerated(EnumType.STRING)
     private ContentEnd isEnd;
 
-    @OneToMany(mappedBy = "content", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "content")
     private List<ReviewPost> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "content")
