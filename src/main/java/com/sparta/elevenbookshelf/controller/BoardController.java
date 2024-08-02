@@ -6,6 +6,8 @@ import com.sparta.elevenbookshelf.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.BoardService;
+import com.sparta.elevenbookshelf.service.HashtagService;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ public class BoardController {
 
     private final BoardService boardService;
     private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
+    private final HashtagService hashtagService;
 
     //:::::::::::::::::// board //::::::::::::::::://
 
@@ -34,7 +37,7 @@ public class BoardController {
             @RequestBody BoardRequestDto req
             ) {
 
-        BoardResponseDto res = boardService.createBoard(userPrincipal.getUser(), req);
+        BoardResponseDto res = boardService.createBoard(userPrincipal.getUser().getId(), req);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
@@ -56,8 +59,8 @@ public class BoardController {
     @GetMapping("/{boardId}")
     public ResponseEntity<Map<String, Object>> readBoard(
             @PathVariable Long boardId,
-            @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "20") int pagesize) {
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
 
         List<PostResponseDto> posts = boardService.readBoard(boardId, offset, pagesize);
         long totalPosts = boardService.getTotalPostsByBoard(boardId);
@@ -70,7 +73,7 @@ public class BoardController {
             @PathVariable Long boardId,
             @RequestBody BoardRequestDto req) {
 
-        BoardResponseDto res = boardService.updateBoard(userPrincipal.getUser(), boardId, req);
+        BoardResponseDto res = boardService.updateBoard(userPrincipal.getUser().getId(), boardId, req);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
@@ -81,7 +84,7 @@ public class BoardController {
             @PathVariable Long boardId
                                          ) {
 
-        boardService.deleteBoard(userPrincipal.getUser(), boardId);
+        boardService.deleteBoard(userPrincipal.getUser().getId(), boardId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
@@ -94,17 +97,32 @@ public class BoardController {
             @PathVariable Long boardId,
             @RequestBody PostRequestDto req) {
 
-        PostResponseDto res = boardService.createPost(userPrincipal.getUser(), boardId, req);
+        PostResponseDto res = boardService.createPost(userPrincipal.getUser().getId(), boardId, req);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
     @GetMapping("/{boardId}/post/{postId}")
     public ResponseEntity<PostResponseDto> readPost(
+            @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
             @PathVariable Long boardId,
             @PathVariable Long postId) {
 
-        PostResponseDto res = boardService.readPost(boardId, postId);
+        PostResponseDto res = boardService.readPost(userPrincipal.getUser().getId(), boardId, postId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    // TODO : toFront
+    @GetMapping("/{boardId}/post/")
+    public ResponseEntity<List<PostResponseDto>> readPostsByContent (
+            @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
+            @PathVariable Long boardId,
+            @RequestParam(value = "content") Long contentId,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
+
+        List<PostResponseDto> res = boardService.readPostsByContent(userPrincipal.getUser().getId(), boardId, contentId, offset, pagesize);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
@@ -116,7 +134,7 @@ public class BoardController {
             @PathVariable Long postId,
             @RequestBody PostRequestDto req) {
 
-        PostResponseDto res = boardService.updatePost(userPrincipal.getUser(), boardId, postId, req);
+        PostResponseDto res = boardService.updatePost(userPrincipal.getUser().getId(), boardId, postId, req);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
@@ -127,7 +145,7 @@ public class BoardController {
             @PathVariable Long boardId,
             @PathVariable Long postId) {
 
-        boardService.deletePost(userPrincipal.getUser(), boardId, postId);
+        boardService.deletePost(userPrincipal.getUser().getId(), boardId, postId);
 
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
@@ -137,8 +155,8 @@ public class BoardController {
     @GetMapping("/user/posts")
     public ResponseEntity<Map<String, Object>> readUserPost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "20") int pagesize) {
+            @RequestParam(value = "offset", defaultValue = "0") long offset,
+            @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
 
         List<PostResponseDto> posts = boardService.readUserPost(
                 userPrincipal.getUser().getId(),
@@ -148,19 +166,24 @@ public class BoardController {
         return getMapResponseEntity(pagesize, (double) totalPosts, posts);
     }
 
-    //:::::::::::::::::// post //::::::::::::::::://
+    // TODO : toFront
+    @GetMapping("/user/recommend")
+    public ResponseEntity<List<PostResponseDto>> recommendContentsByUserHashtag (
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(defaultValue = "0") long offset,
+            @RequestParam(defaultValue = "20") int pagesize) {
 
-/*    @PostMapping("/content")
-    public ResponseEntity<ContentResponseDto> createContent(@RequestBody ContentRequestDto req){
+        List<PostResponseDto> res = hashtagService.recommendContentByUserHashtag(userPrincipal.getUser().getId(), offset, pagesize);
 
-        ContentResponseDto res = boardService.createContent(req);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
 
-        PostRequestDto postReq = new PostRequestDto(res);
+    //:::::::::::::::::// content //::::::::::::::::://
 
-        boardService.createPost(null, null, postReq);
+/*
+crwaling -> createContent
+* */
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(res);
-    }*/
 
     //:::::::::::::::::// TOOL BOX //::::::::::::::::://
 

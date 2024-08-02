@@ -32,11 +32,6 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(authService.logout(userPrincipal.getUser()));
     }
 
-    @PatchMapping("/login")
-    public ResponseEntity<String> login(@AuthenticationPrincipal UserPrincipal userPrincipal){
-        return ResponseEntity.status(HttpStatus.OK).body("씨발");
-    }
-
     @PatchMapping("/refresh")
     public ResponseEntity<?> refresh(HttpServletRequest request){
         return ResponseEntity.status(HttpStatus.OK)

@@ -19,3 +19,26 @@
 .post_postType.REVIEW {
     background-color: #ee3131;
 }
+
+.current-post {
+    background-color: #2d2d2d !important;
+    font-weight: bold;
+}
+
+.current-post * {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
+.current-post .post_postType{
+    background-color: #e24949 !important;
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
+.current-post .post_postType.NORMAL{
+    background-color: #4756f6 !important;
+    color: #ffffff !important;
+    font-weight: bold;
+}

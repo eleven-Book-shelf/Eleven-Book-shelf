@@ -22,7 +22,7 @@ body {
     line-height: 1.6;
 }
 .container {
-    max-width: 1000px;
+    max-width: 1400px;
     margin: 2rem auto;
     padding: 2rem;
     background-color: #fff;
@@ -52,6 +52,18 @@ body {
     font-weight: 500;
     transition: background-color 0.3s;
 }
+
+.deleteButton{
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #4285f4;
+    border: 2px solid white;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
 .button:hover {
     background-color: #3b78e7;
 }
@@ -65,10 +77,11 @@ body {
 }
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
     gap: 1rem;
 }
 .card {
+    width:250px;
     background-color: #f9f9f9;
     border-radius: 8px;
     padding: 1rem;
@@ -139,4 +152,17 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.editProfile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.editInput {
+    margin-bottom: 10px;
+    padding: 8px;
+    font-size: 1rem;
+    width: 100%;
 }

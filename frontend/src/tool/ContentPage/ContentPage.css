@@ -71,6 +71,16 @@ a {
     gap: 0.5rem;
     margin-bottom: 1rem;
     flex-wrap: wrap;
+    position: relative;
+}
+
+.genre-filter.active {
+    margin-bottom: 4rem;
+}
+
+.genre-section {
+    position: relative;
+    display: inline-block;
 }
 
 .genre-button {
@@ -83,8 +93,48 @@ a {
     transition: background-color 0.3s, color 0.3s;
 }
 
-.genre-button:hover, .genre-button.active {
+.genre-button:hover, .genre-button.active, .genre-button.selected {
     background-color: #4285f4;
+    color: #fff;
+}
+
+.subgenre-filter {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    flex-wrap: nowrap;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background-color: white;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    white-space: nowrap;
+    max-width: 1580px;
+    overflow-x: hidden;
+    cursor: grab;
+}
+
+.subgenre-filter.active {
+    cursor: grabbing;
+}
+
+.subgenre-button {
+    white-space: nowrap;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid #34a853;
+    border-radius: 15px;
+    background-color: #fff;
+    color: #34a853;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.subgenre-button:hover, .subgenre-button.active {
+    background-color: #34a853;
     color: #fff;
 }
 

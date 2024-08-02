@@ -1,12 +1,15 @@
 package com.sparta.elevenbookshelf.entity;
 
 import com.sparta.elevenbookshelf.dto.ContentRequestDto;
+import com.sparta.elevenbookshelf.entity.mappingEntity.ContentHashtag;
 import com.sparta.elevenbookshelf.entity.post.ReviewPost;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -50,8 +53,12 @@ public class Content {
     @Enumerated(EnumType.STRING)
     private ContentEnd isEnd;
 
-    @OneToMany(mappedBy = "content", cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "content")
     private List<ReviewPost> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "content")
+    private Set<ContentHashtag> contentHashtags = new HashSet<>();
+
 
     @Builder
     public Content(String title,
@@ -89,8 +96,12 @@ public class Content {
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 
-    public void addReview(ReviewPost review) {
+    public void addReview (ReviewPost review) {
         this.reviews.add(review);
+    }
+
+    public void addHashtag (ContentHashtag contentHashtag) {
+        this.contentHashtags.add(contentHashtag);
     }
 
     public void updateContent(ContentRequestDto requestDto) {
@@ -128,5 +139,9 @@ public class Content {
 
     public void setViewCount(Double view){
         this.view = view;
+    }
+
+    public void addBockMarkCount(){
+        this.bookMarkCount++;
     }
 }

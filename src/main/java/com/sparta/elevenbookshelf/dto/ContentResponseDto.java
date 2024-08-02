@@ -1,6 +1,8 @@
 package com.sparta.elevenbookshelf.dto;
 
 import com.sparta.elevenbookshelf.entity.Content;
+import com.sparta.elevenbookshelf.entity.Hashtag;
+import com.sparta.elevenbookshelf.entity.mappingEntity.ContentHashtag;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ public class ContentResponseDto {
     private String imgUrl;
     private String description;
     private String author;
+    private List<String> hashtags = new ArrayList<>();
     private String platform;
     private String genre;
     private String contentHashTag;
@@ -30,6 +33,9 @@ public class ContentResponseDto {
         this.imgUrl = content.getImgUrl();
         this.description = content.getDescription();
         this.author = content.getAuthor();
+        this.hashtags.addAll(content.getContentHashtags().stream()
+                .map(contentHashtag -> contentHashtag.getHashtag().getTag())
+                .toList());
         this.platform = content.getPlatform();
         this.genre = content.getGenre();
         this.contentHashTag = content.getContentHashTag();

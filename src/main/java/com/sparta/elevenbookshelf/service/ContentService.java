@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.service;
 
+import com.sparta.elevenbookshelf.dto.ContentDataResponseDto;
 import com.sparta.elevenbookshelf.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.entity.Content;
 import com.sparta.elevenbookshelf.exception.BusinessException;
@@ -8,7 +9,9 @@ import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,28 +20,27 @@ public class ContentService {
 
     private final ContentRepository contentRepository;
 
-    public List<ContentResponseDto> readContentWebtoon(int offset, int pagesize, String genre) {
-        List<Content> contents = contentRepository.getContentByConic(offset, pagesize,genre);
+    public List<ContentDataResponseDto> readContent(int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.getContent(offset, pagesize,genre);
 
         return contents.stream()
-                .map(ContentResponseDto::new)
+                .map(ContentDataResponseDto::new)
                 .collect(Collectors.toList());
     }
 
-    public List<ContentResponseDto> readContentWebnovel(int offset, int pagesize, String genre) {
+    public List<ContentDataResponseDto> readContentWebtoon(int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.getContentByConic(offset, pagesize, genre);
+
+        return contents.stream()
+                .map(ContentDataResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ContentDataResponseDto> readContentWebnovel(int offset, int pagesize, String genre) {
         List<Content> contents = contentRepository.getContentByNovel(offset, pagesize, genre);
 
         return contents.stream()
-                .map(ContentResponseDto::new)
-                .collect(Collectors.toList());
-    }
-
-    public List<ContentResponseDto> readContent(int offset, int pagesize) {
-//        List<Content> contents = contentRepository.findAllBy("COMICS", offset, pagesize)
-        List<Content> contents = contentRepository.findAll();
-
-        return contents.stream()
-                .map(ContentResponseDto::new)
+                .map(ContentDataResponseDto::new)
                 .collect(Collectors.toList());
     }
 
@@ -49,19 +51,19 @@ public class ContentService {
 
     //::::::::::::::::::::::::// User BookMark //:::::::::::::::::::::::://
 
-    public List<ContentResponseDto> readContentWebtoonUser(Long userId, int offset, int pagesize) {
-        List<Content> contents = contentRepository.getContentByConicUser(userId, offset, pagesize);
+    public List<ContentDataResponseDto> readContentWebtoonUser(Long userId, int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.getContentByConicUser(userId, offset, pagesize ,genre);
 
         return contents.stream()
-                .map(ContentResponseDto::new)
+                .map(ContentDataResponseDto::new)
                 .collect(Collectors.toList());
     }
 
-    public List<ContentResponseDto> readContentWebnovelUser(Long userId, int offset, int pagesize) {
-        List<Content> contents = contentRepository.getContentByNovelUser(userId, offset, pagesize);
+    public List<ContentDataResponseDto> readContentWebnovelUser(Long userId, int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.getContentByNovelUser(userId, offset, pagesize , genre);
 
         return contents.stream()
-                .map(ContentResponseDto::new)
+                .map(ContentDataResponseDto::new)
                 .collect(Collectors.toList());
     }
 
@@ -81,5 +83,20 @@ public class ContentService {
     }
 
 
+    public Set<String> getAllContentHashTags() {
+        List<String> contentHashTagsList = contentRepository.findAllByContentHashTag();
 
+        return contentHashTagsList.stream()
+                .flatMap(tags -> Arrays.stream(tags.split("#")))
+                .filter(tag -> !tag.isEmpty())
+                .collect(Collectors.toSet());
+    }
+
+    public List<ContentDataResponseDto> contentSearch(int offset, int pagesize, String search) {
+        List<Content> contents = contentRepository.search(offset, pagesize ,search);
+
+        return contents.stream()
+                .map(ContentDataResponseDto::new)
+                .collect(Collectors.toList());
+    }
 }

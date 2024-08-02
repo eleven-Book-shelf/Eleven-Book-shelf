@@ -8,8 +8,13 @@ import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +22,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private RestTemplate restTemplate;
+
+    @Value("${SOCIAL_GOOGLE_REVOKE}")
+    private String googleRevokeUrl;
 
     @Transactional
     public void signup(UserRequestDto req) {
@@ -36,6 +45,13 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void signOut(Long userId) {
+        User user = getUser(userId);
+        user.signOut();
+        user.deleteRefreshToken();
+    }
+
     public UserResponseDto getProfile(Long userId) {
         User user = getUser(userId);
         return new UserResponseDto(user);
@@ -49,17 +65,15 @@ public class UserService {
     }
 
 
-
-
     //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
 
-    private User getUser(Long userId){
+    private User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
 
-    private User getUser(String username){
+    private User getUser(String username) {
         return userRepository.findByUsername(username).orElseThrow(
                 () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
