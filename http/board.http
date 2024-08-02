@@ -80,7 +80,7 @@ Authorization:{{access_token}}
 GET localhost:8080/boards/1
 
 ### readPost
-GET localhost:8080/boards/1/post/2
+GET localhost:8080/boards/1/post/3
 Authorization:{{access_token}}
 
 ### updatePost
@@ -112,4 +112,13 @@ Content-Type: application/json
   "rating": 9.8,
   "type": "NOVEL",
   "isEnd": "NOT"
+}
+
+### UpdateUserHashtag
+PUT localhost:8080/user/hashtag
+Content-Type: application/json
+Authorization: {{access_token}}
+
+{
+  "tags": "#개꿀꿀꿀잼"
 }

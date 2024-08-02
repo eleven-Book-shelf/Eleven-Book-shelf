@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 public class BoardService {
 
     private static final double CREATE_WEIGHT = 10.0;
-    private static final double READ_WEIGHT = 5.0;
-    private static final double READED_WEIGHT = 1.0;
+    private static final double READ_WEIGHT = 1.0;
+    private static final double READED_WEIGHT = 0.1;
     private static final double SEARCH_WEIGHT = 2.0;
 
     private final BoardRepository boardRepository;
