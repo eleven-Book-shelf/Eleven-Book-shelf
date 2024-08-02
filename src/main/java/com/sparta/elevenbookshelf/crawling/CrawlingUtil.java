@@ -39,10 +39,10 @@ public class CrawlingUtil {
     private final ContentRepository contentRepository;
     private final BoardService boardService;
 
-    @Value("${CSV_FILE}")
+    @Value("${csv.file}")
     private String csvOutputDirectory;
 
-    @Value("${CSV_FILE_LOCATE}")
+    @Value("${csv.file_locate}")
     private String csvFileLocate;
 
     // robots.txt 규약 준수를 위한 URL 검사 메서드.
@@ -229,10 +229,11 @@ public class CrawlingUtil {
                     .genre(requestDto.getGenre())
                     .contentHashTag(requestDto.getContentHashTag())
                     .build();
+
             contentRepository.save(newContent);
             ContentResponseDto res = new ContentResponseDto(newContent);
             PostRequestDto req = new PostRequestDto(res);
-            boardService.createPost(null,null,req);
+            boardService.createPost(null,null, req);
         }
 
     }

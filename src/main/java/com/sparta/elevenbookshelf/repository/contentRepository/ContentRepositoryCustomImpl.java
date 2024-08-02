@@ -27,6 +27,14 @@ public class ContentRepositoryCustomImpl implements ContentRepositoryCustom {
     }
 
     @Override
+    public List<Content> findTop50ByView() {
+        return jpaQueryFactory.selectFrom(content)
+                .orderBy(content.view.desc())
+                .limit(50)
+                .fetch();
+    }
+
+    @Override
     public List<Content> getContentByConic(long offset, int pageSize, String genre) {
         return jpaQueryFactory
                 .selectFrom(content)

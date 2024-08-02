@@ -25,37 +25,37 @@ public class RNovelService {
     private final CrawlingUtil crawlingUtil;
     private final Set<String> disAllowedLink = new HashSet<>();
 
-    @Value("${R_PAGE}")
+    @Value("${r.page}")
     private String rPage;
 
-    @Value("${R_ART_CLASS}")
+    @Value("${r.art_class}")
     private String rArtClass;
 
-    @Value("${R_ART_LINK}")
+    @Value("${r.art_link}")
     private String rArtLink;
 
-    @Value("${R_AUTHOR}")
+    @Value("${r.author}")
     private String rAuthor;
 
-    @Value("${R_CONTENT_TYPE}")
+    @Value("${r.content_type}")
     private String rContentType;
 
-    @Value("${R_LIKE_COUNT}")
+    @Value("${r.like_count}")
     private String rLikeCount;
 
-    @Value("${R_RATING}")
+    @Value("${r.rating}")
     private String rRating;
 
-    @Value("${HEADER_ART_TITLE}")
+    @Value("${header.art_title}")
     private String rArtTitle;
 
-    @Value("${R_SITE_NAME}")
+    @Value("${r.site_name}")
     private String rSiteName;
 
-    @Value("${R_COMPLETE}")
+    @Value("${r.complete}")
     private String rIsEnd;
 
-    @Value("${R_HASHTAG}")
+    @Value("${r.hashtag}")
     private String rHashTag;
 
     public void serviceStart() {

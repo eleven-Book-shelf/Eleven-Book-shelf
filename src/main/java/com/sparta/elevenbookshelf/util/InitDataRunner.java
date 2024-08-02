@@ -28,8 +28,15 @@ public class InitDataRunner implements ApplicationRunner {
 
         // 관리자 생성
         if(userRepository.findById(1L).isEmpty()) {
+            List<User> users = new ArrayList<>();
             User admin = new User("ADMIN","관리자", passwordEncoder.encode("1234"), "admin@admin.com", null, User.Status.NORMAL, User.Role.ADMIN);
-            userRepository.save(admin);
+            users.add(admin);
+            User normalUserOne = new User("kimcheolsu", "철수킹천재", passwordEncoder.encode("1234"), "kim@cheolsu.com", null, User.Status.NORMAL, User.Role.USER);
+            users.add(normalUserOne);
+            User normalUserTwo = new User("20hyee", "영희공듀", passwordEncoder.encode("1234"), "0hyee@princess.com", null, User.Status.NORMAL, User.Role.USER);
+            users.add(normalUserTwo);
+
+            userRepository.saveAll(users);
         }
 
 

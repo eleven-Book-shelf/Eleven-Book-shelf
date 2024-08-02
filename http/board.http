@@ -3,8 +3,22 @@ POST localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "username": "ADMIN",
-  "password": "password@1234"
+  "username": "kimcheolsu",
+  "password": "1234"
+}
+
+> {%
+    client.global.set("access_token", response.body.accessToken);
+    client.global.set("refresh_token", response.body.refreshToken);
+%}
+
+### login
+POST localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "20hyee",
+  "password": "1234"
 }
 
 > {%
@@ -26,7 +40,7 @@ Authorization:{{access_token}}
 GET localhost:8080/boards
 
 ### createNormalPost
-POST localhost:8080/boards/1
+POST localhost:8080/boards/1/post
 Content-Type: application/json
 Authorization:{{access_token}}
 
@@ -38,16 +52,17 @@ Authorization:{{access_token}}
 }
 
 ### createReviewPost
-POST localhost:8080/boards/1
+POST localhost:8080/boards/1/post
 Content-Type: application/json
 Authorization:{{access_token}}
 
 {
   "postType": "REVIEW",
-  "title": "test review post",
-  "body": "test review body",
-  "rating": "5.0"
-
+  "title": "test review post2",
+  "body": "test review body2",
+  "contentId" : 2,
+  "prehashtag" : "#개노잼 #절대보지마셈",
+  "rating": 1.0
 }
 
 ### createContentPost
@@ -65,10 +80,11 @@ Authorization:{{access_token}}
 GET localhost:8080/boards/1
 
 ### readPost
-GET localhost:8080/boards/1/1
+GET localhost:8080/boards/1/post/2
+Authorization:{{access_token}}
 
 ### updatePost
-PUT localhost:8080/boards/1/3
+PUT localhost:8080/boards/1/post/3
 Content-Type: application/json
 Authorization:{{access_token}}
 
