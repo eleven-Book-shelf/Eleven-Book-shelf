@@ -3,6 +3,7 @@ package com.sparta.elevenbookshelf.entity.post;
 import com.sparta.elevenbookshelf.entity.Board;
 import com.sparta.elevenbookshelf.entity.Content;
 import com.sparta.elevenbookshelf.entity.User;
+import com.sparta.elevenbookshelf.entity.mappingEntity.PostHashtag;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,6 +14,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -46,6 +49,9 @@ public abstract class Post {
     @JoinColumn(name = "content_id")
     private Content content;
 
+    @OneToMany(mappedBy = "post")
+    private Set<PostHashtag> postHashtags = new HashSet<>();
+
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
@@ -66,7 +72,8 @@ public abstract class Post {
         this.user = user;
         this.board = board;
         this.content = content;
-        this.viewCount = 0; // 초기 조회수는 0으로 설정
+        this.viewCount = 0;
+        this.likes = 0; // 초기 조회수는 0으로 설정
     }
 
     public String getPostType() {
@@ -87,6 +94,10 @@ public abstract class Post {
 
     public void updateBoard(Board board) {
         this.board = board;
+    }
+
+    public void addHashtag(PostHashtag postHashtag) {
+        this.postHashtags.add(postHashtag);
     }
 
     public void addLikes(int likes) {this.likes = likes;}

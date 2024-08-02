@@ -1,10 +1,14 @@
 package com.sparta.elevenbookshelf.entity;
 
+import com.sparta.elevenbookshelf.entity.mappingEntity.UserHashtag;
 import com.sparta.elevenbookshelf.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -28,7 +32,6 @@ public class User extends Timestamp {
 
     private String refreshToken;
 
-
     private String socialId;
 
     @Enumerated(EnumType.STRING)
@@ -38,7 +41,10 @@ public class User extends Timestamp {
     private Role role;
 
     @OneToMany(mappedBy ="user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Post> posts;
+    private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private Set<UserHashtag> userHashtags = new HashSet<>();
 
     @Builder
     public User(String username,String nickname ,String password,String email,String socialId ,Status status, Role role) {
@@ -62,6 +68,14 @@ public class User extends Timestamp {
 
     public void addRefreshToken(String RefreshToken) {
         this.refreshToken = RefreshToken;
+    }
+
+    public void addPost(Post post) {
+        this.posts.add(post);
+    }
+
+    public void addHashtag(UserHashtag userHashtag) {
+        this.userHashtags.add(userHashtag);
     }
 
     //:::::::::::::::::// enum //::::::::::::::::://

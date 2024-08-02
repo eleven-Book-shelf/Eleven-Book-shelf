@@ -4,7 +4,10 @@ import com.sparta.elevenbookshelf.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.dto.CommentResponseDto;
 import com.sparta.elevenbookshelf.entity.Comment;
 import com.sparta.elevenbookshelf.entity.Content;
+import com.sparta.elevenbookshelf.entity.Hashtag;
 import com.sparta.elevenbookshelf.entity.User;
+import com.sparta.elevenbookshelf.entity.mappingEntity.ContentHashtag;
+import com.sparta.elevenbookshelf.entity.mappingEntity.UserHashtag;
 import com.sparta.elevenbookshelf.entity.post.Post;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
@@ -18,15 +21,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CommentService {
 
+    private static final Double COMMENT_WEIGHT = 2.0;
+
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final ContentRepository contentRepository;
+    private final HashtagService hashtagService;
 
     //:::::::::::::::::// post //::::::::::::::::://
 
@@ -51,6 +58,23 @@ public class CommentService {
                 .build();
 
         Comment savedComment = commentRepository.save(comment);
+
+        if (post.getContent() != null) {
+            Content content = post.getContent();
+
+            Set<ContentHashtag> contentHashtags = content.getContentHashtags();
+
+            for (ContentHashtag tag : contentHashtags) {
+
+                Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag.getHashtag().getTag());
+
+                UserHashtag userHashtag = hashtagService.createOrUpdateUserHashtag(user, hashtag, COMMENT_WEIGHT);
+                user.addHashtag(userHashtag);
+
+                ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, COMMENT_WEIGHT);
+                content.addHashtag(contentHashtag);
+            }
+        }
     }
 
     public List<CommentResponseDto> readCommentsPost(Long postId, int offset, int pageSize) {
