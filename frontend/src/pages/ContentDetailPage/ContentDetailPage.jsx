@@ -89,7 +89,7 @@ const ContentDetailPage = ({ isLoggedIn }) => {
                         </div>
                     </div>
                     <div className='commentSection'>
-                        <CommentSection postId={cardId} />
+                        <CommentSection postId={cardId}  isLoggedIn={isLoggedIn} />
                     </div>
                 </div>
             </div>

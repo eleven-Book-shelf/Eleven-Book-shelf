@@ -248,7 +248,7 @@ const PostDetailPage = ({isLoggedIn}) => {
                     </div>
                 </div>
             </div>
-            <CommentSection postId={postId}/>
+            <CommentSection postId={postId} isLoggedIn={isLoggedIn} />
             <div className="related-posts">
                 <h3>관련 포스트</h3>
                 <PostList

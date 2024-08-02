@@ -1,0 +1,76 @@
+.topContentContainer {
+    max-width: 1600px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.topGenreFilter {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+}
+
+.topSubgenreFilter {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+}
+
+.topGenreButton, .topSubgenreButton, .topRankingTab {
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.topGenreButton.active, .topSubgenreButton.active, .topRankingTab.active {
+    background-color: #000;
+    color: #fff;
+}
+
+.slick-slide {
+    padding: 0 10px;
+}
+.slick-prev,
+.slick-next {
+    border: 3px solid red;
+    display: flex !important;
+    width: 40px;
+    height: 40px;
+    background-color: #000;
+    color: #fff;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    z-index: 99;
+    cursor: pointer;
+}
+
+.slick-prev {
+    left: -50px;
+}
+
+.slick-next {
+    right: -50px;
+}
+
+.slick-prev::before,
+.slick-next::before {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.slick-prev::before {
+    border-width: 100px 105px 10px 0;
+    border-color: transparent #ff0000 transparent transparent;
+}
+
+.slick-next::before {
+    border-width: 100px 105px 10px 0;
+    border-color: transparent transparent transparent #ff0000;
+}
+
+
+
+
