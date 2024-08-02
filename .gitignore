@@ -39,3 +39,7 @@ out/
 .env
 
 /src/main/resources/chromedriver
+
+eleven_book.pem
+eleven_book-key.pem
+elevenbookshelf.pem
