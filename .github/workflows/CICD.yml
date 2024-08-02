@@ -76,6 +76,7 @@ jobs:
           script_stop: true
           script: |
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/live_server:latest
+            cd /home/ubuntu  # docker-compose 파일이 있는 디렉토리로 이동
             sudo docker-compose -f docker-compose-${{env.TARGET_UPSTREAM}}.yml up -d
       
       - name: Check deploy server URL
