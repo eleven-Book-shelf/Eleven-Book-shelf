@@ -5,7 +5,8 @@ import com.sparta.elevenbookshelf.entity.Content;
 import java.util.List;
 
 public interface ContentRepositoryCustom {
-    List<Content> findTop50ByView();
+
+    List<Content> findTopByView(long offset, int pageSize ,Content.ContentType contentType ,String genre);
 
     List<Content> getContent(long offset, int pageSize, String genre);
 
