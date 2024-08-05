@@ -110,13 +110,13 @@ spring:
     name: eleven-book
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/${MYSQL_DATABASE}
-    username: ${RDS_USERNAME}
-    password: ${RDS_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: update
-      dialect: org.hibernate.dialect.MySQLDialect
+    password: ${MYSQL_PASSWORD}
+    url: jdbc:mysql://${DB_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}
+    username: ${MYSQL_USER}
+jpa:
+  hibernate:
+    ddl-auto: update
+    dialect: org.hibernate.dialect.MySQLDialect
     properties:
       hibernate:
         default_batch_fetch_size: 1000
