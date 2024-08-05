@@ -1,5 +1,5 @@
 ### login
-POST localhost:8080/auth/login
+POST localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
@@ -37,32 +37,32 @@ Authorization:{{access_token}}
 }
 
 ### readBoards
-GET localhost:8080/boards
+GET localhost:8080/api/boards
 
 ### createNormalPost
-POST localhost:8080/boards/1/post
+POST localhost:8080/api/boards/1/post
 Content-Type: application/json
 Authorization:{{access_token}}
 
 {
   "postType": "NORMAL",
-  "title": "test normal post",
-  "body": "test normal body"
+  "title": "test normal post123",
+  "body": "test normal body 1231"
 
 }
 
 ### createReviewPost
-POST localhost:8080/boards/1/post
+POST localhost:8080/api/boards/1/post
 Content-Type: application/json
 Authorization:{{access_token}}
 
 {
   "postType": "REVIEW",
-  "title": "test review post2",
-  "body": "test review body2",
-  "contentId" : 2,
-  "prehashtag" : "#개노잼 #절대보지마셈",
-  "rating": 1.0
+  "title": "test review post5",
+  "body": "test review body5",
+  "contentId" : 5,
+  "prehashtag" : "#개꿀잼 #나만볼거임",
+  "rating": 5.0
 }
 
 ### createContentPost
@@ -77,10 +77,10 @@ Authorization:{{access_token}}
 }
 
 ### readBoard
-GET localhost:8080/boards/1
+GET localhost:8080/api/boards/1
 
 ### readPost
-GET localhost:8080/boards/1/post/3
+GET localhost:8080/api/boards/1/post/3
 Authorization:{{access_token}}
 
 ### updatePost

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 @Slf4j(topic = "UserController")
 public class UserController {
 
@@ -29,6 +29,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
 
     }
+
     @DeleteMapping("/signout")
     public ResponseEntity<?> signOut(@AuthenticationPrincipal UserPrincipal user) {
         userService.signOut(user.getUser().getId());

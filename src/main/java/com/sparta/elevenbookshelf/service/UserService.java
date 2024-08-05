@@ -64,7 +64,6 @@ public class UserService {
         return null;
     }
 
-
     //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
 
     private User getUser(Long userId) {

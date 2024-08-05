@@ -22,7 +22,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/boards")
+@RequestMapping("/api/boards")
 public class BoardController {
 
     private final BoardService boardService;
@@ -108,12 +108,16 @@ public class BoardController {
             @PathVariable Long boardId,
             @PathVariable Long postId) {
 
-        PostResponseDto res = boardService.readPost(userPrincipal.getUser().getId(), boardId, postId);
+        Long userId = 0L;
+        if (userPrincipal != null) {
+            userId = userPrincipal.getUser().getId();
+        }
+
+        PostResponseDto res = boardService.readPost(userId, boardId, postId);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    // TODO : toFront
     @GetMapping("/{boardId}/post/")
     public ResponseEntity<List<PostResponseDto>> readPostsByContent (
             @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
@@ -122,7 +126,12 @@ public class BoardController {
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
 
-        List<PostResponseDto> res = boardService.readPostsByContent(userPrincipal.getUser().getId(), boardId, contentId, offset, pagesize);
+        Long userId = 0L;
+        if (userPrincipal != null) {
+            userId = userPrincipal.getUser().getId();
+        }
+
+        List<PostResponseDto> res = boardService.readPostsByContent(userId, boardId, contentId, offset, pagesize);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }

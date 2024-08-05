@@ -17,9 +17,10 @@ const MyPage = ({ setIsLoggedIn }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false); // 수정 모드 상태 추가
     const [totalPages, setTotalPages] = useState(1);
-    const page = 1;
-    const offset = (page - 1) * 4;
-    const pagesize = 4;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const pageSize = 4;
+    const offset = (currentPage - 1) * pageSize;
 
     const fetchData = async () => {
         try {
@@ -32,7 +33,7 @@ const MyPage = ({ setIsLoggedIn }) => {
                 try {
                     const response = await axiosInstance.get(`/card/webtoon/bookmark`, {
                         headers: { Authorization: `${localStorage.getItem('Authorization')}` },
-                        params: { offset, pagesize }
+                        params: { offset, pageSize }
                     });
                     return response.data;
                 } catch (error) {
@@ -45,7 +46,7 @@ const MyPage = ({ setIsLoggedIn }) => {
                 try {
                     const response = await axiosInstance.get(`/card/webnovel/bookmark`, {
                         headers: { Authorization: `${localStorage.getItem('Authorization')}` },
-                        params: { offset, pagesize }
+                        params: { offset, pageSize }
                     });
                     return response.data;
                 } catch (error) {
@@ -58,7 +59,7 @@ const MyPage = ({ setIsLoggedIn }) => {
             const webnovelsData = await fetchWebnovelsData();
 
             const postsResponse = await axiosInstance.get(`/boards/user/posts`, {
-                params: { offset, pagesize },
+                params: { offset, pageSize },
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
 
@@ -77,7 +78,7 @@ const MyPage = ({ setIsLoggedIn }) => {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [currentPage]);
 
     const handleEditProfile = async () => {
         if (window.confirm('정말로 수정하시겠습니까?')) {
@@ -115,6 +116,10 @@ const MyPage = ({ setIsLoggedIn }) => {
         }
     };
 
+    const handlePageClick = (page) => {
+        setCurrentPage(page);
+    };
+
     if (!profile) {
         return <div>로딩 중...</div>;
     }
@@ -143,7 +148,12 @@ const MyPage = ({ setIsLoggedIn }) => {
 
             <div className={styles.section}>
                 <h2>최근 작성한 게시글</h2>
-                <PostList posts={recentPosts} />
+                <PostList
+                    posts={recentPosts}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageClick={handlePageClick}
+                />
             </div>
 
             <Modal

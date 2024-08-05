@@ -74,8 +74,6 @@ public class HashtagService {
     @Transactional
     public PostHashtag createOrUpdatePostHashtag(Post post, Hashtag hashtag) {
 
-        log.info(post.getBody());
-
         Optional<PostHashtag> optionalPostHashtag = postHashtagRepository.findByPostIdAndHashtagId(post.getId(), hashtag.getId());
         PostHashtag postHashtag;
 

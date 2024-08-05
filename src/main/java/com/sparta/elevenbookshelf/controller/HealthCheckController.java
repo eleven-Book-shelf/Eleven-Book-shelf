@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-@RestController
+@RestController("/api")
 public class HealthCheckController {
 
     @Value("${server.env}")

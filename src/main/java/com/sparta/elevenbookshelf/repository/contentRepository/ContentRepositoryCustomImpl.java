@@ -20,6 +20,7 @@ public class ContentRepositoryCustomImpl implements ContentRepositoryCustom {
     public List<Content> getContent(long offset, int pageSize, String genre) {
         return jpaQueryFactory
                 .selectFrom(content)
+                .orderBy(content.view.desc())
                 .where(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null)
                 .offset(offset)
                 .limit(pageSize)
@@ -27,10 +28,13 @@ public class ContentRepositoryCustomImpl implements ContentRepositoryCustom {
     }
 
     @Override
-    public List<Content> findTop50ByView() {
+    public List<Content> findTopByView(long offset, int pageSize ,Content.ContentType contentType , String genre) {
         return jpaQueryFactory.selectFrom(content)
                 .orderBy(content.view.desc())
-                .limit(50)
+                .where(content.type.eq(contentType)
+                               .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
+                .offset(offset)
+                .limit(pageSize)
                 .fetch();
     }
 

@@ -43,6 +43,9 @@ public class User extends Timestamp {
     @OneToMany(mappedBy ="user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 
+    @OneToMany(mappedBy ="user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FavGenre> favGenres = new ArrayList<>();
+
     @OneToMany(mappedBy = "user")
     private Set<UserHashtag> userHashtags = new HashSet<>();
 
@@ -81,6 +84,13 @@ public class User extends Timestamp {
         this.userHashtags.add(userHashtag);
     }
 
+    public void addFavGenre(List<FavGenre> favGenres) {
+        this.favGenres.addAll(favGenres);
+    }
+    public void removeFavGenre(List<FavGenre> favGenres) {
+        this.favGenres.removeAll(favGenres);
+    }
+
     //:::::::::::::::::// enum //::::::::::::::::://
 
     @Getter
@@ -106,4 +116,5 @@ public class User extends Timestamp {
     public boolean isActivity() {
         return this.status == Status.NORMAL;
     }
+
 }
