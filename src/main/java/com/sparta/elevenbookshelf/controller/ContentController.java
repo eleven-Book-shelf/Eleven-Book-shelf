@@ -16,7 +16,7 @@ import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/card")
+@RequestMapping("/api/card")
 public class ContentController {
 
     private final ContentService contentService;

@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/content")
+@RequestMapping("/api/content")
 public class CrawlingController {
 
     private final CrawlingService crawlingService;

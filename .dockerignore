@@ -3,4 +3,4 @@ build
 npm-debug.log
 .dockerignore
 Dockerfile
-elevenbookshelf.pem
+frontend
