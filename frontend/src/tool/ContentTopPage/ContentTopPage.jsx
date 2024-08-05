@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Card from "../../tool/Card/Card";
 import axiosInstance from "../../api/axiosInstance";
-import Slider from 'react-slick';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/navigation';
 import styles from './ContentTopPage.module.css';
+import { Navigation } from 'swiper/modules';
 
 const ContentTopPage = ({ type, title, genres, tabs }) => {
     const [contents, setContents] = useState([]);
@@ -20,12 +21,13 @@ const ContentTopPage = ({ type, title, genres, tabs }) => {
         if (loading) return;
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`/card${type}`, {
+            const response = await axiosInstance.get(`/card${type}/top`, {
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` },
                 params: { pagesize: 10, genre: '', tab }
             });
-            const content = response.data.map(content => ({
+            const content = response.data.map((content, index) => ({
                 ...content,
+                displayTitle: `${index + 1}위 ${content.title}`
             }));
             setContents(content);
         } catch (error) {
@@ -35,74 +37,47 @@ const ContentTopPage = ({ type, title, genres, tabs }) => {
         }
     };
 
-    const NextArrow = ({ className, style, onClick }) => {
-        return (
-            <div
-                className={className}
-                style={{ ...style }}
-                onClick={onClick}
-            />
-        );
-    };
-
-    const PrevArrow = ({ className, style, onClick }) => {
-        return (
-            <div
-                className={className}
-                style={{ ...style }}
-                onClick={onClick}
-            />
-        );
-    };
-
-    const settings = {
-        dots: true,
-        infinite: false,
-        speed: 500,
-        slidesToShow: 3,
-        slidesToScroll: 3,
-        initialSlide: 0,
-        nextArrow: <NextArrow />,
-        prevArrow: <PrevArrow />,
-        responsive: [
-            {
-                breakpoint: 1024,
-                settings: {
-                    slidesToShow: 2,
-                    slidesToScroll: 2,
-                    infinite: true,
-                    dots: true
-                }
-            },
-            {
-                breakpoint: 600,
-                settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1,
-                    initialSlide: 1
-                }
-            }
-        ]
-    };
-
     return (
         <div className={styles.topContentContainer}>
             <h1>{title}</h1>
-            <Slider {...settings}>
+            <Swiper
+                modules={[Navigation]}
+                spaceBetween={10}
+                slidesPerView={3}
+                navigation
+                loop={true}
+                breakpoints={{
+                    1024: {
+                        slidesPerView: 3,
+                    },
+                    600: {
+                        slidesPerView: 3,
+                    },
+                    320: {
+                        slidesPerView: 1,
+                    },
+                }}
+            >
                 {contents.map((content, index) => (
-                    <a href={`/content/${content.id}`} key={index}>
-                        <Card
-                            img={content.imgUrl}
-                            title={content.title}
-                            platform={content.platform}
-                            author={content.author}
-                            description={content.description}
-                            genre={content.genre}
-                            rating={content.rating}
-                        />
-                    </a>
+                    <SwiperSlide key={index}>
+                        <a href={`/content/${content.id}`}>
+                            <div className={styles.cardContainer}>
+                                <div className={styles.rank}>{index + 1} 위</div>
+                                <Card
+                                    img={content.imgUrl}
+                                    title={content.displayTitle}
+                                    platform={content.platform}
+                                    author={content.author}
+                                    description={content.description}
+                                    genre={content.genre}
+                                    rating={content.rating}
+                                    className={styles.card}
+                                />
+                            </div>
+                        </a>
+                    </SwiperSlide>
                 ))}
-            </Slider>
+            </Swiper>
             {loading && <p>더 많은 컨텐츠를 불러오는 중...</p>}
         </div>
     );

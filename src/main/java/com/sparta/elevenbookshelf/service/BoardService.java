@@ -259,7 +259,7 @@ public class BoardService {
     @Transactional
     public PostResponseDto readPost(Long userId, Long boardId, Long postId) {
 
-        User user = getUser(userId);
+        User user = userRepository.findById(userId).orElse(null);
 
         Post post = getPost(postId);
 
@@ -306,7 +306,7 @@ public class BoardService {
     // userhashtag, contenthashtag 갱신 필요
     public List<PostResponseDto> readPostsByContent(Long userId, Long boardId, Long contentId, long offset, int pagesize) {
 
-        User user = getUser(userId);
+        User user = userRepository.findById(userId).orElse(null);
 
         List<Post> posts = postRepository.getPostsByContent(contentId, offset, pagesize);
 

@@ -26,51 +26,32 @@
     color: #fff;
 }
 
-.slick-slide {
-    padding: 0 10px;
-}
-.slick-prev,
-.slick-next {
-    border: 3px solid red;
-    display: flex !important;
-    width: 40px;
-    height: 40px;
-    background-color: #000;
-    color: #fff;
-    border-radius: 50%;
-    align-items: center;
-    justify-content: center;
-    z-index: 99;
-    cursor: pointer;
+:root {
+    --swiper-navigation-size: 60px;
 }
 
-.slick-prev {
-    left: -50px;
+.cardContainer {
+    position: relative;
 }
 
-.slick-next {
-    right: -50px;
+.rank {
+    position: absolute;
+    left: 1.5rem;
+    top: 3.5rem;
+    background-color: rgb(255, 245, 0);
+    color: #ffffff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 1.4rem;
+    font-weight: bolder;
+    z-index: 11;
+    box-shadow: 0 2px 2px rgba(45, 45, 45, 0.75);
+    text-shadow:
+            -1px -1px 0 #000000,
+            1px -1px 0 #000000,
+            -1px 1px 0 #000000,
+            1px 1px 0 #000000;
 }
-
-.slick-prev::before,
-.slick-next::before {
-    content: '';
-    display: inline-block;
-    width: 0;
-    height: 0;
-    border-style: solid;
-}
-
-.slick-prev::before {
-    border-width: 100px 105px 10px 0;
-    border-color: transparent #ff0000 transparent transparent;
-}
-
-.slick-next::before {
-    border-width: 100px 105px 10px 0;
-    border-color: transparent transparent transparent #ff0000;
-}
-
 
 
 

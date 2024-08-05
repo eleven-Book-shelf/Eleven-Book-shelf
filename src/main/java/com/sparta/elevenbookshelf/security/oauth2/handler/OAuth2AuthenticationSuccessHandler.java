@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -20,6 +21,9 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+    @Value("${CORS_ALLOWED_ORIGINS}")
+    private String allowedOrigins;
 
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
@@ -33,7 +37,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String refreshToken = jwtService.generateRefreshToken(user.getUsername());
         authService.OAuth2login(user.getId(), accessToken ,refreshToken);
         response.addHeader(HttpHeaders.AUTHORIZATION, accessToken);
-        String redirectUrl = "http://localhost:3000/auth/callback?Authorization=" + accessToken;
+        String redirectUrl = allowedOrigins+"/auth/callback?Authorization=" + accessToken;
         response.sendRedirect(redirectUrl);
     }
 

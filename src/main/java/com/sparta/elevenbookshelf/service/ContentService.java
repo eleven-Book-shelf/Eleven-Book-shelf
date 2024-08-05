@@ -49,6 +49,32 @@ public class ContentService {
         return new ContentResponseDto(content);
     }
 
+    //::::::::::::::::::::::::// topView //:::::::::::::::::::::::://
+
+    public List<ContentDataResponseDto> contentTop(int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.findTopByView(offset, pagesize,null, genre);
+
+        return contents.stream()
+                .map(ContentDataResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ContentDataResponseDto> readContentWebtoonTop(int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.findTopByView(offset, pagesize,Content.ContentType.COMICS,genre);
+
+        return contents.stream()
+                .map(ContentDataResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ContentDataResponseDto> readContentWebnovelTop(int offset, int pagesize, String genre) {
+        List<Content> contents = contentRepository.findTopByView(offset, pagesize,Content.ContentType.NOVEL,genre);
+
+        return contents.stream()
+                .map(ContentDataResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
     //::::::::::::::::::::::::// User BookMark //:::::::::::::::::::::::://
 
     public List<ContentDataResponseDto> readContentWebtoonUser(Long userId, int offset, int pagesize, String genre) {
@@ -99,4 +125,7 @@ public class ContentService {
                 .map(ContentDataResponseDto::new)
                 .collect(Collectors.toList());
     }
+
+
+
 }

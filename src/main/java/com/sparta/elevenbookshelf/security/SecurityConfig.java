@@ -11,6 +11,7 @@ import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
 import com.sparta.elevenbookshelf.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -32,6 +33,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Slf4j(topic = "SecurityConfig")
 public class SecurityConfig {
 
+    @Value("${CORS_ALLOWED_ORIGINS}")
+    private String allowedOrigins;
     private final JwtUtil jwtUtil;
     private final JwtService jwtService;
     private final AuthService authService;
@@ -105,7 +108,7 @@ public class SecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
-                .loginPage("http://localhost:3000/login")
+                .loginPage(allowedOrigins +"/api/login")
                 .successHandler(oAuth2AuthenticationSuccessHandler())
                 .failureHandler(oAuth2AuthenticationFailureHandler())
         );
