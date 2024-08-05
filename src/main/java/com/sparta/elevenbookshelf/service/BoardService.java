@@ -168,8 +168,6 @@ public class BoardService {
 
         user.addPost(result);
 
-        userRepository.save(user);
-
         return postRepository.save(result);
     }
 
