@@ -168,8 +168,6 @@ public class BoardService {
 
         user.addPost(result);
 
-        userRepository.save(user);
-
         return postRepository.save(result);
     }
 
@@ -180,6 +178,9 @@ public class BoardService {
         User user = getUser(userId);
 
         Content content = getContent(req.getContentId());
+        ContentPost contentPost = postRepository.findByContentId(req.getContentId()).orElseThrow(
+                () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
+        );
 
         log.info(req.getBody());
 
@@ -197,7 +198,24 @@ public class BoardService {
 
         Set<String> tags = hashtagService.parseHashtag(req.getPrehashtag());
 
+        tags.addAll(contentPost.getPostHashtags().stream()
+                .map(postHashtag -> postHashtag.getHashtag().getTag())
+                .collect(Collectors.toSet()));
+
         for (String tag : tags) {
+
+            Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag);
+
+            PostHashtag postHashtag = hashtagService.createOrUpdatePostHashtag(result, hashtag);
+            result.addHashtag(postHashtag);
+        }
+
+        tags.addAll(content.getContentHashtags().stream()
+                .map(contentHashtag -> contentHashtag.getHashtag().getTag())
+                .collect(Collectors.toSet()));
+
+        for (String tag : tags) {
+
             Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag);
 
             UserHashtag userHashtag = hashtagService.createOrUpdateUserHashtag(user, hashtag, CREATE_WEIGHT);
@@ -205,9 +223,6 @@ public class BoardService {
 
             ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, CREATE_WEIGHT);
             content.addHashtag(contentHashtag);
-
-            PostHashtag postHashtag = hashtagService.createOrUpdatePostHashtag(result, hashtag);
-            result.addHashtag(postHashtag);
         }
 
         user.addPost(result);
@@ -238,21 +253,28 @@ public class BoardService {
                 .user(getUser(1L))
                 .board(getBoard(1L))
                 .content(content)
+                .postHashtags(new HashSet<>())
                 .build();
+
+        postRepository.save(result);
 
         Set<String> tags = hashtagService.parseHashtag(content.getGenre() + content.getContentHashTag());
 
         for (String tag : tags) {
             Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag);
 
-            ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, 0.0);
+            ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, 100);
             content.addHashtag(contentHashtag);
+
+            PostHashtag postHashtag = hashtagService.createOrUpdatePostHashtag(result, hashtag);
+            result.addHashtag(postHashtag);
         }
 
         contentRepository.save(content);
         contentHashtagRepository.saveAll(content.getContentHashtags());
+        postHashtagRepository.saveAll(result.getPostHashtags());
 
-        return postRepository.save(result);
+        return result;
     }
 
     // userhashtag, contenthashtag 갱신필요
