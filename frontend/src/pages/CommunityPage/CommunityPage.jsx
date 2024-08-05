@@ -7,12 +7,12 @@ const CommunityPage = () => {
     const [boards, setBoards] = useState([]);
 
     useEffect(() => {
-        axiosInstance.get('/boards')
+        axiosInstance.get('/api/boards')
             .then(response => {
                 const boardsWithPosts = response.data
                     .filter(board => board.id !== 1)
                     .map(board => {
-                        return axiosInstance.get(`/boards/${board.id}`, {
+                        return axiosInstance.get(`/api/boards/${board.id}`, {
                             params: { offset: 0, pagesize: 3 }
                         })
                             .then(postResponse => ({

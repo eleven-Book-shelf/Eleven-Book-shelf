@@ -38,7 +38,7 @@ const HeaderOn = ({ onLogout }) => {
 
     const handleLogoutClick = async () => {
         try {
-            await axiosInstance.patch('/auth/logout', null, {
+            await axiosInstance.patch('/api/auth/logout', null, {
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
             onLogout();

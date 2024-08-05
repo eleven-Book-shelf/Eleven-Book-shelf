@@ -26,7 +26,7 @@ const NewPostReviewPage = () => {
         };
 
         try {
-            const response = await axiosInstance.post(`/boards/2/post`, postData, {
+            const response = await axiosInstance.post(`/api/boards/2/post`, postData, {
                 headers: {
                     Authorization: token,
                 }

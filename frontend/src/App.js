@@ -42,7 +42,7 @@ const App = () => {
 
     const fetchData = async () => {
         try {
-            const profileResponse = await axiosInstance.get('/user', {
+            const profileResponse = await axiosInstance.get('/api/user', {
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
             setProfile(profileResponse.data);
@@ -73,7 +73,7 @@ const App = () => {
 
     const handleFavGenreSubmit = async (selectedGenres) => {
         try {
-            await axiosInstance.post('/favgenres', { genre: selectedGenres }, {
+            await axiosInstance.post('/api/favgenres', { genre: selectedGenres }, {
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
             setShowFavGenreModal(false);

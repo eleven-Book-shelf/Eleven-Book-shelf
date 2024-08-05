@@ -25,10 +25,10 @@ const ContentDetailPage = ({ isLoggedIn }) => {
     useEffect(() => {
         const fetchContentDetail = async () => {
             try {
-                const response = await axiosInstance.get(`/card/${cardId}`);
+                const response = await axiosInstance.get(`/api/card/${cardId}`);
                 setPost(response.data);
                 setTotalPages(Math.ceil(response.data.posts.length / itemsPerPage));
-                await axiosInstance.post(`/card/${cardId}/viewcount`);
+                await axiosInstance.post(`/api/card/${cardId}/viewcount`);
             } catch (error) {
                 console.error('Error fetching content detail:', error);
             }

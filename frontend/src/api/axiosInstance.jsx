@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: 'https://www.elevenbookshelf.com/api',
+    baseURL: 'https://www.elevenbookshelf.com',
     headers: {
         'Content-Type': 'application/json',
     },

@@ -18,7 +18,7 @@ const BoardPage = () => {
     const pagesize = 5;
 
     useEffect(() => {
-        axiosInstance.get(`/boards/${boardId}`, {
+        axiosInstance.get(`/api/boards/${boardId}`, {
             params: { offset, pagesize }
         })
             .then(response => {
@@ -32,7 +32,7 @@ const BoardPage = () => {
     }, [boardId, page]);
 
     useEffect(() => {
-        axiosInstance.get(`/boards/${boardId}/title`)
+        axiosInstance.get(`/api/boards/${boardId}/title`)
             .then(response => {
                 setBoardTitle(response.data);
             })

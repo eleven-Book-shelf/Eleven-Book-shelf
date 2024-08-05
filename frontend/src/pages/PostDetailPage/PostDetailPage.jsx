@@ -32,7 +32,7 @@ const PostDetailPage = ({isLoggedIn}) => {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                const response = await axiosInstance.get(`/boards/${boardId}/post/${postId}`);
+                const response = await axiosInstance.get(`/api/boards/${boardId}/post/${postId}`);
                 const postData = response.data;
                 setPost(postData);
                 setEditedTitle(postData.title);
@@ -51,7 +51,7 @@ const PostDetailPage = ({isLoggedIn}) => {
     useEffect(() => {
         const fetchLikeStatus = async () => {
             try {
-                const response = await axiosInstance.get(`/like/${postId}/likesPost`, {
+                const response = await axiosInstance.get(`/api/like/${postId}/likesPost`, {
                     headers: {Authorization: `${localStorage.getItem('Authorization')}`}
                 });
                 setLiked(response.data);
@@ -69,7 +69,7 @@ const PostDetailPage = ({isLoggedIn}) => {
         const fetchContentDetail = async () => {
             if (contentId) {
                 try {
-                    const response = await axiosInstance.get(`/card/${contentId}`);
+                    const response = await axiosInstance.get(`/api/card/${contentId}`);
                     setContent(response.data);
                     console.log(response);
 
@@ -86,7 +86,7 @@ const PostDetailPage = ({isLoggedIn}) => {
     useEffect(() => {
         const fetchRelatedPosts = async () => {
             try {
-                const response = await axiosInstance.get(`/boards/${boardId}`, {
+                const response = await axiosInstance.get(`/api/boards/${boardId}`, {
                     params: {offset: (currentPage - 1) * 5, pagesize: 5}
                 });
                 setRelatedPosts(response.data.posts);
@@ -103,9 +103,9 @@ const PostDetailPage = ({isLoggedIn}) => {
         const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
         try {
             if (liked) {
-                await axiosInstance.delete(`/like/${postId}/likesPost`, {headers});
+                await axiosInstance.delete(`/api/like/${postId}/likesPost`, {headers});
             } else {
-                await axiosInstance.post(`/like/${postId}/likesPost`, {}, {headers});
+                await axiosInstance.post(`/api/like/${postId}/likesPost`, {}, {headers});
             }
             setLiked(!liked);
         } catch (error) {
@@ -116,7 +116,7 @@ const PostDetailPage = ({isLoggedIn}) => {
     const handleDelete = async () => {
         const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
         try {
-            await axiosInstance.delete(`/boards/deletePost/${boardId}/post/${postId}`, {headers});
+            await axiosInstance.delete(`/api/boards/deletePost/${boardId}/post/${postId}`, {headers});
             navigate(`/community/board/${boardId}`);
         } catch (error) {
             console.error("There was an error deleting the post!", error);
@@ -135,7 +135,7 @@ const PostDetailPage = ({isLoggedIn}) => {
 
         const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
         try {
-            await axiosInstance.put(`/boards/${boardId}/post/${postId}`, {
+            await axiosInstance.put(`/api/boards/${boardId}/post/${postId}`, {
                 title: editedTitle,
                 body: editedContent
             }, {headers});

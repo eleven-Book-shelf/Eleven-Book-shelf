@@ -21,7 +21,7 @@ const ContentTopPage = ({ type, title, genres, tabs }) => {
         if (loading) return;
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`/card${type}/top`, {
+            const response = await axiosInstance.get(`/api/card${type}/top`, {
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` },
                 params: { pagesize: 10, genre: '', tab }
             });

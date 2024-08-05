@@ -24,14 +24,14 @@ const MyPage = ({ setIsLoggedIn }) => {
 
     const fetchData = async () => {
         try {
-            const profileResponse = await axiosInstance.get('/user', {
+            const profileResponse = await axiosInstance.get('/api/user', {
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
             setProfile(profileResponse.data);
 
             const fetchWebtoonsData = async () => {
                 try {
-                    const response = await axiosInstance.get(`/card/webtoon/bookmark`, {
+                    const response = await axiosInstance.get(`/api/card/webtoon/bookmark`, {
                         headers: { Authorization: `${localStorage.getItem('Authorization')}` },
                         params: { offset, pageSize }
                     });
@@ -44,7 +44,7 @@ const MyPage = ({ setIsLoggedIn }) => {
 
             const fetchWebnovelsData = async () => {
                 try {
-                    const response = await axiosInstance.get(`/card/webnovel/bookmark`, {
+                    const response = await axiosInstance.get(`/api/card/webnovel/bookmark`, {
                         headers: { Authorization: `${localStorage.getItem('Authorization')}` },
                         params: { offset, pageSize }
                     });
@@ -58,7 +58,7 @@ const MyPage = ({ setIsLoggedIn }) => {
             const webtoonsData = await fetchWebtoonsData();
             const webnovelsData = await fetchWebnovelsData();
 
-            const postsResponse = await axiosInstance.get(`/boards/user/posts`, {
+            const postsResponse = await axiosInstance.get(`/api/boards/user/posts`, {
                 params: { offset, pageSize },
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
