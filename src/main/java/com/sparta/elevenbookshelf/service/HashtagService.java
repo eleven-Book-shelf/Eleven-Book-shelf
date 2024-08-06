@@ -27,10 +27,22 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.sparta.elevenbookshelf.entity.QContent.content;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j(topic = "HashtagService")
 public class HashtagService {
+
+    private static final double READ_WEIGHT = 1.0;
+    private static final double READED_WEIGHT = 0.1;
+    private static final double BOOKMARK_WEIGHT = 5.0;
+    private static final double BOOKMARKED_WEIGHT = 0.5;
+    private static final double COMMENT_WEIGHT = 2.0;
+    private static final double COMMENTED_WEIGHT = 0.2;
+    private static final double CREATE_WEIGHT = 10.0;
+    private static final double INIT_WEIGHT = 100.0;
+
 
     private final HashtagRepository hashtagRepository;
     private final ContentHashtagRepository contentHashtagRepository;
@@ -47,6 +59,203 @@ public class HashtagService {
         List<Hashtag> topHashtags = hashtagRepository.findTop10ByCount();
 
         return topHashtags.stream().map(Hashtag::getTag).toList();
+    }
+
+    // Review 작성 시 해시태그 갱신 (+10.0)
+    @Transactional
+    public void updateHashtagsByCreateReview(Long userId, Long postId, Long contentId, String preHashtag) {
+
+        User user = getUser(userId);
+
+        Post post = getPost(postId);
+
+        Content content = getContent(contentId);
+
+        Set<String> tags = parseHashtag(preHashtag);
+
+        // 사용자가 작성한 해시태그 추가 및 갱신
+        tags.addAll(post.getPostHashtags().stream()
+                .map(postHashtag -> postHashtag.getHashtag().getTag())
+                .collect(Collectors.toSet()));
+
+        for (String tag : tags) {
+
+            Hashtag hashtag = createOrUpdateHashtag(tag);
+
+            PostHashtag postHashtag = createOrUpdatePostHashtag(post, hashtag);
+            post.addHashtag(postHashtag);
+        }
+
+        // 작품 해시태그 게시글에 추가 및 갱신
+        tags.addAll(content.getContentHashtags().stream()
+                .map(contentHashtag -> contentHashtag.getHashtag().getTag())
+                .collect(Collectors.toSet()));
+
+        for (String tag : tags) {
+
+            Hashtag hashtag = createOrUpdateHashtag(tag);
+
+            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, CREATE_WEIGHT);
+            user.addHashtag(userHashtag);
+
+            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, CREATE_WEIGHT);
+            content.addHashtag(contentHashtag);
+        }
+    }
+
+    // 작품이 크롤링 후 서비스에 등록될때 해시태그 갱신 (+100.0)
+    @Transactional
+    public void updateHashtagByCreateContent(Long contentId, Long postId) {
+
+        Post post = getPost(postId);
+
+        Content content = getContent(contentId);
+
+        Set<String> tags = parseHashtag(content.getGenre() + content.getContentHashTag());
+
+        for (String tag : tags) {
+            Hashtag hashtag = createOrUpdateHashtag(tag);
+
+            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, 0.0);
+            contentHashtag.incrementScore(INIT_WEIGHT);
+            content.addHashtag(contentHashtag);
+
+            PostHashtag postHashtag = createOrUpdatePostHashtag(post, hashtag);
+            post.addHashtag(postHashtag);
+        }
+
+        contentRepository.save(content);
+        contentHashtagRepository.saveAll(content.getContentHashtags());
+        postHashtagRepository.saveAll(post.getPostHashtags());
+    }
+
+    // 사용자가 선택한 해시태그 갱신 (+100.0)
+    @Transactional
+    public List<UserHashtagResponseDto> updateUserHashtags (Long userId, UserHashtagRequestDto req) {
+
+        User user = getUser(userId);
+
+        Set<String> tags = parseHashtag(req.getTags());
+
+        Set<UserHashtag> userHashtags = new HashSet<>();
+
+        for (String tag : tags) {
+
+            Hashtag hashtag = createOrUpdateHashtag(tag);
+
+            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, 0.0);
+            userHashtag.incrementScore(INIT_WEIGHT);
+            user.addHashtag(userHashtag);
+            userHashtags.add(userHashtag);
+        }
+
+        userRepository.save(user);
+        userHashtagRepository.saveAll(userHashtags);
+
+        return userHashtags.stream()
+                .map(userHashtag -> new UserHashtagResponseDto(userHashtag.getHashtag()))
+                .toList();
+    }
+
+    @Transactional
+    public void updateHashtagBySearchContent(Long userId, Long contentId) {
+
+        User user = getUser(userId);
+
+        Content content = getContent(contentId);
+
+        Set<ContentHashtag> contentHashtags = content.getContentHashtags();
+        Set<ContentHashtag> newContentHashtags = new HashSet<>();
+        Set<UserHashtag> userHashtags = new HashSet<>();
+
+        for (ContentHashtag tag : contentHashtags) {
+
+            Hashtag hashtag = createOrUpdateHashtag(tag.getHashtag().getTag());
+
+            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, READ_WEIGHT);
+            user.addHashtag(userHashtag);
+            userHashtags.add(userHashtag);
+
+            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, READED_WEIGHT);
+            content.addHashtag(contentHashtag);
+            newContentHashtags.add(contentHashtag);
+        }
+
+        userHashtagRepository.saveAll(userHashtags);
+        contentHashtagRepository.saveAll(newContentHashtags);
+    }
+
+    @Transactional
+    public void updateHashtagByPost(Long userId, Long postId, String type) {
+
+        double userWeight = 0.0;
+        double contentWeight = 0.0;
+
+        switch (type) {
+            case "read" -> {
+                userWeight = READ_WEIGHT;
+                contentWeight = READED_WEIGHT;
+            }
+
+            case "comment" -> {
+                userWeight = COMMENT_WEIGHT;
+                contentWeight = COMMENTED_WEIGHT;
+            }
+        }
+
+        User user = getUser(userId);
+
+        Post post = getPost(postId);
+
+        Content content = post.getContent();
+
+        Set<ContentHashtag> contentHashtags = content.getContentHashtags();
+        Set<PostHashtag> postHashtags = post.getPostHashtags();
+
+        Set<Hashtag> hashtags = contentHashtags.stream().map(ContentHashtag::getHashtag).collect(Collectors.toSet());
+        hashtags.addAll(postHashtags.stream().map(PostHashtag::getHashtag).collect(Collectors.toSet()));
+
+        for (Hashtag tag : hashtags) {
+
+            Hashtag hashtag = createOrUpdateHashtag(tag.getTag());
+
+            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, userWeight);
+            user.addHashtag(userHashtag);
+
+            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, contentWeight);
+            content.addHashtag(contentHashtag);
+        }
+
+        userRepository.save(user);
+        userHashtagRepository.saveAll(user.getUserHashtags());
+        contentRepository.save(content);
+        contentHashtagRepository.saveAll(content.getContentHashtags());
+    }
+
+    @Transactional
+    public void updateHashtagByBookmark(Long userId, Long contentId) {
+
+        User user = getUser(userId);
+
+        Content content = getContent(contentId);
+
+        Set<ContentHashtag> contentHashtags = content.getContentHashtags();
+
+        for (ContentHashtag tag : contentHashtags) {
+
+            Hashtag hashtag = createOrUpdateHashtag(tag.getHashtag().getTag());
+
+            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, BOOKMARK_WEIGHT);
+            user.addHashtag(userHashtag);
+
+            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, BOOKMARKED_WEIGHT);
+            content.addHashtag(contentHashtag);
+        }
+
+        userRepository.save(user);
+        userHashtagRepository.saveAll(user.getUserHashtags());
+        contentRepository.save(content);
+        contentHashtagRepository.saveAll(content.getContentHashtags());
     }
 
 
@@ -73,8 +282,6 @@ public class HashtagService {
 
     @Transactional
     public PostHashtag createOrUpdatePostHashtag(Post post, Hashtag hashtag) {
-
-        log.info(post.getBody());
 
         Optional<PostHashtag> optionalPostHashtag = postHashtagRepository.findByPostIdAndHashtagId(post.getId(), hashtag.getId());
         PostHashtag postHashtag;
@@ -133,6 +340,7 @@ public class HashtagService {
         return hashtagRepository.save(hashtag);
     }
 
+    // 문자열 해시태그화
     public Set<String> parseHashtag (String preHashtag) {
 
         return Arrays.stream(preHashtag.split("[#/]"))
@@ -140,30 +348,19 @@ public class HashtagService {
                 .collect(Collectors.toSet());
     }
 
+    // 사용자 해시태그 상위 10개
     @Transactional
-    public UserHashtagResponseDto UpdateUserHashtags (Long userId, UserHashtagRequestDto req) {
+    public List<UserHashtagResponseDto> readUserHashtags (Long userId, int limit) {
 
         User user = getUser(userId);
 
-        Set<String> tags = parseHashtag(req.getTags());
-        Set<UserHashtag> userHashtags = new HashSet<>();
-
-        for (String tag : tags) {
-
-            Hashtag hashtag = createOrUpdateHashtag(tag);
-
-            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, 10.0);
-            user.addHashtag(userHashtag);
-            userHashtags.add(userHashtag);
-        }
-
-        userRepository.save(user);
-        userHashtagRepository.saveAll(userHashtags);
-
-        return new UserHashtagResponseDto(user.getUserHashtags().stream()
-                .map(UserHashtag::getHashtag)
-                .toList());
+        return user.getUserHashtags().stream()
+                .sorted(Comparator.comparing(UserHashtag::getScore))
+                .limit(limit)
+                .map(userHashtag -> new UserHashtagResponseDto(userHashtag.getHashtag()))
+                .toList();
     }
+
 
 
     @Transactional
@@ -265,6 +462,7 @@ public class HashtagService {
          return Math.pow(result, (double) 1 /a.size());
     }
 
+    // 유사도로 맵 정렬
     private static LinkedHashMap<Double, Content> sortMapByKey(Map<Double, Content> map) {
         List<Map.Entry<Double, Content>> entries = new LinkedList<>(map.entrySet());
         entries.sort(Comparator.comparing(Map.Entry::getKey));
@@ -280,6 +478,20 @@ public class HashtagService {
 
         return userRepository.findById(userId).orElseThrow(
                 () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
+        );
+    }
+
+    private Post getPost(Long postId) {
+
+        return postRepository.findById(postId).orElseThrow(
+                () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
+        );
+    }
+
+    private Content getContent(Long contentId) {
+
+        return contentRepository.findById(contentId).orElseThrow(
+                () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
         );
     }
 }
