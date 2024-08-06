@@ -41,6 +41,16 @@ public class BookMarkService {
     private final ContentHashtagRepository contentHashtagRepository;
     private final UserHashtagRepository userHashtagRepository;
 
+    /**
+     * 북마크 추가 기능
+     * - 해당 유저와 콘텐츠를 찾고, 북마크를 추가합니다.
+     * - 해시태그 가중치를 업데이트합니다.
+     * - 관련 엔티티들을 저장합니다.
+     * @param userId 유저 ID
+     * @param contentId 콘텐츠 ID
+     * @return BookMarkResponseDto 북마크 추가 후의 콘텐츠 정보
+     */
+
     @Transactional
     @CacheEvict(value = "bookMarkCache", key = "#userId + '-' + #contentId")
     public BookMarkResponseDto addBookMark(Long userId, Long contentId) {
@@ -66,6 +76,12 @@ public class BookMarkService {
         return BookMarkResponseDto.fromPost(content);
     }
 
+    /**
+     * 북마크 제거 기능
+     * - 해당 유저와 콘텐츠를 찾고, 북마크를 제거합니다.
+     * @param userId 유저 ID
+     * @param contentId 콘텐츠 ID
+     */
     @Transactional
     @CacheEvict(value = "bookMarkCache", key = "#userId + '-' + #contentId")
     public void removeBookMark(Long userId, Long contentId) {
@@ -77,6 +93,14 @@ public class BookMarkService {
         bookmarkRepository.deleteByUserAndPost(userId, contentId);
     }
 
+    /**
+     * 유저의 북마크 목록을 조회하는 기능
+     * - 해당 유저의 북마크 목록을 페이지 단위로 조회합니다.
+     * @param userId 유저 ID
+     * @param offset 페이지 오프셋
+     * @param pageSize 페이지 크기
+     * @return List<BookMarkResponseDto> 북마크 목록
+     */
     @Transactional
     @Cacheable(value = "bookMarkCache", key = "#userId + '-' + #offset + '-' + #pageSize")
     public List<BookMarkResponseDto> getUserBookMarks(Long userId, Long offset, int pageSize) {
@@ -88,6 +112,13 @@ public class BookMarkService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 북마크 여부 확인 기능
+     * - 해당 유저가 특정 콘텐츠를 북마크했는지 확인합니다.
+     * @param userId 유저 ID
+     * @param contentId 콘텐츠 ID
+     * @return boolean 북마크 여부
+     */
     @Transactional
     public boolean isBookMarked(Long userId, Long contentId) {
         return bookmarkRepository.existsByUserIdAndContentId(userId, contentId);
