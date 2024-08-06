@@ -26,7 +26,6 @@ import java.util.Map;
 public class BoardController {
 
     private final BoardService boardService;
-    private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
     private final HashtagService hashtagService;
 
     //:::::::::::::::::// board //::::::::::::::::://
@@ -126,12 +125,8 @@ public class BoardController {
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
 
-        Long userId = 0L;
-        if (userPrincipal != null) {
-            userId = userPrincipal.getUser().getId();
-        }
 
-        List<PostResponseDto> res = boardService.readPostsByContent(userId, boardId, contentId, offset, pagesize);
+        List<PostResponseDto> res = boardService.readPostsByContent(userPrincipal.getUser().getId(), boardId, contentId, offset, pagesize);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
@@ -174,25 +169,6 @@ public class BoardController {
         long totalPosts = boardService.getTotalPostsByBoard(userPrincipal.getUser().getId());
         return getMapResponseEntity(pagesize, (double) totalPosts, posts);
     }
-
-    // TODO : toFront
-    @GetMapping("/user/recommend")
-    public ResponseEntity<List<PostResponseDto>> recommendContentsByUserHashtag (
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam(defaultValue = "0") long offset,
-            @RequestParam(defaultValue = "20") int pagesize) {
-
-        List<PostResponseDto> res = hashtagService.recommendContentByUserHashtag(userPrincipal.getUser().getId(), offset, pagesize);
-
-        return ResponseEntity.status(HttpStatus.OK).body(res);
-    }
-
-    //:::::::::::::::::// content //::::::::::::::::://
-
-/*
-crwaling -> createContent
-* */
-
 
     //:::::::::::::::::// TOOL BOX //::::::::::::::::://
 

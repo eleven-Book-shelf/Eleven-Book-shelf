@@ -16,7 +16,7 @@ public class UserHashtag {
     private UserHashtagId id;
 
     @Builder.Default
-    private double score = 0.0;
+    private double score = 1.0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
