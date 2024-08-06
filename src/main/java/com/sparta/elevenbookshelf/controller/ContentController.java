@@ -28,6 +28,7 @@ public class ContentController {
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
             @RequestParam(value = "genre", required = false) String genre) {
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(contentService.readContent(offset, pagesize, genre));
     }
@@ -37,6 +38,7 @@ public class ContentController {
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
             @RequestParam(value = "genre", required = false) String genre) {
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(contentService.readContentWebtoon(offset, pagesize, genre));
     }
@@ -46,6 +48,7 @@ public class ContentController {
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
             @RequestParam(value = "search", required = false) String genre) {
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(contentService.readContentWebtoonTop(offset, pagesize, genre));
     }
@@ -55,6 +58,7 @@ public class ContentController {
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
             @RequestParam(value = "genre", required = false) String genre) {
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(contentService.readContentWebnovel(offset, pagesize, genre));
     }

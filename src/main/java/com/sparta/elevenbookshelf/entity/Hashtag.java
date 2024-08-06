@@ -41,7 +41,7 @@ public class Hashtag {
 
     @Builder
     public Hashtag(String tag) {
-        this.tier = 0.0;
+        this.tier = 1;
         this.tag = tag;
         this.count = 1;
     }

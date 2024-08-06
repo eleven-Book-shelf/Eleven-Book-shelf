@@ -4,6 +4,7 @@ import com.sparta.elevenbookshelf.dto.UserHashtagRequestDto;
 import com.sparta.elevenbookshelf.dto.UserHashtagResponseDto;
 import com.sparta.elevenbookshelf.dto.UserRequestDto;
 import com.sparta.elevenbookshelf.dto.UserResponseDto;
+import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.HashtagService;
 import com.sparta.elevenbookshelf.service.UserService;
@@ -14,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
@@ -21,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final HashtagService hashtagService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody UserRequestDto req) {
@@ -48,14 +50,6 @@ public class UserController {
         log.info("editProfile 실행");
         UserResponseDto res = userService.editProfile(user.getUser().getId() , username );
         return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/hashtag")
-    public ResponseEntity<UserHashtagResponseDto> updateUserHashtag(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                    @RequestBody UserHashtagRequestDto req) {
-        log.info("updateUserHashtag 실행");
-        UserHashtagResponseDto res = hashtagService.UpdateUserHashtags(userPrincipal.getUser().getId(), req);
-        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
 }

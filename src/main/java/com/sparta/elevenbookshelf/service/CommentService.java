@@ -68,20 +68,7 @@ public class CommentService {
         Comment savedComment = commentRepository.save(comment);
 
         if (post.getContent() != null) {
-            Content content = post.getContent();
-
-            Set<ContentHashtag> contentHashtags = content.getContentHashtags();
-
-            for (ContentHashtag tag : contentHashtags) {
-
-                Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag.getHashtag().getTag());
-
-                UserHashtag userHashtag = hashtagService.createOrUpdateUserHashtag(user, hashtag, COMMENT_WEIGHT);
-                user.addHashtag(userHashtag);
-
-                ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, COMMENT_WEIGHT);
-                content.addHashtag(contentHashtag);
-            }
+            hashtagService.updateHashtagByPost(user.getId(), postId, "comment");
         }
     }
 

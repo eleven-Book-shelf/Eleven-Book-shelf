@@ -68,23 +68,7 @@ public class BookMarkService {
                         .build());
 
         // hashtag 가중치 설정 부분
-        Set<ContentHashtag> contentHashtags = content.getContentHashtags();
-
-        for (ContentHashtag tag : contentHashtags) {
-
-            Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag.getHashtag().getTag());
-
-            UserHashtag userHashtag = hashtagService.createOrUpdateUserHashtag(user, hashtag, BOOKMARK_WEIGHT);
-            user.addHashtag(userHashtag);
-
-            ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, BOOKMARKED_WEIGHT);
-            content.addHashtag(contentHashtag);
-        }
-
-        userRepository.save(user);
-        userHashtagRepository.saveAll(user.getUserHashtags());
-        contentRepository.save(content);
-        contentHashtagRepository.saveAll(content.getContentHashtags());
+        hashtagService.updateHashtagByBookmark(userId, contentId);
 
         bookmark.toggleStatus();
         bookmarkRepository.save(bookmark);

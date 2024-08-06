@@ -203,6 +203,7 @@ public class CrawlingUtil {
         }
     }
 
+    // 데이터 파일을 DB에 저장하는 메서드
     public void saveData(ContentRequestDto requestDto, String artUrl) {
         Optional<Content> dataSave = contentRepository.findByUrl(artUrl);
         if (dataSave.isPresent()) {
@@ -297,6 +298,7 @@ public class CrawlingUtil {
         }
     }
 
+    // 로컬에 저장된 파일로 DB 업데이트하는 메서드
     public void updateDatabase() {
         Path csvFile = Paths.get(csvFileLocate);
         try (FileReader reader = new FileReader(csvFile.toFile());
@@ -332,10 +334,12 @@ public class CrawlingUtil {
 
     }
 
+    // Content 엔티티의 작성한 객체 update 메서드 사용.
     private void updateData(Content existingData, ContentRequestDto requestDto) {
         existingData.updateContent(requestDto);
     }
 
+    // csv 파일 변환을 위한 메서드. 로컬에 저장된 데이터를 필요한 데이터에 필요한 파싱을 적용해 DB에 저장한다.
     private Content createNewData(CSVRecord csvRecord) {
         return Content.builder()
                 .title(csvRecord.get("Title"))
