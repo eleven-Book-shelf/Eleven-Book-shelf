@@ -4,6 +4,7 @@ import com.sparta.elevenbookshelf.dto.UserHashtagRequestDto;
 import com.sparta.elevenbookshelf.dto.UserHashtagResponseDto;
 import com.sparta.elevenbookshelf.dto.UserRequestDto;
 import com.sparta.elevenbookshelf.dto.UserResponseDto;
+import com.sparta.elevenbookshelf.entity.User;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import com.sparta.elevenbookshelf.service.HashtagService;
 import com.sparta.elevenbookshelf.service.UserService;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,11 +53,19 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/hashtag")
+    public ResponseEntity<List<UserHashtagResponseDto>> getUserHashtags(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                        @RequestParam(value = "limit", defaultValue = "10") int limit) {
+        log.info("getUserHashtag 실행");
+        List<UserHashtagResponseDto> res = hashtagService.readUserHashtags(userPrincipal.getUser().getId(), limit);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
     @PutMapping("/hashtag")
-    public ResponseEntity<UserHashtagResponseDto> updateUserHashtag(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                    @RequestBody UserHashtagRequestDto req) {
+    public ResponseEntity<List<UserHashtagResponseDto>> updateUserHashtags(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                                         @RequestBody UserHashtagRequestDto req) {
         log.info("updateUserHashtag 실행");
-        UserHashtagResponseDto res = hashtagService.UpdateUserHashtags(userPrincipal.getUser().getId(), req);
+        List<UserHashtagResponseDto> res = hashtagService.updateUserHashtags(userPrincipal.getUser().getId(), req);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 

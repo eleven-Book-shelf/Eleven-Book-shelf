@@ -9,11 +9,12 @@ import java.util.List;
 @Data
 public class UserHashtagResponseDto {
 
-    List<String> hashtags;
+    Long id;
+    String tag;
 
-    @Builder
-    public UserHashtagResponseDto(List<Hashtag> hashtags) {
+    public UserHashtagResponseDto(Hashtag hashtag) {
+        this.id = hashtag.getId();
+        this.tag = "#" + hashtag.getTag();
 
-        this.hashtags = hashtags.stream().map(Hashtag::getTag).toList();
     }
 }

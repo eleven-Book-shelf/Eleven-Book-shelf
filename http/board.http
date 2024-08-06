@@ -27,98 +27,63 @@ Content-Type: application/json
 %}
 
 
-### createBoard
+### createBoard : 관리자 권한
 POST localhost:8080/boards
 Content-Type: application/json
 Authorization:{{access_token}}
 
 {
-  "title": "test board 2"
+  "title": "test board"
 }
 
-### readBoards
+### readBoards : 게시판 목록 보기
 GET localhost:8080/api/boards
 
-### createNormalPost
-POST localhost:8080/api/boards/1/post
+### createNormalPost :일반 게시물 작성
+POST localhost:8080/api/boards/3/post
 Content-Type: application/json
 Authorization:{{access_token}}
 
 {
   "postType": "NORMAL",
-  "title": "test normal post123",
-  "body": "test normal body 1231"
+  "title": "test normal post",
+  "body": "test normal body"
 
 }
 
-### createReviewPost
-POST localhost:8080/api/boards/1/post
+### createReviewPost : 리뷰 게시물 작성
+POST localhost:8080/api/boards/2/post
 Content-Type: application/json
 Authorization:{{access_token}}
 
 {
   "postType": "REVIEW",
-  "title": "test review post5",
-  "body": "test review body5",
+  "title": "test review post",
+  "body": "test review body",
   "contentId" : 5,
-  "prehashtag" : "#개꿀잼 #나만볼거임",
+  "prehashtag" : "#test #hashtag",
   "rating": 5.0
 }
 
-### createContentPost
-POST localhost:8080/boards/1
-Content-Type: application/json
-Authorization:{{access_token}}
 
-{
-  "postType": "CONTENT",
-  "contentId": 1
-
-}
-
-### readBoard
+### readBoard : 게시판-게시글 목록 조회
 GET localhost:8080/api/boards/1
 
-### readPost
-GET localhost:8080/api/boards/1/post/3
+### readPost : 게시글 상세 조회
+GET localhost:8080/api/boards/3/post/3
 Authorization:{{access_token}}
 
-### updatePost
-PUT localhost:8080/boards/1/post/3
+### updatePost : 게시글 수정
+PUT localhost:8080/boards/3/post/3
 Content-Type: application/json
 Authorization:{{access_token}}
 
 {
   "boardId": 1,
-  "title": "test post 2",
-  "body": "test content 2"
+  "title": "fixed title",
+  "body": "fixed body"
 }
 
-### deletePost
+### deletePost : 게시글 삭제
 DELETE localhost:8080/boards/1/3
 Authorization:{{access_token}}
-
-### createContent
-POST localhost:8080/boards/content
-Content-Type: application/json
-
-{
-  "title": "재밌는 작품",
-  "imgUrl": "test url",
-  "description": "재밌는 줄거리",
-  "author": "잘 쓰는 작가",
-  "platform": "도서관",
-  "view": 1000000,
-  "rating": 9.8,
-  "type": "NOVEL",
-  "isEnd": "NOT"
-}
-
-### UpdateUserHashtag
-PUT localhost:8080/user/hashtag
-Content-Type: application/json
-Authorization: {{access_token}}
-
-{
-  "tags": "#개꿀꿀꿀잼"
-}

@@ -1,0 +1,26 @@
+### login
+POST localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "kimcheolsu",
+  "password": "1234"
+}
+
+> {%
+    client.global.set("access_token", response.body.accessToken);
+    client.global.set("refresh_token", response.body.refreshToken);
+%}
+
+### getUserHashtags
+GET localhost:8080/api/user/hashtag
+Authorization:{{access_token}}
+
+### updateUserHashtags
+PUT localhost:8080/api/user/hashtag
+Content-Type: application/json
+Authorization:{{access_token}}
+
+{
+  "tags" : "#MUHYEOP#FANTASY#SF#BESTSELLER"
+}

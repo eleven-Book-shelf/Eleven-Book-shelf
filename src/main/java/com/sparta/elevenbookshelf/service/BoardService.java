@@ -36,20 +36,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BoardService {
 
-    private static final double CREATE_WEIGHT = 10.0;
-    private static final double READ_WEIGHT = 1.0;
-    private static final double READED_WEIGHT = 0.1;
-    private static final double SEARCH_WEIGHT = 2.0;
-
     private final BoardRepository boardRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ContentRepository contentRepository;
 
     private final HashtagService hashtagService;
-    private final UserHashtagRepository userHashtagRepository;
-    private final ContentHashtagRepository contentHashtagRepository;
-    private final PostHashtagRepository postHashtagRepository;
 
     //:::::::::::::::::// board //::::::::::::::::://
 
@@ -171,7 +163,6 @@ public class BoardService {
         return postRepository.save(result);
     }
 
-    // userhashtag, contenthashtag 갱신 필요
     @Transactional
     protected ReviewPost createReviewPost(Long userId, PostRequestDto req) {
 
@@ -196,48 +187,11 @@ public class BoardService {
 
         postRepository.save(result);
 
-        Set<String> tags = hashtagService.parseHashtag(req.getPrehashtag());
-
-        tags.addAll(contentPost.getPostHashtags().stream()
-                .map(postHashtag -> postHashtag.getHashtag().getTag())
-                .collect(Collectors.toSet()));
-
-        for (String tag : tags) {
-
-            Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag);
-
-            PostHashtag postHashtag = hashtagService.createOrUpdatePostHashtag(result, hashtag);
-            result.addHashtag(postHashtag);
-        }
-
-        tags.addAll(content.getContentHashtags().stream()
-                .map(contentHashtag -> contentHashtag.getHashtag().getTag())
-                .collect(Collectors.toSet()));
-
-        for (String tag : tags) {
-
-            Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag);
-
-            UserHashtag userHashtag = hashtagService.createOrUpdateUserHashtag(user, hashtag, CREATE_WEIGHT);
-            user.addHashtag(userHashtag);
-
-            ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, CREATE_WEIGHT);
-            content.addHashtag(contentHashtag);
-        }
-
-        user.addPost(result);
-        content.addReview(result);
-
-        userRepository.save(user);
-        userHashtagRepository.saveAll(user.getUserHashtags());
-        contentRepository.save(content);
-        contentHashtagRepository.saveAll(content.getContentHashtags());
-        postHashtagRepository.saveAll(result.getPostHashtags());
+        hashtagService.updateHashtagsByCreateReview(userId, result.getId(), content.getId(), req.getPrehashtag());
 
         return result;
     }
 
-    // contenthashtag 갱신 필요
     @Transactional
     protected ContentPost createContentPost(PostRequestDto req) {
 
@@ -258,26 +212,11 @@ public class BoardService {
 
         postRepository.save(result);
 
-        Set<String> tags = hashtagService.parseHashtag(content.getGenre() + content.getContentHashTag());
-
-        for (String tag : tags) {
-            Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag);
-
-            ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, 100);
-            content.addHashtag(contentHashtag);
-
-            PostHashtag postHashtag = hashtagService.createOrUpdatePostHashtag(result, hashtag);
-            result.addHashtag(postHashtag);
-        }
-
-        contentRepository.save(content);
-        contentHashtagRepository.saveAll(content.getContentHashtags());
-        postHashtagRepository.saveAll(result.getPostHashtags());
+        hashtagService.updateHashtagByCreateContent(content.getId(), result.getId());
 
         return result;
     }
 
-    // userhashtag, contenthashtag 갱신필요
     @Transactional
     public PostResponseDto readPost(Long userId, Long boardId, Long postId) {
 
@@ -291,32 +230,7 @@ public class BoardService {
 
         if(user != null && (post.getContent() != null || post.getPostHashtags() != null)) {
 
-            log.info("in if phrase");
-
-            Content content = post.getContent();
-            log.info("content post read : " + content.getTitle());
-
-            Set<ContentHashtag> contentHashtags = content.getContentHashtags();
-            Set<PostHashtag> postHashtags = post.getPostHashtags();
-
-            Set<Hashtag> hashtags = contentHashtags.stream().map(ContentHashtag::getHashtag).collect(Collectors.toSet());
-            hashtags.addAll(postHashtags.stream().map(PostHashtag::getHashtag).collect(Collectors.toSet()));
-
-            for (Hashtag tag : hashtags) {
-
-                Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag.getTag());
-
-                UserHashtag userHashtag = hashtagService.createOrUpdateUserHashtag(user, hashtag, READ_WEIGHT);
-                user.addHashtag(userHashtag);
-
-                ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, READED_WEIGHT);
-                content.addHashtag(contentHashtag);
-            }
-
-            userRepository.save(user);
-            userHashtagRepository.saveAll(user.getUserHashtags());
-            contentRepository.save(content);
-            contentHashtagRepository.saveAll(content.getContentHashtags());
+            hashtagService.updateHashtagByReadPost(user.getId(), post.getId());
         }
 
         post.incrementViewCount();
@@ -324,8 +238,15 @@ public class BoardService {
         return new PostResponseDto(post);
     }
 
-    // TODO : controller로 연결 필요
-    // userhashtag, contenthashtag 갱신 필요
+    public List<PostResponseDto> readUserPost(Long userId , long offset, int pageSize) {
+
+        List<Post> posts = postRepository.getPostsByUserId(userId, offset, pageSize);
+
+        return posts.stream()
+                .map(PostResponseDto::new)
+                .toList();
+    }
+
     public List<PostResponseDto> readPostsByContent(Long userId, Long boardId, Long contentId, long offset, int pagesize) {
 
         User user = userRepository.findById(userId).orElse(null);
@@ -333,31 +254,12 @@ public class BoardService {
         List<Post> posts = postRepository.getPostsByContent(contentId, offset, pagesize);
 
         if(user != null) {
-            Content content = getContent(contentId);
 
-            Set<ContentHashtag> contentHashtags = content.getContentHashtags();
-            Set<ContentHashtag> newContentHashtags = new HashSet<>();
-            Set<UserHashtag> userHashtags = new HashSet<>();
-
-            for (ContentHashtag tag : contentHashtags) {
-
-                Hashtag hashtag = hashtagService.createOrUpdateHashtag(tag.getHashtag().getTag());
-
-                UserHashtag userHashtag = hashtagService.createOrUpdateUserHashtag(user, hashtag, READ_WEIGHT);
-                user.addHashtag(userHashtag);
-                userHashtags.add(userHashtag);
-
-                ContentHashtag contentHashtag = hashtagService.createOrUpdateContentHashtag(content, hashtag, READED_WEIGHT);
-                content.addHashtag(contentHashtag);
-                newContentHashtags.add(contentHashtag);
-            }
-
-            userHashtagRepository.saveAll(userHashtags);
-            contentHashtagRepository.saveAll(newContentHashtags);
+            hashtagService.updateHashtagBySearchContent(userId, contentId);
         }
 
-        return posts.stream().map(
-                        PostResponseDto::new)
+        return posts.stream()
+                .map(PostResponseDto::new)
                 .toList();
     }
 
@@ -401,37 +303,6 @@ public class BoardService {
         }
 
         postRepository.delete(post);
-    }
-
-    //::::::::::::::::::::::::// Content //:::::::::::::::::::::::://
-
-    public ContentResponseDto createContent(ContentRequestDto req) {
-
-        Content content = Content.builder()
-                .title(req.getTitle())
-                .imgUrl(req.getImgUrl())
-                .description(req.getDescription())
-                .author(req.getAuthor())
-                .platform(req.getPlatform())
-                .view(req.getView())
-                .rating(req.getRating())
-                .type(req.getType())
-                .isEnd(req.getIsEnd())
-                .build();
-
-        contentRepository.save(content);
-
-        return new ContentResponseDto(content);
-    }
-
-    //::::::::::::::::::::::::// User //:::::::::::::::::::::::://
-
-    public List<PostResponseDto> readUserPost(Long userId , long offset, int pageSize) {
-        List<Post> posts = postRepository.getPostsByUserId(userId, offset, pageSize);
-
-        return posts.stream().map(
-                        PostResponseDto::new)
-                .toList();
     }
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
