@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.sparta.elevenbookshelf.entity.QContent.content;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j(topic = "HashtagService")
@@ -34,6 +36,10 @@ public class HashtagService {
 
     private static final double READ_WEIGHT = 1.0;
     private static final double READED_WEIGHT = 0.1;
+    private static final double BOOKMARK_WEIGHT = 5.0;
+    private static final double BOOKMARKED_WEIGHT = 0.5;
+    private static final double COMMENT_WEIGHT = 2.0;
+    private static final double COMMENTED_WEIGHT = 0.2;
     private static final double CREATE_WEIGHT = 10.0;
     private static final double INIT_WEIGHT = 100.0;
 
@@ -180,7 +186,22 @@ public class HashtagService {
     }
 
     @Transactional
-    public void updateHashtagByReadPost(Long userId, Long postId) {
+    public void updateHashtagByPost(Long userId, Long postId, String type) {
+
+        double userWeight = 0.0;
+        double contentWeight = 0.0;
+
+        switch (type) {
+            case "read" -> {
+                userWeight = READ_WEIGHT;
+                contentWeight = READED_WEIGHT;
+            }
+
+            case "comment" -> {
+                userWeight = COMMENT_WEIGHT;
+                contentWeight = COMMENTED_WEIGHT;
+            }
+        }
 
         User user = getUser(userId);
 
@@ -198,10 +219,36 @@ public class HashtagService {
 
             Hashtag hashtag = createOrUpdateHashtag(tag.getTag());
 
-            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, READ_WEIGHT);
+            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, userWeight);
             user.addHashtag(userHashtag);
 
-            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, READED_WEIGHT);
+            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, contentWeight);
+            content.addHashtag(contentHashtag);
+        }
+
+        userRepository.save(user);
+        userHashtagRepository.saveAll(user.getUserHashtags());
+        contentRepository.save(content);
+        contentHashtagRepository.saveAll(content.getContentHashtags());
+    }
+
+    @Transactional
+    public void updateHashtagByBookmark(Long userId, Long contentId) {
+
+        User user = getUser(userId);
+
+        Content content = getContent(contentId);
+
+        Set<ContentHashtag> contentHashtags = content.getContentHashtags();
+
+        for (ContentHashtag tag : contentHashtags) {
+
+            Hashtag hashtag = createOrUpdateHashtag(tag.getHashtag().getTag());
+
+            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, BOOKMARK_WEIGHT);
+            user.addHashtag(userHashtag);
+
+            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, BOOKMARKED_WEIGHT);
             content.addHashtag(contentHashtag);
         }
 

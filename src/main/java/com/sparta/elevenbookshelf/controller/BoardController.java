@@ -170,18 +170,6 @@ public class BoardController {
         return getMapResponseEntity(pagesize, (double) totalPosts, posts);
     }
 
-    // TODO : toFront
-    @GetMapping("/user/recommend")
-    public ResponseEntity<List<PostResponseDto>> recommendContentsByUserHashtag (
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam(defaultValue = "0") long offset,
-            @RequestParam(defaultValue = "20") int pagesize) {
-
-        List<PostResponseDto> res = hashtagService.recommendContentByUserHashtag(userPrincipal.getUser().getId(), offset, pagesize);
-
-        return ResponseEntity.status(HttpStatus.OK).body(res);
-    }
-
     //:::::::::::::::::// TOOL BOX //::::::::::::::::://
 
     private static ResponseEntity<Map<String, Object>> getMapResponseEntity(int pagesize, double totalPosts, List<PostResponseDto> posts) {

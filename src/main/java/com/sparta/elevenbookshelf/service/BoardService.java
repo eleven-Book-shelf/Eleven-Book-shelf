@@ -230,7 +230,7 @@ public class BoardService {
 
         if(user != null && (post.getContent() != null || post.getPostHashtags() != null)) {
 
-            hashtagService.updateHashtagByReadPost(user.getId(), post.getId());
+            hashtagService.updateHashtagByPost(user.getId(), post.getId(), "read");
         }
 
         post.incrementViewCount();

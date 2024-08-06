@@ -24,7 +24,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final HashtagService hashtagService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody UserRequestDto req) {
@@ -51,22 +50,6 @@ public class UserController {
         log.info("editProfile 실행");
         UserResponseDto res = userService.editProfile(user.getUser().getId() , username );
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/hashtag")
-    public ResponseEntity<List<UserHashtagResponseDto>> getUserHashtags(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                        @RequestParam(value = "limit", defaultValue = "10") int limit) {
-        log.info("getUserHashtag 실행");
-        List<UserHashtagResponseDto> res = hashtagService.readUserHashtags(userPrincipal.getUser().getId(), limit);
-        return ResponseEntity.status(HttpStatus.OK).body(res);
-    }
-
-    @PutMapping("/hashtag")
-    public ResponseEntity<List<UserHashtagResponseDto>> updateUserHashtags(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                                         @RequestBody UserHashtagRequestDto req) {
-        log.info("updateUserHashtag 실행");
-        List<UserHashtagResponseDto> res = hashtagService.updateUserHashtags(userPrincipal.getUser().getId(), req);
-        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
 }
