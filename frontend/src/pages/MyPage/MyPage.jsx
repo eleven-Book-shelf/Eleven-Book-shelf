@@ -5,6 +5,8 @@ import axiosInstance from '../../api/axiosInstance';
 import CardGrid from './CardGrid';
 import ProfileHeader from './ProfileHeader';
 import PostList from '../../tool/PostList/PostList';
+import PostCard from "../../tool/PostCard/PostCard";
+import EditProfileModal from './EditProfileModal';
 
 Modal.setAppElement('#root');
 
@@ -12,10 +14,11 @@ const MyPage = ({ setIsLoggedIn }) => {
     const [profile, setProfile] = useState(null);
     const [bookmarkedWebtoons, setBookmarkedWebtoons] = useState([]);
     const [bookmarkedWebnovels, setBookmarkedWebnovels] = useState([]);
+    const [recommendedPosts, setRecommendedPosts] = useState([]);
     const [recentPosts, setRecentPosts] = useState([]);
     const [newUsername, setNewUsername] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isEditMode, setIsEditMode] = useState(false); // 수정 모드 상태 추가
+    const [isEditMode, setIsEditMode] = useState(false);
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -55,19 +58,35 @@ const MyPage = ({ setIsLoggedIn }) => {
                 }
             };
 
+            const fetchRecommendedPosts = async () => {
+                try {
+                    const response = await axiosInstance.get('/api/hashtag/recommend', {
+                        headers: { Authorization: `${localStorage.getItem('Authorization')}` },
+                        params: { offset: 8 } // offset을 8로 설정합니다.
+                    });
+                    return response.data;
+                } catch (error) {
+                    console.error("추천 리스트를 불러오는 중 오류가 발생했습니다!", error);
+                    return [];
+                }
+            };
+
             const webtoonsData = await fetchWebtoonsData();
             const webnovelsData = await fetchWebnovelsData();
+            const recommendedPosts = await fetchRecommendedPosts();
+
 
             const postsResponse = await axiosInstance.get(`/api/boards/user/posts`, {
                 params: { offset, pageSize },
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
 
+            setRecentPosts(Array.isArray(postsResponse.data.posts) ? postsResponse.data.posts : []);
             setBookmarkedWebtoons(Array.isArray(webtoonsData) ? webtoonsData : []);
             setBookmarkedWebnovels(Array.isArray(webnovelsData) ? webnovelsData : []);
-            setRecentPosts(Array.isArray(postsResponse.data.posts) ? postsResponse.data.posts : []);
             setTotalPages(postsResponse.data.totalPages);
-
+            // 추천 게시물 설정
+            setRecommendedPosts(Array.isArray(recommendedPosts) ? recommendedPosts : []);
         } catch (error) {
             console.error('데이터 불러오기 실패:', error);
             setBookmarkedWebtoons([]);
@@ -147,6 +166,14 @@ const MyPage = ({ setIsLoggedIn }) => {
             </div>
 
             <div className={styles.section}>
+                <h2>추천 리스트</h2>
+                <PostCard
+                    posts={recentPosts}
+                    currentPage={currentPage}
+                />
+            </div>
+
+            <div className={styles.section}>
                 <h2>최근 작성한 게시글</h2>
                 <PostList
                     posts={recentPosts}
@@ -156,33 +183,16 @@ const MyPage = ({ setIsLoggedIn }) => {
                 />
             </div>
 
-            <Modal
+            <EditProfileModal
                 isOpen={isModalOpen}
-                onRequestClose={() => setIsModalOpen(false)}
-                contentLabel="유저 설정"
-                className={styles.modal}
-                overlayClassName={styles.overlay}
-            >
-                <h2>유저 설정</h2>
-                {isEditMode ? (
-                    <div>
-                        <input
-                            type="text"
-                            value={newUsername}
-                            onChange={(e) => setNewUsername(e.target.value)}
-                            placeholder="새 닉네임 입력"
-                        />
-                        <button className={styles.deleteButton} onClick={handleEditProfile}>프로필 수정</button>
-                        <button className={styles.deleteButton} onClick={() => setIsEditMode(false)}>취소</button>
-                    </div>
-                ) : (
-                    <div>
-                        <button className={styles.deleteButton} onClick={() => setIsEditMode(true)}>프로필 수정</button>
-                        <button onClick={handleDeleteAccount} className={styles.deleteButton}>회원 탈퇴</button>
-                        <button className={styles.deleteButton} onClick={() => setIsModalOpen(false)}>닫기</button>
-                    </div>
-                )}
-            </Modal>
+                isEditMode={isEditMode}
+                newUsername={newUsername}
+                setNewUsername={setNewUsername}
+                handleEditProfile={handleEditProfile}
+                handleDeleteAccount={handleDeleteAccount}
+                setIsEditMode={setIsEditMode}
+                setIsModalOpen={setIsModalOpen}
+            />
         </div>
     );
 };

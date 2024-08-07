@@ -1,5 +1,5 @@
 ### 댓글 생성
-POST http://localhost:8080/1/comments
+POST http://localhost:8080/api/1/comments
 Content-Type: application/json
 Authorization:{{access_token}}
 

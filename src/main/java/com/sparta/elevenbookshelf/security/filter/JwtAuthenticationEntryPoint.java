@@ -25,9 +25,12 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-         String message = jwtUtil.getErrorMessage(request.getHeader("Authorization"));
+        String message = jwtUtil.getErrorMessage(request.getHeader("Authorization"));
 
-         response.setStatus(HttpStatus.FORBIDDEN.value());
+        if(request.getRequestURI().equals("/api/auth/login")) {
+            return;
+        }
+        response.setStatus(HttpStatus.FORBIDDEN.value());
          response.setContentType(MediaType.APPLICATION_JSON_VALUE);
          response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 

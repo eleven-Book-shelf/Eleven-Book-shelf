@@ -4,7 +4,7 @@ import axiosInstance from './api/axiosInstance';
 import Header from './Header/Header';
 import HeaderAuth from './Header/HeaderAuth';
 import HeaderOn from './Header/HeaderOn';
-import FavGenre from './tool/FavGenre/FavGenre'; // 추가
+import UserHashtag from './tool/UserHashtag/UserHashtag';
 
 import MyPage from './pages/MyPage/MyPage';
 import BookmarkedWebtoons from "./pages/MyPage/bookmarkedWebtoons/bookmarkedWebtoons";
@@ -31,12 +31,20 @@ import './App.css';
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [profile, setProfile] = useState(null);
-    const [showFavGenreModal, setShowFavGenreModal] = useState(false); // 추가
+    const [showTagsModal, setShowTagsModal] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('Authorization');
         if (token) {
             setIsLoggedIn(true);
+        }
+
+        const tags = localStorage.getItem('tags');
+        if (!tags) {
+            fetchTopHashtags().then((topTags) => {
+                const formattedTags = topTags.map(tag => `#${tag}`).join('');
+                localStorage.setItem('tags', formattedTags);
+            });
         }
     }, []);
 
@@ -47,37 +55,64 @@ const App = () => {
             });
             setProfile(profileResponse.data);
             localStorage.setItem('userId', profileResponse.data.id);
-            localStorage.setItem('favGenre', profileResponse.data.favGenre);
             console.log(profileResponse);
 
-            if (!profileResponse.data.favGenre || profileResponse.data.favGenre.length === 0) {
-                setShowFavGenreModal(true);
-            }
         } catch (error) {
             console.error('데이터 불러오기 실패:', error);
+        }
+    };
+
+    const fetchUserHashtags = async () => {
+        try {
+            const response = await axiosInstance.get('/api/hashtag', {
+                headers: { Authorization: `${localStorage.getItem('Authorization')}` }
+            });
+            console.log("유저 해시태그 데이터:", response.data);
+
+            if (!response.data || response.data.length === 0) {
+                setShowTagsModal(true);
+            }
+
+            return response.data;
+
+        } catch (error) {
+            console.error("유저 해시태그를 불러오는 중 오류가 발생했습니다!", error);
+            return [];
+        }
+    };
+
+    const fetchTopHashtags = async () => {
+        try {
+            const response = await axiosInstance.get('/api/hashtag/top10');
+            console.log(response.data);
+            return response.data;
+        } catch (error) {
+            console.error("상위 10개 해시태그를 불러오는 중 오류가 발생했습니다!", error);
+            return [];
         }
     };
 
     const handleLogin = () => {
         setIsLoggedIn(true);
         fetchData();
+        fetchUserHashtags();
     };
 
     const handleLogout = () => {
         setIsLoggedIn(false);
         localStorage.removeItem('Authorization');
         localStorage.removeItem('userId');
-        localStorage.removeItem('favGenre');
+        localStorage.removeItem('tags');
         setProfile(null);
     };
 
-    const handleFavGenreSubmit = async (selectedGenres) => {
+    const handleTagsSubmit = async (selectedTags) => {
         try {
-            await axiosInstance.post('/api/favgenres', { genre: selectedGenres }, {
+            await axiosInstance.put('/api/hashtag', { tags: selectedTags }, {
                 headers: { Authorization: `${localStorage.getItem('Authorization')}` }
             });
-            setShowFavGenreModal(false);
-            localStorage.setItem('favGenre', JSON.stringify(selectedGenres));
+            setShowTagsModal(false);
+            localStorage.setItem('tags', selectedTags);
         } catch (error) {
             console.error('선호 장르 저장 실패:', error);
         }
@@ -108,7 +143,7 @@ const App = () => {
                     <Route path="/review/:contentId/new" element={<NewPostReviewPage />} />
                     <Route path="/community/board/:boardId/post/new" element={<NewPostPage />} />
                 </Routes>
-                {showFavGenreModal && <FavGenre onSubmit={handleFavGenreSubmit} onClose={() => setShowFavGenreModal(false)} />} {/* 추가 */}
+                {showTagsModal && <UserHashtag onSubmit={handleTagsSubmit} onClose={() => setShowTagsModal(false)} />}
             </div>
         </Router>
     );

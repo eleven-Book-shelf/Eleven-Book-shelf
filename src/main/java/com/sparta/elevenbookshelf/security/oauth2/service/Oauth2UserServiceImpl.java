@@ -1,7 +1,7 @@
 package com.sparta.elevenbookshelf.security.oauth2.service;
 
-import com.sparta.elevenbookshelf.entity.User;
-import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
+import com.sparta.elevenbookshelf.domain.user.entity.User;
+import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
 import com.sparta.elevenbookshelf.security.SecurityConfig;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.oauth2.userinfo.GoogleOAuth2UserInfo;
@@ -42,17 +42,7 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
         log.info("getAttributes : {}", oAuth2User.getAttributes());
 
         String provider = userRequest.getClientRegistration().getRegistrationId();
-        OAuth2UserInfo userInfo;
-
-        if ("google".equals(provider)) {
-            userInfo = new GoogleOAuth2UserInfo();
-        } else if ("naver".equals(provider)) {
-            userInfo = new NaverOAuth2UserInfo();
-        } else if ("kakao".equals(provider)) {
-            userInfo = new KakaoOAuth2UserInfo();
-        } else {
-            throw new OAuth2AuthenticationException(new OAuth2Error("unsupported_provider"), "Unsupported provider: " + provider);
-        }
+        OAuth2UserInfo userInfo = getUserInfoByProvider(provider);
 
         String socialId = userInfo.getProviderId(oAuth2User.getAttributes());
         Optional<User> optionalUser = userRepository.findBySocialId(socialId);
@@ -70,7 +60,6 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
                     .build();
 
             userRepository.save(user);
-            user.addRefreshToken(jwtService.generateRefreshToken(provider + "_" + socialId));
         } else {
             user = optionalUser.get();
             if (user.getStatus() == User.Status.DELETED) {
@@ -85,9 +74,23 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
         SecurityContext context = SecurityContextHolder.createEmptyContext();
+        user.addRefreshToken(jwtService.generateRefreshToken(provider + "_" + socialId));
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
 
         return userPrincipal;
+    }
+
+    private OAuth2UserInfo getUserInfoByProvider(String provider){
+
+        if ("google".equals(provider)) {
+            return new GoogleOAuth2UserInfo();
+        } else if ("naver".equals(provider)) {
+            return new NaverOAuth2UserInfo();
+        } else if ("kakao".equals(provider)) {
+            return new KakaoOAuth2UserInfo();
+        } else {
+            throw new OAuth2AuthenticationException(new OAuth2Error("unsupported_provider"), "Unsupported provider: " + provider);
+        }
     }
 }
