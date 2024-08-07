@@ -1,8 +1,13 @@
 import React from 'react';
 import './SignupPage.css';
+import axiosInstance from "../../api/axiosInstance";
 
 const SignupPage = () => {
-    const backendUrl = 'http://localhost:8080';
+    const backendUrl = axiosInstance.defaults.baseURL;
+
+    const handleSocialLogin = (provider) => {
+        window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
+    };
 
     return (<div className="container">
             <main className="main">

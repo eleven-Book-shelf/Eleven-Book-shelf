@@ -1,9 +1,9 @@
 package com.sparta.elevenbookshelf.util;
 
-import com.sparta.elevenbookshelf.entity.Board;
-import com.sparta.elevenbookshelf.entity.User;
-import com.sparta.elevenbookshelf.repository.BoardRepository;
-import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
+import com.sparta.elevenbookshelf.domain.board.entity.Board;
+import com.sparta.elevenbookshelf.domain.board.repository.BoardRepository;
+import com.sparta.elevenbookshelf.domain.user.entity.User;
+import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

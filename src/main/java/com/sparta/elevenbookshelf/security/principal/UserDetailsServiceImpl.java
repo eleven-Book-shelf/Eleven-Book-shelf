@@ -1,9 +1,9 @@
 package com.sparta.elevenbookshelf.security.principal;
 
-import com.sparta.elevenbookshelf.entity.User;
+import com.sparta.elevenbookshelf.domain.user.entity.User;
+import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
-import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -1,5 +1,5 @@
 ### 회원가입
-POST http://localhost:8080/user/signup
+POST http://localhost:8080/api/user/signup
 Content-Type: application/json
 
 {
@@ -9,7 +9,7 @@ Content-Type: application/json
 }
 
 ### login
-POST localhost:8080/auth/login
+POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
@@ -19,7 +19,6 @@ Content-Type: application/json
 
 > {%
     client.global.set("access_token", response.body.accessToken);
-    client.global.set("refresh_token", response.body.refreshToken);
 %}
 
 ### logout
@@ -28,6 +27,6 @@ Authorization:{{access_token}}
 
 
 ### 유저
-GET localhost:8080/user
+GET localhost:8080/api/user
 Content-Type: application/json
 Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJrYWthb18zNTIzMDgxNDEyIiwiaWF0IjoxNzIxOTk1Mjk4LCLthqDtgbBf7IOd7ISxX-2DnOyKpO2KuCI6Iu2DnOyKpO2KuCIsImV4cCI6MTcyMjAwMTI5OH0.iwWc1oYKEBpF81b_9zsX9fUiPt4YgztN8NVDwZutXIc

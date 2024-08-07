@@ -25,7 +25,7 @@ const NewPostPage = () => {
         };
 
         try {
-            const response = await axiosInstance.post(`/boards/${boardId}/post`, postData, {
+            const response = await axiosInstance.post(`/api/boards/${boardId}/post`, postData, {
                 headers: {
                     Authorization: token,
                 }

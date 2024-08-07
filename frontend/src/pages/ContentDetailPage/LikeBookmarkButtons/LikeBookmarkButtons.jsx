@@ -10,7 +10,7 @@ const LikeBookmarkButtons = ({postId}) => {
         const fetchLikeStatus = async () => {
             try {
                 const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
-                const response = await axiosInstance.get(`/like/${postId}/likesContent`, {headers});
+                const response = await axiosInstance.get(`/api/like/${postId}/likesContent`, {headers});
                 setLiked(response.data);
             } catch (error) {
                 console.error('좋아요 상태를 불러오는 중 에러 발생:', error);
@@ -21,7 +21,7 @@ const LikeBookmarkButtons = ({postId}) => {
             try {
                 const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
                 const userId = localStorage.getItem('userId');
-                const response = await axiosInstance.get(`/bookmarks/${postId}/status`, {headers, params: {userId}});
+                const response = await axiosInstance.get(`/api/bookmarks/${postId}/status`, {headers, params: {userId}});
                 setBookmarked(response.data);
             } catch (error) {
                 console.error('북마크 상태를 불러오는 중 에러 발생:', error);
@@ -36,9 +36,9 @@ const LikeBookmarkButtons = ({postId}) => {
         try {
             const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
             if (liked) {
-                await axiosInstance.delete(`/like/${postId}/likesContent`, {headers});
+                await axiosInstance.delete(`/api/like/${postId}/likesContent`, {headers});
             } else {
-                await axiosInstance.post(`/like/${postId}/likesContent`, {}, {headers});
+                await axiosInstance.post(`/api/like/${postId}/likesContent`, {}, {headers});
             }
             setLiked(!liked);
         } catch (error) {
@@ -50,9 +50,9 @@ const LikeBookmarkButtons = ({postId}) => {
         try {
             const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
             if (bookmarked) {
-                await axiosInstance.delete(`/bookmarks/${postId}`, {headers});
+                await axiosInstance.delete(`/api/bookmarks/${postId}`, {headers});
             } else {
-                await axiosInstance.post(`/bookmarks/${postId}`, {}, {headers});
+                await axiosInstance.post(`/api/bookmarks/${postId}`, {}, {headers});
             }
             setBookmarked(!bookmarked);
         } catch (error) {

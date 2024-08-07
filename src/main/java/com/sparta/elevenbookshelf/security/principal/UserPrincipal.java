@@ -1,6 +1,6 @@
 package com.sparta.elevenbookshelf.security.principal;
 
-import com.sparta.elevenbookshelf.entity.User;
+import com.sparta.elevenbookshelf.domain.user.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

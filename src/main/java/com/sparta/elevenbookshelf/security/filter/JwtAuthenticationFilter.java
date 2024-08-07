@@ -38,18 +38,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         log.info("doFilterInternal accessToken 가져오기 : " + accessToken);
 
-        if (!StringUtils.hasText(accessToken)) {
-            filterChain.doFilter(request, response);
-            return;
+        if (StringUtils.hasText(accessToken) && jwtUtil.isTokenValidate(accessToken)) {
+            validateToken(accessToken);
         }
 
-        if (!jwtUtil.isTokenValidate(accessToken)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        validateToken(accessToken);
-        filterChain.doFilter(request, response); // 추가된 부분
+        filterChain.doFilter(request, response);
     }
 
     private void validateToken(String token) {
