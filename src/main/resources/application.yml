@@ -70,7 +70,6 @@ serverName: blue_server
 
 ---
 
-
 spring:
   config:
     activate:
