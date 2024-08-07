@@ -95,14 +95,11 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
-/*                                                   .requestMatchers("/auth/login").permitAll()
-                                                   .requestMatchers("/user/signup").permitAll()
-                                                   .requestMatchers("/user/email/**").permitAll()
-                                                   .requestMatchers("/auth/reissue").permitAll()
-                                                   .requestMatchers(HttpMethod.GET, "/boards/**").permitAll()
-                                                   .requestMatchers(HttpMethod.GET,  "/comments/**").permitAll()
-                                                   .requestMatchers("/login.html").permitAll()
-                                                   .requestMatchers("/admin/**").hasRole("ADMIN")*/
+/*                                                   .requestMatchers("/api/contents").permitAll()
+                                                   .requestMatchers("/api/contents/**").permitAll()
+                                                   .requestMatchers("/api/boards/**").permitAll()
+                                                   .requestMatchers("/api/auth/**").permitAll()
+                                                   .anyRequest().authenticated()*/
                                                    .anyRequest().permitAll()
         );
 

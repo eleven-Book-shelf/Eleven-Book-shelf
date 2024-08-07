@@ -5,10 +5,10 @@ import com.sparta.elevenbookshelf.domain.auth.dto.LoginRequestDto;
 import com.sparta.elevenbookshelf.domain.auth.dto.LoginResponseDto;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
-import com.sparta.elevenbookshelf.exception.BusinessException;
-import com.sparta.elevenbookshelf.exception.ErrorCode;
+import com.sparta.elevenbookshelf.domain.user.service.UserService;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
+import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +21,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final JwtService jwtService;
     private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
+    private final UserService userService;
     private final AuthenticationManager authenticationManager;
 
     @Transactional
@@ -36,51 +36,40 @@ public class AuthService {
                 )
         );
 
-        User user = getUsername(loginRequestDto);
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        User user = userService.getUser(userPrincipal.getUsername());
 
         String accessToken = jwtService.generateAccessToken(user.getUsername());
-        String refeshToken = jwtService.generateRefreshToken(user.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
 
-        user.addRefreshToken(refeshToken);
+        user.addRefreshToken(refreshToken);
 
-        return new LoginResponseDto(accessToken, refeshToken);
+        return new LoginResponseDto(accessToken, refreshToken);
     }
 
     @Transactional
-    public void logout(Long userid){
-        User user = getUser(userid);
+    public void logout(Long userid) {
+        User user = userService.getUser(userid);
         user.deleteRefreshToken();
+        user.deleteAccessToken();
     }
 
     @Transactional
-    public String refresh(String header) {
-        jwtUtil.isTokenValidate(header);
-        Claims claims = jwtUtil.extractAllClaims(header);
-        User user = getUser(claims.getSubject());
-        if(jwtUtil.isRefreshTokenValidate(user.getUsername())) {
-            return jwtService.generateRefreshToken(user.getUsername());
+    public LoginResponseDto refresh(String token) {
+        if (jwtUtil.isRefreshTokenValidate(token)) {
+            String username = jwtUtil.getUsernameFromToken(token);
+
+            User user = userService.getUser(username);
+            String refreshToken = jwtService.generateRefreshToken(username);
+            user.addRefreshToken(refreshToken);
+
+            return new LoginResponseDto(
+                    jwtService.generateAccessToken(username),
+                    refreshToken
+            );
         }
-        return null;
-    }
 
-    //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
-
-    private User getUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
-        );
-    }
-
-    private User getUser(String username) {
-        return userRepository.findByUsername(username).orElseThrow(
-                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
-        );
-    }
-
-    private User getUsername(LoginRequestDto loginRequestDto) {
-        return userRepository.findByUsername(loginRequestDto.getUsername()).orElseThrow(
-                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
-        );
+        return new LoginResponseDto("out", "out");
     }
 
 

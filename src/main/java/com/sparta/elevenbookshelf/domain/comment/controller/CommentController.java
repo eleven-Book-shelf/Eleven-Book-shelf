@@ -3,6 +3,8 @@ package com.sparta.elevenbookshelf.domain.comment.controller;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentResponseDto;
 import com.sparta.elevenbookshelf.domain.comment.service.CommentService;
+import com.sparta.elevenbookshelf.domain.like.dto.LikeResponseDto;
+import com.sparta.elevenbookshelf.domain.like.service.LikeService;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
+    private final LikeService likeService;
 
     //:::::::::::::::::// post //::::::::::::::::://
 
@@ -58,6 +61,29 @@ public class CommentController {
 
         commentService.deleteComment(postId, commentId, userPrincipal.getUser());
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/comments/{id}/like")
+    public ResponseEntity<LikeResponseDto> createLikeComment(
+            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        return ResponseEntity.status(HttpStatus.CREATED).
+                body(likeService.createLikeComment(id, userPrincipal.getUser().getId()));
+    }
+
+    @DeleteMapping("/comments/{id}/like")
+    public ResponseEntity<Void> DeleteLikeComment(
+            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        likeService.deleteLikeComment(id, userPrincipal.getUser().getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/comments/{id}/like")
+    public ResponseEntity<Boolean> getLikeComment(
+            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        return ResponseEntity.ok().body(likeService.getLikeComment(id, userPrincipal.getUser().getId()));
     }
 
 }

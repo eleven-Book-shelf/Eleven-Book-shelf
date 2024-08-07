@@ -23,7 +23,7 @@ public enum ErrorCode {
 
     //Token
     NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND, "토큰이 없습니다."),
-    TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "토큰이 만료 되었습니다."),
+    TOKEN_EXPIRED(HttpStatus.FORBIDDEN, "토큰이 만료 되었습니다."),
     TOKEN_INVALID(HttpStatus.BAD_REQUEST, "토큰이 유효하지 않습니다."),
 
     //User
