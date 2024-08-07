@@ -38,6 +38,8 @@ out/
 
 .env
 
+crawling_data.csv
+
 /src/main/resources/chromedriver
 
 eleven_book.pem
