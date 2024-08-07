@@ -101,9 +101,11 @@ public class SecurityConfig {
                                                    .requestMatchers("/api/boards/**").permitAll()
                                                    .requestMatchers("/api/auth/**").permitAll()
                                                    .requestMatchers(HttpMethod.GET, "/api/post/**").permitAll()
+                                                   .requestMatchers( HttpMethod.GET,"/api/hashtag").permitAll()
                                                    .anyRequest().authenticated()
 //                                                   .anyRequest().permitAll()
         );
+
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
