@@ -21,10 +21,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto req) {
-
-        LoginResponseDto res = authService.login(req);
-
-        return ResponseEntity.status(HttpStatus.OK).header(HttpHeaders.AUTHORIZATION,res.getAccessToken()).body(res);
+        LoginResponseDto loginResponseDto = authService.login(req);
+        return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
     }
 
     @DeleteMapping("/logout")
@@ -34,10 +32,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(HttpServletRequest request){
-        return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.AUTHORIZATION,authService.refresh(request.getHeader(HttpHeaders.AUTHORIZATION)))
-                .body("null");
+    public ResponseEntity<LoginResponseDto> refresh(@RequestParam String token){
+        LoginResponseDto loginResponseDto = authService.refresh(token);
+        return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
     }
 
 }

@@ -2,7 +2,6 @@ package com.sparta.elevenbookshelf.domain.user.entity;
 
 import com.sparta.elevenbookshelf.common.Timestamp;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.UserHashtag;
-import com.sparta.elevenbookshelf.domain.oAuth2Token.entity.OAuth2Token;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,6 +35,8 @@ public class User extends Timestamp {
 
     private String refreshToken;
 
+    private String oauthRefreshToken;
+
     private String socialId;
 
     @Enumerated(EnumType.STRING)
@@ -49,9 +50,6 @@ public class User extends Timestamp {
 
     @OneToMany(mappedBy = "user")
     private Set<UserHashtag> userHashtags = new HashSet<>();
-
-    @OneToOne(mappedBy ="user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private OAuth2Token oauthRefreshToken;
 
     @Builder
     public User(String username,String nickname ,String password,String email,String socialId ,Status status, Role role) {
@@ -76,6 +74,10 @@ public class User extends Timestamp {
         this.refreshToken = "out";
     }
 
+    public void deleteAccessToken() {
+        this.accessToken = "out";
+    }
+
     public void addRefreshToken(String RefreshToken) {
         this.refreshToken = RefreshToken;
     }
@@ -90,7 +92,7 @@ public class User extends Timestamp {
 
     public void addAccessToken(String accessToken) {this.accessToken = accessToken;}
 
-    public void addOauthRefreshToken(OAuth2Token oauthRefreshToken) {this.oauthRefreshToken = oauthRefreshToken;}
+    public void addOauthRefreshToken(String oauthRefreshToken) {this.oauthRefreshToken = oauthRefreshToken;}
 
     //:::::::::::::::::// enum //::::::::::::::::://
 

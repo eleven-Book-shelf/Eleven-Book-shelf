@@ -3,6 +3,8 @@ package com.sparta.elevenbookshelf.domain.comment.controller;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentResponseDto;
 import com.sparta.elevenbookshelf.domain.comment.service.CommentService;
+import com.sparta.elevenbookshelf.domain.like.dto.LikeResponseDto;
+import com.sparta.elevenbookshelf.domain.like.service.LikeService;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,14 +16,15 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/{postId}")
+@RequestMapping("/api/post/{postId}/comments")
 public class CommentController {
 
     private final CommentService commentService;
+    private final LikeService likeService;
 
     //:::::::::::::::::// post //::::::::::::::::://
 
-    @PostMapping("/comments")
+    @PostMapping
     public ResponseEntity<Void> createCommentPost(
             @PathVariable Long postId,
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -30,7 +33,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/comments")
+    @GetMapping
     public ResponseEntity<List<CommentResponseDto>> readCommentsPost(
             @PathVariable Long postId,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
@@ -40,7 +43,7 @@ public class CommentController {
                 body(commentService.readCommentsPost(postId, offset, pagesize));
     }
 
-    @PutMapping("/comments/{commentId}")
+    @PutMapping("/{commentId}")
     public ResponseEntity<Void> updateComment(
             @PathVariable Long postId,
             @PathVariable Long commentId,
@@ -50,7 +53,7 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/comments/{commentId}")
+    @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long postId,
             @PathVariable Long commentId,
@@ -58,6 +61,29 @@ public class CommentController {
 
         commentService.deleteComment(postId, commentId, userPrincipal.getUser());
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{commentId}/like")
+    public ResponseEntity<LikeResponseDto> createLikeComment(
+            @PathVariable Long commentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        return ResponseEntity.status(HttpStatus.CREATED).
+                body(likeService.createLikeComment(commentId, userPrincipal.getUser().getId()));
+    }
+
+    @DeleteMapping("/{commentId}/like")
+    public ResponseEntity<Void> DeleteLikeComment(
+            @PathVariable Long commentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        likeService.deleteLikeComment(commentId, userPrincipal.getUser().getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{commentId}/like")
+    public ResponseEntity<Boolean> getLikeComment(
+            @PathVariable Long commentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        return ResponseEntity.ok().body(likeService.getLikeComment(commentId, userPrincipal.getUser().getId()));
     }
 
 }

@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -95,15 +96,13 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
-/*                                                   .requestMatchers("/auth/login").permitAll()
-                                                   .requestMatchers("/user/signup").permitAll()
-                                                   .requestMatchers("/user/email/**").permitAll()
-                                                   .requestMatchers("/auth/reissue").permitAll()
-                                                   .requestMatchers(HttpMethod.GET, "/boards/**").permitAll()
-                                                   .requestMatchers(HttpMethod.GET,  "/comments/**").permitAll()
-                                                   .requestMatchers("/login.html").permitAll()
-                                                   .requestMatchers("/admin/**").hasRole("ADMIN")*/
-                                                   .anyRequest().permitAll()
+                                                   .requestMatchers("/api/contents").permitAll()
+                                                   .requestMatchers("/api/contents/**").permitAll()
+                                                   .requestMatchers("/api/boards/**").permitAll()
+                                                   .requestMatchers("/api/auth/**").permitAll()
+                                                   .requestMatchers(HttpMethod.GET, "/api/post/**").permitAll()
+                                                   .anyRequest().authenticated()
+//                                                   .anyRequest().permitAll()
         );
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -47,7 +47,7 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    @GetMapping("/{boardId}/title")
+    @GetMapping("/title/{boardId}")
     public ResponseEntity<String> readBoardTitle(
             @PathVariable Long boardId) {
         return ResponseEntity.status(HttpStatus.OK).body(boardService.readBoardTitle(boardId));
