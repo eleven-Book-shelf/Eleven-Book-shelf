@@ -96,13 +96,13 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
-                                                   .requestMatchers("/api/contents").permitAll()
+/*                                                   .requestMatchers("/api/contents").permitAll()
                                                    .requestMatchers("/api/contents/**").permitAll()
                                                    .requestMatchers("/api/boards/**").permitAll()
                                                    .requestMatchers("/api/auth/**").permitAll()
                                                    .requestMatchers(HttpMethod.GET, "/api/post/**").permitAll()
-                                                   .anyRequest().authenticated()
-//                                                   .anyRequest().permitAll()
+                                                   .anyRequest().authenticated()*/
+                                                   .anyRequest().permitAll()
         );
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
