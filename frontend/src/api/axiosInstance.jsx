@@ -12,25 +12,41 @@ axiosInstance.interceptors.response.use(
     async error => {
         const originalRequest = error.config;
 
-        // 에러가 토큰 만료로 인한 것인지 확인하고, 요청이 이미 재시도된 것이 아닌지 확인
-        if (error.response && error.response.status === 403 && !originalRequest._retry) {
-            originalRequest._retry = true; // 재시도 플래그 설정
+        if (error.response) {
+            // 에러코드가 3838일 경우 로그아웃 처리
+/*            if (error.response.status === 3838) {
+                console.error('에러 코드 3838: 로그아웃 처리');
+                localStorage.removeItem('Authorization');
+                localStorage.removeItem('RefreshToken');
+                localStorage.removeItem('userId');
+                window.location.href = '/login';
+                return Promise.reject(new Error('에러 코드 3838: 로그아웃 처리'));
+            }*/
 
-            try {
-                const refreshToken = localStorage.getItem('RefreshToken');
-                const response = await axios.post('http://localhost:8080/api/auth/refresh', null, {
-                    params: { token: refreshToken }
-                });
+            // 에러코드가 403일 경우 토큰 갱신 처리
+            if (error.response.status === 403 && !originalRequest._retry) {
+                originalRequest._retry = true;
 
-                const { accessToken, refreshToken: newRefreshToken } = response.data;
-                localStorage.setItem('Authorization', accessToken);
-                localStorage.setItem('RefreshToken', newRefreshToken);
+                try {
+                    const refreshToken = localStorage.getItem('RefreshToken');
+                    const response = await axios.post('http://localhost:8080/api/auth/refresh', null, {
+                        params: { token: refreshToken }
+                    });
 
-                originalRequest.headers['Authorization'] = `${accessToken}`;
-                return axiosInstance(originalRequest);
-            } catch (refreshError) {
-                console.error('토큰 갱신 실패:', refreshError);
-                return Promise.reject(refreshError);
+                    const { accessToken, refreshToken: newRefreshToken } = response.data;
+                    localStorage.setItem('Authorization', accessToken);
+                    localStorage.setItem('RefreshToken', newRefreshToken);
+
+                    originalRequest.headers['Authorization'] = `${accessToken}`;
+                    return axiosInstance(originalRequest);
+                } catch (refreshError) {
+                    console.error('토큰 갱신 실패:', refreshError);
+                    localStorage.removeItem('Authorization');
+                    localStorage.removeItem('RefreshToken');
+                    localStorage.removeItem('userId');
+                    // window.location.href = '/login';
+                    return Promise.reject(refreshError);
+                }
             }
         }
         return Promise.reject(error);

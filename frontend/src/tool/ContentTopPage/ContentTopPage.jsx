@@ -43,7 +43,7 @@ const ContentTopPage = ({ type, title, genres, tabs }) => {
             <Swiper
                 modules={[Navigation]}
                 spaceBetween={10}
-                slidesPerView={3}
+                slidesPerView={4.2}
                 navigation
                 loop={true}
                 breakpoints={{

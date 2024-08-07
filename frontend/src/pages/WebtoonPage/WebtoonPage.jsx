@@ -21,7 +21,7 @@ const WebtoonPage = () => {
     }, []);
 
     return (
-        <>
+        <div className="content-page">
             <ContentTopPage
                 type="/webtoon"
                 title="웹툰 상위 10"
@@ -33,7 +33,7 @@ const WebtoonPage = () => {
                 genres={genres}
                 tabs={['실시간 랭킹', '월간 랭킹', '누적 랭킹']}
             />
-        </>
+        </div>
     );
 }
 

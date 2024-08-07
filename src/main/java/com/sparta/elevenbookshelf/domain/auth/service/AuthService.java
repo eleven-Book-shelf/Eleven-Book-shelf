@@ -6,6 +6,8 @@ import com.sparta.elevenbookshelf.domain.auth.dto.LoginResponseDto;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
 import com.sparta.elevenbookshelf.domain.user.service.UserService;
+import com.sparta.elevenbookshelf.exception.BusinessException;
+import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
@@ -56,20 +58,19 @@ public class AuthService {
 
     @Transactional
     public LoginResponseDto refresh(String token) {
-        if (jwtUtil.isRefreshTokenValidate(token)) {
-            String username = jwtUtil.getUsernameFromToken(token);
-
-            User user = userService.getUser(username);
-            String refreshToken = jwtService.generateRefreshToken(username);
-            user.addRefreshToken(refreshToken);
-
-            return new LoginResponseDto(
-                    jwtService.generateAccessToken(username),
-                    refreshToken
-            );
+        if (!jwtUtil.isRefreshTokenValidate(token)) {
+           throw new BusinessException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
+        String username = jwtUtil.getUsernameFromToken(token);
 
-        return new LoginResponseDto("out", "out");
+        User user = userService.getUser(username);
+        String refreshToken = jwtService.generateRefreshToken(username);
+        user.addRefreshToken(refreshToken);
+
+        return new LoginResponseDto(
+                jwtService.generateAccessToken(username),
+                refreshToken
+        );
     }
 
 

@@ -20,14 +20,14 @@ const BookmarkedWebnovels = () => {
     }, []);
 
     return (
-        <>
+        <div className="content-page">
             <ContentPage
-                type="/webtoon/bookmark"
+                type="/webnovel/bookmark"
                 title="웹툰"
                 genres={genres}
                 tabs={['실시간 랭킹', '월간 랭킹', '누적 랭킹']}
             />
-        </>
+        </div>
     );
 }
 

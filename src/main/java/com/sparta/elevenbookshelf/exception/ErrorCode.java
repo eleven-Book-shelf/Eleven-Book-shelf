@@ -25,6 +25,7 @@ public enum ErrorCode {
     NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND, "토큰이 없습니다."),
     TOKEN_EXPIRED(HttpStatus.FORBIDDEN, "토큰이 만료 되었습니다."),
     TOKEN_INVALID(HttpStatus.BAD_REQUEST, "토큰이 유효하지 않습니다."),
+    REFRESH_TOKEN_EXPIRED(HttpStatus.valueOf(3838), "리프레쉬 토큰이 만료 되었습니다."), // New error code for refresh token expiration
 
     //User
     ALREADY_EXISTING_USER(HttpStatus.BAD_REQUEST, "이미 존재하는 아이디 입니다."),
@@ -43,9 +44,6 @@ public enum ErrorCode {
     NOT_FOUND_CONTENT(HttpStatus.BAD_REQUEST, "컨탠츠를 찾을 수 없습니다." )
 
     ;
-
-
-    //
 
     private final HttpStatus status;
     private final String message;

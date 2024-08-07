@@ -20,8 +20,7 @@ const LikeBookmarkButtons = ({postId}) => {
         const fetchBookmarkStatus = async () => {
             try {
                 const headers = {Authorization: `${localStorage.getItem('Authorization')}`};
-                const userId = localStorage.getItem('userId');
-                const response = await axiosInstance.get(`/api/bookmarks/${postId}/status`, {headers, params: {userId}});
+                const response = await axiosInstance.get(`/api/bookmarks/${postId}/status`, {headers});
                 setBookmarked(response.data);
             } catch (error) {
                 console.error('북마크 상태를 불러오는 중 에러 발생:', error);

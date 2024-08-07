@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/{postId}")
+@RequestMapping("/api/post/{postId}/comments")
 public class CommentController {
 
     private final CommentService commentService;
@@ -24,7 +24,7 @@ public class CommentController {
 
     //:::::::::::::::::// post //::::::::::::::::://
 
-    @PostMapping("/comments")
+    @PostMapping
     public ResponseEntity<Void> createCommentPost(
             @PathVariable Long postId,
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -33,7 +33,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/comments")
+    @GetMapping
     public ResponseEntity<List<CommentResponseDto>> readCommentsPost(
             @PathVariable Long postId,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
@@ -43,7 +43,7 @@ public class CommentController {
                 body(commentService.readCommentsPost(postId, offset, pagesize));
     }
 
-    @PutMapping("/comments/{commentId}")
+    @PutMapping("/{commentId}")
     public ResponseEntity<Void> updateComment(
             @PathVariable Long postId,
             @PathVariable Long commentId,
@@ -53,7 +53,7 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/comments/{commentId}")
+    @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long postId,
             @PathVariable Long commentId,
@@ -63,27 +63,27 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/comments/{id}/like")
+    @PostMapping("/{commentId}/like")
     public ResponseEntity<LikeResponseDto> createLikeComment(
-            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long commentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
 
         return ResponseEntity.status(HttpStatus.CREATED).
-                body(likeService.createLikeComment(id, userPrincipal.getUser().getId()));
+                body(likeService.createLikeComment(commentId, userPrincipal.getUser().getId()));
     }
 
-    @DeleteMapping("/comments/{id}/like")
+    @DeleteMapping("/{commentId}/like")
     public ResponseEntity<Void> DeleteLikeComment(
-            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long commentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
 
-        likeService.deleteLikeComment(id, userPrincipal.getUser().getId());
+        likeService.deleteLikeComment(commentId, userPrincipal.getUser().getId());
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/comments/{id}/like")
+    @GetMapping("/{commentId}/like")
     public ResponseEntity<Boolean> getLikeComment(
-            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long commentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
 
-        return ResponseEntity.ok().body(likeService.getLikeComment(id, userPrincipal.getUser().getId()));
+        return ResponseEntity.ok().body(likeService.getLikeComment(commentId, userPrincipal.getUser().getId()));
     }
 
 }
