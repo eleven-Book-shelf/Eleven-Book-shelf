@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.domain.user.service;
 
+import com.sparta.elevenbookshelf.domain.auth.dto.LoginRequestDto;
 import com.sparta.elevenbookshelf.domain.user.dto.UserRequestDto;
 import com.sparta.elevenbookshelf.domain.user.dto.UserResponseDto;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
@@ -63,16 +64,21 @@ public class UserService {
 
     //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
 
-    private User getUser(Long userId) {
+    public User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
 
-    private User getUser(String username) {
+    public User getUser(String username) {
         return userRepository.findByUsername(username).orElseThrow(
                 () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
 
+    public User getUsername(LoginRequestDto loginRequestDto) {
+        return userRepository.findByUsername(loginRequestDto.getUsername()).orElseThrow(
+                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
+        );
+    }
 }

@@ -33,17 +33,18 @@ public class BookMarkController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<BookMarkResponseDto>> getUserBookmarks(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(value = "offset", defaultValue = "0") Long offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize) {
 
-        List<BookMarkResponseDto> bookmarks = bookmarkService.getUserBookMarks(userId, offset, pagesize);
+        List<BookMarkResponseDto> bookmarks = bookmarkService.getUserBookMarks(userPrincipal.getUser().getId(), offset, pagesize);
         return ResponseEntity.ok(bookmarks);
     }
 
     @GetMapping("/{postId}/status")
-    public ResponseEntity<Boolean> isBookmarked(@RequestParam Long userId, @PathVariable Long postId) {
-        boolean isBookmarked = bookmarkService.isBookMarked(userId, postId);
+    public ResponseEntity<Boolean> isBookmarked(
+            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long postId) {
+        boolean isBookmarked = bookmarkService.isBookMarked(userPrincipal.getUser().getId(), postId);
         return ResponseEntity.ok(isBookmarked);
     }
 }

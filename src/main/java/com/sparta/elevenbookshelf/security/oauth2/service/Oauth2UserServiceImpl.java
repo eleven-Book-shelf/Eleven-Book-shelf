@@ -46,13 +46,29 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
 
         String socialId = userInfo.getProviderId(oAuth2User.getAttributes());
         Optional<User> optionalUser = userRepository.findBySocialId(socialId);
+        User user = getUser(optionalUser, provider, socialId, userInfo, oAuth2User);
+
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+
+        context.setAuthentication(authentication);
+
+        SecurityContextHolder.setContext(context);
+
+        return userPrincipal;
+    }
+
+    private User getUser(Optional<User> optionalUser, String provider, String socialId, OAuth2UserInfo userInfo, OAuth2User oAuth2User) {
         User user;
 
         if (optionalUser.isEmpty()) {
             user = User.builder()
                     .username(provider + "_" + socialId)
                     .nickname(userInfo.getNameFromAttributes(oAuth2User.getAttributes()))
-                    .password(encoder.passwordEncoder().encode("default_password"))
+                    .password(encoder.passwordEncoder().encode("ZWxldmVuX2Jvb2tz"))
                     .email(userInfo.getEmailFromAttributes(oAuth2User.getAttributes()))
                     .socialId(socialId)
                     .role(User.Role.USER)
@@ -69,16 +85,7 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
                 throw new OAuth2AuthenticationException(new OAuth2Error("user_blocked"), "차단된 사용자 입니다.");
             }
         }
-
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        user.addRefreshToken(jwtService.generateRefreshToken(provider + "_" + socialId));
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
-
-        return userPrincipal;
+        return user;
     }
 
     private OAuth2UserInfo getUserInfoByProvider(String provider){

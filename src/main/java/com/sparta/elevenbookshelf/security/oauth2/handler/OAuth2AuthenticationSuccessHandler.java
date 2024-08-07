@@ -1,7 +1,6 @@
 package com.sparta.elevenbookshelf.security.oauth2.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.elevenbookshelf.domain.oAuth2Token.entity.OAuth2Token;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
@@ -11,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -43,7 +41,16 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         User user = ((UserPrincipal) authentication.getPrincipal()).getUser();
         String accessToken = jwtService.generateAccessToken(user.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
 
+        OAuth2refreshToken(request, authentication, user, refreshToken, accessToken);
+
+        String redirectUrl = allowedOrigins + "/auth/callback?Authorization=" + accessToken + "VAV" +refreshToken;
+        response.sendRedirect(redirectUrl);
+
+    }
+
+    private void OAuth2refreshToken(HttpServletRequest request, Authentication authentication, User user, String refreshToken, String accessToken) {
         if (authentication instanceof OAuth2AuthenticationToken oauth2Token) {
             OAuth2AuthorizedClient authorizedClient = authorizedClientRepository.loadAuthorizedClient(
                     oauth2Token.getAuthorizedClientRegistrationId(),
@@ -52,29 +59,19 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             );
 
             if (authorizedClient != null && authorizedClient.getRefreshToken() != null) {
-                String refreshToken = authorizedClient.getRefreshToken().getTokenValue();
                 saveRefreshToken(user.getUsername(), authorizedClient.getClientRegistration().getRegistrationId(), refreshToken, accessToken);
             }
         } else {
             throw new OAuth2AuthenticationException(new OAuth2Error("invalid_token"), "Invalid OAuth2 authentication token");
         }
-        response.addHeader(HttpHeaders.AUTHORIZATION, accessToken);
-        String redirectUrl = allowedOrigins + "/auth/callback?Authorization=" + accessToken;
-        response.sendRedirect(redirectUrl);
     }
 
-    @Transactional
     protected void saveRefreshToken(String principalName, String provider, String refreshToken, String accessToken) {
         User user = userRepository.findByUsername(principalName).orElseThrow(
                 () -> new OAuth2AuthenticationException(new OAuth2Error("invalid_token"), "Invalid user"));
 
-        OAuth2Token entity = OAuth2Token.builder()
-                .provider(provider)
-                .principalName(user.getUsername())
-                .refreshToken(refreshToken)
-                .build();
-
-        user.addOauthRefreshToken(entity);
-        user.addAccessToken(accessToken);
+        user.addRefreshToken(jwtService.generateRefreshToken(user.getUsername()));
+        user.addOauthRefreshToken(refreshToken);
+        userRepository.save(user);
     }
 }

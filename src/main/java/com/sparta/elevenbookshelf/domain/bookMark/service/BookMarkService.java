@@ -10,6 +10,7 @@ import com.sparta.elevenbookshelf.domain.hashtag.repository.UserHashtagRepositor
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
+import com.sparta.elevenbookshelf.domain.user.service.UserService;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import jakarta.transaction.Transactional;
@@ -34,6 +35,8 @@ public class BookMarkService {
     private final HashtagService hashtagService;
     private final ContentHashtagRepository contentHashtagRepository;
     private final UserHashtagRepository userHashtagRepository;
+
+    private final UserService userService;
 
     /**
      * 북마크 추가 기능
