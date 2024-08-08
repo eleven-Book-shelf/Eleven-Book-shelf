@@ -5,7 +5,6 @@ import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationEntryPoint;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationFilter;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
-import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
 import com.sparta.elevenbookshelf.security.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import com.sparta.elevenbookshelf.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
@@ -36,7 +35,6 @@ public class SecurityConfig {
 
     @Value("${CORS_ALLOWED_ORIGINS}")
     private String allowedOrigins;
-    private final JwtUtil jwtUtil;
     private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -72,13 +70,13 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         log.info("@Bean jwtAuthenticationFilter 실행");
-        return new JwtAuthenticationFilter(jwtUtil, userDetailsService);
+        return new JwtAuthenticationFilter(jwtService, userDetailsService);
     }
 
     @Bean
     AuthenticationEntryPoint authenticationEntryPoint() {
         log.info("@Bean authenticationEntryPoint 실행");
-        return new JwtAuthenticationEntryPoint(jwtUtil, objectMapper);
+        return new JwtAuthenticationEntryPoint(jwtService, objectMapper);
     }
 
     @Bean
@@ -97,6 +95,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(request ->
                                            request
                                                    .requestMatchers("/api/contents").permitAll()
+                                                   .requestMatchers("/api/user/signup").permitAll()
+                                                   .requestMatchers("/api/auth/login").permitAll()
                                                    .requestMatchers("/api/contents/**").permitAll()
                                                    .requestMatchers("/api/boards/**").permitAll()
                                                    .requestMatchers("/api/auth/**").permitAll()

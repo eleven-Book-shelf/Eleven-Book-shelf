@@ -3,7 +3,7 @@ package com.sparta.elevenbookshelf.security.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sparta.elevenbookshelf.common.CommonErrorResponse;
-import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
+import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,14 +20,14 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final ObjectMapper objectMapper;
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        String message = jwtUtil.getErrorMessage(request.getHeader("Authorization"));
+        String message = jwtService.getErrorMessage(request.getHeader("Authorization"));
 
-        if(request.getRequestURI().equals("/api/auth/login")) {
+        if(request.getRequestURI().equals("/api/auth/login") || request.getRequestURI().equals("/api/user/signup")) {
             return;
         }
         response.setStatus(HttpStatus.FORBIDDEN.value());

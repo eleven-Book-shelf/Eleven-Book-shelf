@@ -9,10 +9,8 @@ import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +18,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private RestTemplate restTemplate;
-
-    @Value("${SOCIAL_GOOGLE_REVOKE}")
-    private String googleRevokeUrl;
 
     @Transactional
     public void signup(UserRequestDto req) {
@@ -41,13 +35,6 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
-    }
-
-    @Transactional
-    public void signOut(Long userId) {
-        User user = getUser(userId);
-        user.signOut();
-        user.deleteRefreshToken();
     }
 
     public UserResponseDto getProfile(Long userId) {
