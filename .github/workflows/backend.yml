@@ -24,8 +24,8 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Copy build artifacts
-        run: cp build/libs/*.jar .
+      - name: where is jar?
+        run: ls -R build
 
   docker_build_and_push:
     runs-on: ubuntu-latest
