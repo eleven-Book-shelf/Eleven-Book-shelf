@@ -1,15 +1,18 @@
-package com.sparta.elevenbookshelf.common.crawling;
+package com.sparta.elevenbookshelf.domain.crawling;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 import jakarta.annotation.PreDestroy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class CrawlingConfig {
+
+    @Value("${chrome.driver.location}")
+    String chromedriverLocation;
 
     private WebDriver webDriver;
 
@@ -17,10 +20,8 @@ public class CrawlingConfig {
     public WebDriver webDriver() {
         //사용할 WebDriver 의 기본적인 설정을 구성하는 부분.
 
-        // 크롬 드라이버가 어디에 존재하는지 찾아서 사용하는 부분. 현재는 웹드라이버매니저를 사용하여 자동으로 찾게함.(로컬에서만 가능)
-        WebDriverManager.chromedriver().setup();
-
-
+        // 크롬 드라이버 위치를 명시적으로 설정.
+        System.setProperty("webdriver.chrome.driver", chromedriverLocation);
 
         // 크롬 브라우저를 어떤 상태로 사용할 것인지 설정하는 부분.
         ChromeOptions options = new ChromeOptions();

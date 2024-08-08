@@ -114,7 +114,6 @@ spring:
     name: eleven-book
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-
     url: jdbc:mysql://${DB_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
@@ -122,9 +121,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-      dialect: org.hibernate.dialect.MySQLDialect
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
         default_batch_fetch_size: 1000
         format_sql: true
         show_sql: true
@@ -231,3 +230,7 @@ k:
 csv:
   file: ${CSV_FILE}
   file_locate: ${CSV_FILE_LOCATE}
+
+chrome:
+  driver:
+    location: ${CHROMEDRIVER_LOCATION}

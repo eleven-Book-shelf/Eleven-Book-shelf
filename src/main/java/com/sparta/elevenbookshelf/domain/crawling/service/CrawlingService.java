@@ -1,6 +1,6 @@
 package com.sparta.elevenbookshelf.domain.crawling.service;
 
-import com.sparta.elevenbookshelf.common.crawling.CrawlingUtil;
+import com.sparta.elevenbookshelf.domain.crawling.CrawlingUtil;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentDataResponseDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
