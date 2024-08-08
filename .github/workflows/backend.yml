@@ -77,7 +77,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
             sudo docker stop my_app || true
             sudo docker rm my_app || true
-            sudo docker run -d --name my_app -p 80:80 ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
+            sudo docker run -d --name my_app -p 8080:8080 ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
       - name: Verify Deployment
         uses: appleboy/ssh-action@v0.1.5
         with:
