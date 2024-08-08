@@ -34,8 +34,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Verify JAR file
-        run: ls -l Eleven-Book-shelf-0.0.1-SNAPSHOT.jar
+      - name: where is fk jar?
+        run: ls -R build/libs
 
       - name: Copy Jar
         run: cp build/libs/Eleven-Book-shelf-0.0.1-SNAPSHOT.jar .
