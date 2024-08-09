@@ -1,6 +1,6 @@
 package com.sparta.elevenbookshelf.security.filter;
 
-import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
+import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -26,7 +26,7 @@ import java.io.IOException;
 @Slf4j(topic = "JwtAuthenticationFilter")
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Override
@@ -34,11 +34,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        log.info("doFilterInternal 실행");
+        String requestUrl = request.getRequestURL().toString();
+        log.info("doFilterInternal 실행 - 요청 URL: " + requestUrl);
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         log.info("doFilterInternal accessToken 가져오기 : " + accessToken);
 
-        if (StringUtils.hasText(accessToken) && jwtUtil.isTokenValidate(accessToken)) {
+        if (StringUtils.hasText(accessToken) && jwtService.isTokenValidate(accessToken)) {
             validateToken(accessToken);
         }
 
@@ -47,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void validateToken(String token) {
         log.info("validateToken 메서드 실행. 받은 토큰 : " + token);
-        Claims claims = jwtUtil.extractAllClaims(token);
+        Claims claims = jwtService.extractAllClaims(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
         Authentication authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -56,5 +57,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.setContext(context);
         log.info("doFilterInternal accessToken validateToken 검사 끝 : " + token);
     }
-
 }

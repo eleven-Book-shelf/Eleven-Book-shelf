@@ -3,6 +3,7 @@ package com.sparta.elevenbookshelf.domain.auth.controller;
 import com.sparta.elevenbookshelf.domain.auth.dto.LoginRequestDto;
 import com.sparta.elevenbookshelf.domain.auth.dto.LoginResponseDto;
 import com.sparta.elevenbookshelf.domain.auth.service.AuthService;
+import com.sparta.elevenbookshelf.domain.user.dto.UserRequestDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,8 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto req) {
-        LoginResponseDto loginResponseDto = authService.login(req);
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
+        LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
     }
 
@@ -35,6 +36,13 @@ public class AuthController {
     public ResponseEntity<LoginResponseDto> refresh(@RequestParam String token){
         LoginResponseDto loginResponseDto = authService.refresh(token);
         return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
+    }
+
+    //회원 탈퇴
+    @DeleteMapping("/signout")
+    public ResponseEntity<?> signOut(@AuthenticationPrincipal UserPrincipal user) {
+        authService.signOut(user.getUser().getId());
+        return ResponseEntity.noContent().build();
     }
 
 }

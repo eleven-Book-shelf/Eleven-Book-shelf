@@ -20,6 +20,8 @@ public class CrawlingConfig {
         // 크롬 드라이버가 어디에 존재하는지 찾아서 사용하는 부분. 현재는 웹드라이버매니저를 사용하여 자동으로 찾게함.(로컬에서만 가능)
         WebDriverManager.chromedriver().setup();
 
+
+
         // 크롬 브라우저를 어떤 상태로 사용할 것인지 설정하는 부분.
         ChromeOptions options = new ChromeOptions();
 

@@ -18,7 +18,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
@@ -33,6 +32,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final OAuth2AuthorizedClientRepository authorizedClientRepository;
+
     private final ObjectMapper objectMapper;
 
     @Override
@@ -40,17 +40,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         log.info("onAuthenticationSuccess 실행됨");
 
         User user = ((UserPrincipal) authentication.getPrincipal()).getUser();
-        String accessToken = jwtService.generateAccessToken(user.getUsername());
-        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
-        OAuth2refreshToken(request, authentication, user, refreshToken, accessToken);
+        OAuth2refreshToken(request, authentication, user, refreshToken);
 
         String redirectUrl = allowedOrigins + "/auth/callback?Authorization=" + accessToken + "VAV" +refreshToken;
         response.sendRedirect(redirectUrl);
 
     }
 
-    private void OAuth2refreshToken(HttpServletRequest request, Authentication authentication, User user, String refreshToken, String accessToken) {
+    private void OAuth2refreshToken(HttpServletRequest request, Authentication authentication, User user, String refreshToken) {
         if (authentication instanceof OAuth2AuthenticationToken oauth2Token) {
             OAuth2AuthorizedClient authorizedClient = authorizedClientRepository.loadAuthorizedClient(
                     oauth2Token.getAuthorizedClientRegistrationId(),
@@ -59,19 +59,35 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             );
 
             if (authorizedClient != null && authorizedClient.getRefreshToken() != null) {
-                saveRefreshToken(user.getUsername(), authorizedClient.getClientRegistration().getRegistrationId(), refreshToken, accessToken);
+                saveToken(
+                        user.getUsername(),
+                        authorizedClient.getClientRegistration().getRegistrationId(),
+                        authorizedClient.getRefreshToken().getTokenValue(),
+                        authorizedClient.getAccessToken().getTokenValue());
+            } else if (authorizedClient != null) {
+                saveToken(user.getUsername(),authorizedClient.getAccessToken().getTokenValue());
             }
         } else {
             throw new OAuth2AuthenticationException(new OAuth2Error("invalid_token"), "Invalid OAuth2 authentication token");
         }
     }
 
-    protected void saveRefreshToken(String principalName, String provider, String refreshToken, String accessToken) {
+    protected void saveToken(String principalName, String provider, String refreshToken ,String accessToken) {
         User user = userRepository.findByUsername(principalName).orElseThrow(
                 () -> new OAuth2AuthenticationException(new OAuth2Error("invalid_token"), "Invalid user"));
 
-        user.addRefreshToken(jwtService.generateRefreshToken(user.getUsername()));
+        user.addRefreshToken(jwtService.generateRefreshToken(user));
         user.addOauthRefreshToken(refreshToken);
+        user.addOauthAccessToken(accessToken);
+        userRepository.save(user);
+    }
+
+    protected void saveToken(String principalName,String accessToken) {
+        User user = userRepository.findByUsername(principalName).orElseThrow(
+                () -> new OAuth2AuthenticationException(new OAuth2Error("invalid_token"), "토큰 저장 실패"));
+
+        user.addRefreshToken(jwtService.generateRefreshToken(user));
+        user.addOauthAccessToken(accessToken);
         userRepository.save(user);
     }
 }

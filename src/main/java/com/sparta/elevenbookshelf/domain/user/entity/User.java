@@ -37,6 +37,8 @@ public class User extends Timestamp {
 
     private String oauthRefreshToken;
 
+    private String oauthAccessToken;
+
     private String socialId;
 
     @Enumerated(EnumType.STRING)
@@ -90,9 +92,13 @@ public class User extends Timestamp {
         this.userHashtags.addAll(userHashtags);
     }
 
-    public void addAccessToken(String accessToken) {this.accessToken = accessToken;}
-
     public void addOauthRefreshToken(String oauthRefreshToken) {this.oauthRefreshToken = oauthRefreshToken;}
+
+    public void addOauthAccessToken(String oauthAccessToken) {this.oauthAccessToken = oauthAccessToken;}
+
+    public void changeStatus(Status status) {
+        this.status = status;
+    }
 
     //:::::::::::::::::// enum //::::::::::::::::://
 

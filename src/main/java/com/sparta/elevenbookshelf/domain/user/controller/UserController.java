@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,13 +32,6 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody UserRequestDto req) {
         userService.signup(req);
-        return ResponseEntity.noContent().build();
-
-    }
-
-    @DeleteMapping("/signout")
-    public ResponseEntity<?> signOut(@AuthenticationPrincipal UserPrincipal user) {
-        userService.signOut(user.getUser().getId());
         return ResponseEntity.noContent().build();
     }
 

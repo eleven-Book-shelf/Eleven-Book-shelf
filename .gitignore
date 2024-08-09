@@ -1,5 +1,6 @@
 HELP.md
 .gradle
+!build/libs/*.jar
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
@@ -37,6 +38,8 @@ out/
 .vscode/
 
 .env
+
+crawling_data.csv
 
 /src/main/resources/chromedriver
 
