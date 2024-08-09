@@ -50,7 +50,7 @@ public class User extends Timestamp {
     @OneToMany(mappedBy ="user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserHashtag> userHashtags = new HashSet<>();
 
     @Builder
@@ -88,8 +88,8 @@ public class User extends Timestamp {
         this.posts.add(post);
     }
 
-    public void addHashtag(UserHashtag userHashtag) {
-        this.userHashtags.add(userHashtag);
+    public void addHashtags(Set<UserHashtag> userHashtags) {
+        this.userHashtags.addAll(userHashtags);
     }
 
     public void addOauthRefreshToken(String oauthRefreshToken) {this.oauthRefreshToken = oauthRefreshToken;}

@@ -12,9 +12,10 @@ public class HashtagResponseDto {
     private int count;
 
     public HashtagResponseDto(Hashtag hashtag) {
+
         this.id = hashtag.getId();
         this.tier = hashtag.getTier();
-        this.tag = hashtag.getTag();
+        this.tag = "#" + hashtag.getTag();
         this.count = hashtag.getCount();
 
     }

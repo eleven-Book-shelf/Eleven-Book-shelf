@@ -1,36 +1,44 @@
 package com.sparta.elevenbookshelf.domain.post.dto;
 
-import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class PostResponseDto {
 
     private Long id;
     private Long userId;
-    private String postType;
-    private String title;
-    private String body;
     private String nickname;
-    private Long boardId;
-    private Long contentId;
-    private LocalDateTime createdAt;
+    private String postType;
     private int viewCount;
+    private Long contentId;
+    private Double rating;
+    private String title;
+    private List<String> tags = new ArrayList<>();
+    private String body;
+    private LocalDateTime createdAt;
+    private  LocalDateTime modifiedAt;
 
-    public PostResponseDto(Post post) {
+
+    public PostResponseDto (Post post) {
+
         this.id = post.getId();
         this.userId = post.getUser().getId();
-        this.postType = post.getPostType();
-        this.viewCount = post.getViewCount();
-        this.title = post.getTitle();
-        this.body = post.getBody();
         this.nickname = post.getUser().getNickname();
-        this.boardId = post.getBoard().getId();
-        this.contentId = Optional.ofNullable(post.getContent()).map(Content::getId).orElse(null);
+        this.postType = post.getType().toString();
+        this.viewCount = post.getViewCount();
+        this.contentId = post.getContent().getId();
+        this.rating = post.getRating();
+        this.title = post.getTitle();
+        this.tags = post.getPostHashtags().stream()
+                .map(postHashtag -> postHashtag.getHashtag().getTag())
+                .toList();
+        this.body = post.getBody();
         this.createdAt = post.getCreatedAt();
+        this.modifiedAt = post.getModifiedAt();
     }
 }

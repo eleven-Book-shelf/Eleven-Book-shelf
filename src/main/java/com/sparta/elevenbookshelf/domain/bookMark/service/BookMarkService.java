@@ -41,7 +41,6 @@ public class BookMarkService {
     /**
      * 북마크 추가 기능
      * - 해당 유저와 콘텐츠를 찾고, 북마크를 추가합니다.
-     * - 해시태그 가중치를 업데이트합니다.
      * - 관련 엔티티들을 저장합니다.
      * @param userId 유저 ID
      * @param contentId 콘텐츠 ID
@@ -64,8 +63,7 @@ public class BookMarkService {
                         .status(true)
                         .build());
 
-        // hashtag 가중치 설정 부분
-        hashtagService.updateHashtagByBookmark(userId, contentId);
+        // hashtag 가중치 설정 부분 -> Controller 계층으로 이동
 
         bookmark.toggleStatus();
         bookmarkRepository.save(bookmark);

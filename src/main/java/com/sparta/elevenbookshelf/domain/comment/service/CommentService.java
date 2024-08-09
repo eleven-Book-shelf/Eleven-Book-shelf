@@ -28,8 +28,6 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final ContentRepository contentRepository;
-    private final HashtagService hashtagService;
 
     //:::::::::::::::::// post //::::::::::::::::://
 
@@ -62,10 +60,6 @@ public class CommentService {
                 .build();
 
         Comment savedComment = commentRepository.save(comment);
-
-        if (post.getContent() != null) {
-            hashtagService.updateHashtagByPost(user.getId(), postId, "comment");
-        }
     }
 
     /**

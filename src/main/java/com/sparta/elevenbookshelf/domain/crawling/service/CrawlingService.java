@@ -1,7 +1,7 @@
 package com.sparta.elevenbookshelf.domain.crawling.service;
 
 import com.sparta.elevenbookshelf.common.crawling.CrawlingUtil;
-import com.sparta.elevenbookshelf.domain.content.dto.ContentDataResponseDto;
+import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,11 +44,11 @@ public class CrawlingService {
     }
 
     // content 테이블에 저장된 작품 URL 을 기준으로 해당하는 작품을 검색
-    public ContentDataResponseDto getOneContent(String contentUrl) {
+    public ContentResponseDto getOneContent(String contentUrl) {
         Content content = contentRepository.findByUrl(contentUrl).orElseThrow(()
                 -> new NotFoundException("URL 에 해당하는 작품이 없습니다. 입력받은 URL : " + contentUrl));
 
-        return new ContentDataResponseDto(content);
+        return new ContentResponseDto(content);
     }
 
 }

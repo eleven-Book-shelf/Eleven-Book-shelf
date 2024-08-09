@@ -2,8 +2,10 @@ package com.sparta.elevenbookshelf.domain.bookMark.controller;
 
 import com.sparta.elevenbookshelf.domain.bookMark.dto.BookMarkResponseDto;
 import com.sparta.elevenbookshelf.domain.bookMark.service.BookMarkService;
+import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -16,19 +18,26 @@ import java.util.List;
 public class BookMarkController {
 
     private final BookMarkService bookmarkService;
+    private final HashtagService hashtagService;
 
     @PostMapping("/{postId}")
     public ResponseEntity<BookMarkResponseDto> addBookMark(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long postId) {
-        bookmarkService.addBookMark(userPrincipal.getUser().getId(), postId);
-        return ResponseEntity.ok().build();
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long postId) {
+
+        BookMarkResponseDto res = bookmarkService.addBookMark(userPrincipal.getUser().getId(), postId);
+        hashtagService.userContentHashtagInteraction(userPrincipal.getUser(), postId, hashtagService.BOOKMARK_WEIGHT, hashtagService.BOOKMARKED_WEIGHT);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> removeBookmark(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long postId) {
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long postId) {
+
         bookmarkService.removeBookMark(userPrincipal.getUser().getId(), postId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/user/{userId}")
@@ -38,13 +47,15 @@ public class BookMarkController {
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize) {
 
         List<BookMarkResponseDto> bookmarks = bookmarkService.getUserBookMarks(userPrincipal.getUser().getId(), offset, pagesize);
-        return ResponseEntity.ok(bookmarks);
+        return ResponseEntity.status(HttpStatus.OK).body(bookmarks);
     }
 
     @GetMapping("/{postId}/status")
     public ResponseEntity<Boolean> isBookmarked(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long postId) {
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long postId) {
+
         boolean isBookmarked = bookmarkService.isBookMarked(userPrincipal.getUser().getId(), postId);
-        return ResponseEntity.ok(isBookmarked);
+        return ResponseEntity.status(HttpStatus.OK).body(isBookmarked);
     }
 }
