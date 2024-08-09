@@ -2,6 +2,7 @@ package com.sparta.elevenbookshelf.domain.hashtag.service;
 
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
+import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.ContentHashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.PostHashtag;
@@ -22,6 +23,10 @@ import com.sparta.elevenbookshelf.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -51,7 +56,6 @@ public class HashtagService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    // TODO: controller로 연결
     public List<String> readTop10Hashtags() {
 
         List<Hashtag> topHashtags = hashtagRepository.findTop10ByCount();
@@ -491,5 +495,17 @@ public class HashtagService {
         return contentRepository.findById(contentId).orElseThrow(
                 () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
         );
+    }
+
+    public Page<HashtagResponseDto> getAdminPage(int page, int size, String sortBy, boolean asc) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Hashtag> hashtags = hashtagRepository.findAll(pageable);
+
+        return hashtags.map(HashtagResponseDto::new);
+    }
+
+    public void deleteHashtag(Long hashtagId) {
+        hashtagRepository.deleteById(hashtagId);
     }
 }

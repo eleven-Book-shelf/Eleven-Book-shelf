@@ -2,6 +2,7 @@ package com.sparta.elevenbookshelf.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
+import com.sparta.elevenbookshelf.security.config.CustomAccessDeniedHandler;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationEntryPoint;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationFilter;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,7 +30,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 @Slf4j(topic = "SecurityConfig")
 public class SecurityConfig {
@@ -39,6 +41,7 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final OAuth2AuthorizedClientRepository authorizedClientRepository;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final UserRepository userRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -90,11 +93,13 @@ public class SecurityConfig {
 
         http.exceptionHandling(e -> e
                 .authenticationEntryPoint(authenticationEntryPoint())
+                .accessDeniedHandler(customAccessDeniedHandler)
         );
 
         http.authorizeHttpRequests(request ->
                                            request
                                                    .requestMatchers("/api/contents").permitAll()
+                                                   .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                    .requestMatchers("/api/user/signup").permitAll()
                                                    .requestMatchers("/api/auth/login").permitAll()
                                                    .requestMatchers("/api/contents/**").permitAll()
@@ -118,3 +123,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+

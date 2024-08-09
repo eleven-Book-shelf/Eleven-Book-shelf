@@ -34,7 +34,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        log.info("doFilterInternal 실행");
+        String requestUrl = request.getRequestURL().toString();
+        log.info("doFilterInternal 실행 - 요청 URL: " + requestUrl);
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         log.info("doFilterInternal accessToken 가져오기 : " + accessToken);
 
@@ -56,5 +57,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.setContext(context);
         log.info("doFilterInternal accessToken validateToken 검사 끝 : " + token);
     }
-
 }

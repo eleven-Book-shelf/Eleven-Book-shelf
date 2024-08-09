@@ -8,6 +8,7 @@ import com.sparta.elevenbookshelf.domain.content.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
+import com.sparta.elevenbookshelf.domain.content.repository.ContentRepositoryCustom;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.ContentHashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.PostHashtag;
@@ -23,6 +24,7 @@ import com.sparta.elevenbookshelf.domain.post.entity.NormalPost;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import com.sparta.elevenbookshelf.domain.post.entity.ReviewPost;
 import com.sparta.elevenbookshelf.domain.post.repository.PostRepository;
+import com.sparta.elevenbookshelf.domain.user.dto.UserResponseDto;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
 import com.sparta.elevenbookshelf.exception.BusinessException;
@@ -30,6 +32,10 @@ import com.sparta.elevenbookshelf.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -365,6 +371,11 @@ public class BoardService {
         postRepository.delete(post);
     }
 
+    public void deletePostAdmin(Long postId) {
+        Post post = getPost(postId);
+        postRepository.delete(post);
+    }
+
     //::::::::::::::::::::::::// Content //:::::::::::::::::::::::://
 
     public ContentResponseDto createContent(ContentRequestDto req) {
@@ -384,6 +395,18 @@ public class BoardService {
         contentRepository.save(content);
 
         return new ContentResponseDto(content);
+    }
+
+    public Page<PostResponseDto> getAdminPage(int page, int size, String sortBy, boolean asc) {
+        Sort.Direction direction = asc ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        Sort sort = Sort.by(direction, sortBy);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Post> post = postRepository.findAll(pageable);
+
+        return post.map(PostResponseDto::new);
     }
 
     //::::::::::::::::::::::::// User //:::::::::::::::::::::::://
@@ -439,4 +462,6 @@ public class BoardService {
     private boolean isPostBoardEqual(Long boardId, Post post) {
         return post.getBoard().equals(getBoard(boardId));
     }
+
+
 }

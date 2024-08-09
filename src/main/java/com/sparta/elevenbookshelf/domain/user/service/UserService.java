@@ -9,8 +9,13 @@ import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +52,19 @@ public class UserService {
         User user = getUser(userId);
         user.updateProfile(username);
         return null;
+    }
+
+    @Transactional
+    public Page<UserResponseDto> getUserPage(int page,int size, String sortBy, boolean asc) {
+
+        Sort.Direction direction = asc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<User> users = userRepository.findAll(pageable);
+
+        return users.map(UserResponseDto::new);
     }
 
     //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://

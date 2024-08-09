@@ -24,7 +24,6 @@ public class UserController {
     public ResponseEntity<?> signup(@RequestBody UserRequestDto req) {
         userService.signup(req);
         return ResponseEntity.noContent().build();
-
     }
 
     @GetMapping
@@ -41,6 +40,5 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-//    @PreAuthorize("hasRole('ROLE_MANAGER')")
 
 }
