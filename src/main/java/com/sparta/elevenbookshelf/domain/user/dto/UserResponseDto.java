@@ -15,7 +15,6 @@ public class UserResponseDto {
     private User.Role role;
     private LocalDateTime createdAt;
 
-
     public UserResponseDto(User user) {
         this.id = user.getId();
         this.nickname = user.getNickname();

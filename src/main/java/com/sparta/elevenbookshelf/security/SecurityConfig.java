@@ -2,10 +2,10 @@ package com.sparta.elevenbookshelf.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
+import com.sparta.elevenbookshelf.security.config.CustomAccessDeniedHandler;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationEntryPoint;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationFilter;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
-import com.sparta.elevenbookshelf.security.jwt.JwtUtil;
 import com.sparta.elevenbookshelf.security.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import com.sparta.elevenbookshelf.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import com.sparta.elevenbookshelf.security.principal.UserDetailsServiceImpl;
@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -29,18 +30,18 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 @Slf4j(topic = "SecurityConfig")
 public class SecurityConfig {
 
     @Value("${CORS_ALLOWED_ORIGINS}")
     private String allowedOrigins;
-    private final JwtUtil jwtUtil;
     private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final OAuth2AuthorizedClientRepository authorizedClientRepository;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final UserRepository userRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -72,13 +73,13 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         log.info("@Bean jwtAuthenticationFilter 실행");
-        return new JwtAuthenticationFilter(jwtUtil, userDetailsService);
+        return new JwtAuthenticationFilter(jwtService, userDetailsService);
     }
 
     @Bean
     AuthenticationEntryPoint authenticationEntryPoint() {
         log.info("@Bean authenticationEntryPoint 실행");
-        return new JwtAuthenticationEntryPoint(jwtUtil, objectMapper);
+        return new JwtAuthenticationEntryPoint(jwtService, objectMapper);
     }
 
     @Bean
@@ -92,11 +93,15 @@ public class SecurityConfig {
 
         http.exceptionHandling(e -> e
                 .authenticationEntryPoint(authenticationEntryPoint())
+                .accessDeniedHandler(customAccessDeniedHandler)
         );
 
         http.authorizeHttpRequests(request ->
                                            request
                                                    .requestMatchers("/api/contents").permitAll()
+                                                   .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                   .requestMatchers("/api/user/signup").permitAll()
+                                                   .requestMatchers("/api/auth/login").permitAll()
                                                    .requestMatchers("/api/contents/**").permitAll()
                                                    .requestMatchers("/api/boards/**").permitAll()
                                                    .requestMatchers("/api/auth/**").permitAll()
@@ -118,3 +123,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+

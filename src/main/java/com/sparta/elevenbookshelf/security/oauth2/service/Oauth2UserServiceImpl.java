@@ -40,7 +40,6 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
         log.info("getAttributes : {}", oAuth2User.getAttributes());
-
         String provider = userRequest.getClientRegistration().getRegistrationId();
         OAuth2UserInfo userInfo = getUserInfoByProvider(provider);
 
@@ -79,10 +78,12 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
         } else {
             user = optionalUser.get();
             if (user.getStatus() == User.Status.DELETED) {
-                throw new OAuth2AuthenticationException(new OAuth2Error("user_deleted"), "탈퇴한 사용자 입니다.");
+                throw new OAuth2AuthenticationException(new OAuth2Error("user_deleted"),
+                                                        "탈퇴한 사용자 입니다. 관리자에게 문의해 주시기 바랍니다.");
             }
             if (user.getStatus() == User.Status.BLOCKED) {
-                throw new OAuth2AuthenticationException(new OAuth2Error("user_blocked"), "차단된 사용자 입니다.");
+                throw new OAuth2AuthenticationException(new OAuth2Error("user_blocked"),
+                                                        "차단된 사용자 입니다. 관리자에게 문의해 주시기 바랍니다");
             }
         }
         return user;

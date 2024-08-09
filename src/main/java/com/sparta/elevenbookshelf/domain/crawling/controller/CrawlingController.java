@@ -5,6 +5,7 @@ import com.sparta.elevenbookshelf.domain.crawling.service.CrawlingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
@@ -18,6 +19,7 @@ public class CrawlingController {
     private final CrawlingService crawlingService;
 
     // 전체 크롤링 시작.
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/start/all")
     public ResponseEntity<Void> allCrawlingStart() {
 
@@ -27,6 +29,7 @@ public class CrawlingController {
     }
 
     // 로컬 파일로 저장.
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/local")
     public ResponseEntity<Void> csvFileToLocal() {
 
@@ -36,6 +39,7 @@ public class CrawlingController {
     }
 
     // 로컬 파일로 DB 업데이트.
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/local/update")
     public ResponseEntity<Void> localToDataBase() {
 
@@ -45,6 +49,7 @@ public class CrawlingController {
     }
 
     // Content 단건 조회
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ContentDataResponseDto> getOneContent(@RequestParam String contentUrl) {
 
