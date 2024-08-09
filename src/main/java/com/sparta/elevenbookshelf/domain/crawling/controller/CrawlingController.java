@@ -1,6 +1,6 @@
 package com.sparta.elevenbookshelf.domain.crawling.controller;
 
-import com.sparta.elevenbookshelf.domain.content.dto.ContentDataResponseDto;
+import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.crawling.service.CrawlingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -51,11 +51,11 @@ public class CrawlingController {
     // Content 단건 조회
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<ContentDataResponseDto> getOneContent(@RequestParam String contentUrl) {
+    public ResponseEntity<ContentResponseDto> getOneContent(@RequestParam String contentUrl) {
 
         String decodeUrl = URLDecoder.decode(contentUrl, StandardCharsets.UTF_8);
 
-        ContentDataResponseDto responseDto = crawlingService.getOneContent(decodeUrl);
+        ContentResponseDto responseDto = crawlingService.getOneContent(decodeUrl);
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }

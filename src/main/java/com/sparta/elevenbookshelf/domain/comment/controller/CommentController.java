@@ -3,6 +3,7 @@ package com.sparta.elevenbookshelf.domain.comment.controller;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentResponseDto;
 import com.sparta.elevenbookshelf.domain.comment.service.CommentService;
+import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.like.dto.LikeResponseDto;
 import com.sparta.elevenbookshelf.domain.like.service.LikeService;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
@@ -21,6 +22,7 @@ public class CommentController {
 
     private final CommentService commentService;
     private final LikeService likeService;
+    private final HashtagService hashtagService;
 
     //:::::::::::::::::// post //::::::::::::::::://
 
@@ -29,7 +31,12 @@ public class CommentController {
             @PathVariable Long postId,
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestBody CommentRequestDto commentRequestDto) {
+
         commentService.createComment(postId, userPrincipal, commentRequestDto);
+
+        // 댓글 작성 시 해시태그 갱신
+        hashtagService.userPostHashtagInteraction(userPrincipal.getUser(), postId, hashtagService.COMMENT_WEIGHT);
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

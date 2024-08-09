@@ -1,7 +1,10 @@
 package com.sparta.elevenbookshelf.domain.hashtag.service;
 
+import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
+import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
+import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagRequestDto;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.ContentHashtag;
@@ -11,22 +14,18 @@ import com.sparta.elevenbookshelf.domain.hashtag.repository.ContentHashtagReposi
 import com.sparta.elevenbookshelf.domain.hashtag.repository.HashtagRepository;
 import com.sparta.elevenbookshelf.domain.hashtag.repository.PostHashtagRepository;
 import com.sparta.elevenbookshelf.domain.hashtag.repository.UserHashtagRepository;
-import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import com.sparta.elevenbookshelf.domain.post.repository.PostRepository;
-import com.sparta.elevenbookshelf.domain.user.dto.UserHashtagRequestDto;
-import com.sparta.elevenbookshelf.domain.user.dto.UserHashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
-import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,24 +36,30 @@ import java.util.stream.Collectors;
 @Slf4j(topic = "HashtagService")
 public class HashtagService {
 
-    private static final double READ_WEIGHT = 1.0;
-    private static final double READED_WEIGHT = 0.1;
-    private static final double BOOKMARK_WEIGHT = 5.0;
-    private static final double BOOKMARKED_WEIGHT = 0.5;
-    private static final double COMMENT_WEIGHT = 2.0;
-    private static final double COMMENTED_WEIGHT = 0.2;
-    private static final double CREATE_WEIGHT = 10.0;
-    private static final double INIT_WEIGHT = 100.0;
+    @Value("${READ_WEIGHT}")
+    public double READ_WEIGHT;
+    @Value("${READED_WEIGHT}")
+    public double READED_WEIGHT;
+    @Value("${BOOKMARK_WEIGHT}")
+    public double BOOKMARK_WEIGHT;
+    @Value("${BOOKMARKED_WEIGHT}")
+    public double BOOKMARKED_WEIGHT;
+    @Value("${COMMENT_WEIGHT}")
+    public double COMMENT_WEIGHT;
+    @Value("${COMMENTED_WEIGHT}")
+    public double COMMENTED_WEIGHT;
+    @Value("${CREATE_WEIGHT}")
+    public double CREATE_WEIGHT;
+    @Value("${INIT_WEIGHT}")
+    public double INIT_WEIGHT;
 
-
+    private final ContentRepository contentRepository;
     private final HashtagRepository hashtagRepository;
+    private final PostRepository postRepository;
     private final ContentHashtagRepository contentHashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
     private final UserHashtagRepository userHashtagRepository;
 
-    private final ContentRepository contentRepository;
-    private final PostRepository postRepository;
-    private final UserRepository userRepository;
 
     public List<String> readTop10Hashtags() {
 
@@ -63,213 +68,195 @@ public class HashtagService {
         return topHashtags.stream().map(Hashtag::getTag).toList();
     }
 
-    // Review 작성 시 해시태그 갱신 (+10.0)
-    @Transactional
-    public void updateHashtagsByCreateReview(Long userId, Long postId, Long contentId, String preHashtag) {
+    // 사용자 해시태그 상위 limit개
+    public List<HashtagResponseDto> readUserHashtags (User user, int limit) {
 
-        User user = getUser(userId);
-
-        Post post = getPost(postId);
-
-        Content content = getContent(contentId);
-
-        Set<String> tags = parseHashtag(preHashtag);
-
-        // 사용자가 작성한 해시태그 추가 및 갱신
-        tags.addAll(post.getPostHashtags().stream()
-                .map(postHashtag -> postHashtag.getHashtag().getTag())
-                .collect(Collectors.toSet()));
-
-        for (String tag : tags) {
-
-            Hashtag hashtag = createOrUpdateHashtag(tag);
-
-            PostHashtag postHashtag = createOrUpdatePostHashtag(post, hashtag);
-            post.addHashtag(postHashtag);
-        }
-
-        // 작품 해시태그 게시글에 추가 및 갱신
-        tags.addAll(content.getContentHashtags().stream()
-                .map(contentHashtag -> contentHashtag.getHashtag().getTag())
-                .collect(Collectors.toSet()));
-
-        for (String tag : tags) {
-
-            Hashtag hashtag = createOrUpdateHashtag(tag);
-
-            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, CREATE_WEIGHT);
-            user.addHashtag(userHashtag);
-
-            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, CREATE_WEIGHT);
-            content.addHashtag(contentHashtag);
-        }
-    }
-
-    // 작품이 크롤링 후 서비스에 등록될때 해시태그 갱신 (+100.0)
-    @Transactional
-    public void updateHashtagByCreateContent(Long contentId, Long postId) {
-
-        Post post = getPost(postId);
-
-        Content content = getContent(contentId);
-
-        Set<String> tags = parseHashtag(content.getGenre() + content.getContentHashTag());
-
-        for (String tag : tags) {
-            Hashtag hashtag = createOrUpdateHashtag(tag);
-
-            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, 0.0);
-            contentHashtag.incrementScore(INIT_WEIGHT);
-            content.addHashtag(contentHashtag);
-
-            PostHashtag postHashtag = createOrUpdatePostHashtag(post, hashtag);
-            post.addHashtag(postHashtag);
-        }
-
-        contentRepository.save(content);
-        contentHashtagRepository.saveAll(content.getContentHashtags());
-        postHashtagRepository.saveAll(post.getPostHashtags());
-    }
-
-    // 사용자가 선택한 해시태그 갱신 (+100.0)
-    @Transactional
-    public List<UserHashtagResponseDto> updateUserHashtags (Long userId, UserHashtagRequestDto req) {
-
-        User user = getUser(userId);
-
-        Set<String> tags = parseHashtag(req.getTags());
-
-        Set<UserHashtag> userHashtags = new HashSet<>();
-
-        for (String tag : tags) {
-
-            Hashtag hashtag = createOrUpdateHashtag(tag);
-
-            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, 0.0);
-            userHashtag.incrementScore(INIT_WEIGHT);
-            user.addHashtag(userHashtag);
-            userHashtags.add(userHashtag);
-        }
-
-        userRepository.save(user);
-        userHashtagRepository.saveAll(userHashtags);
-
-        return userHashtags.stream()
-                .map(userHashtag -> new UserHashtagResponseDto(userHashtag.getHashtag()))
+        return user.getUserHashtags().stream()
+                .sorted(Comparator.comparing(UserHashtag::getScore))
+                .limit(limit)
+                .map(userHashtag -> new HashtagResponseDto(userHashtag.getHashtag()))
                 .toList();
     }
 
-    @Transactional
-    public void updateHashtagBySearchContent(Long userId, Long contentId) {
+    public List<HashtagResponseDto> updateUserHashtags(User user, HashtagRequestDto req) {
 
-        User user = getUser(userId);
+        List<Hashtag> hashtags = updateAndSaveHashtags(req.getTags());
+        List<Hashtag> userHashtags = updateAndSaveHashtags(user, hashtags, INIT_WEIGHT);
 
-        Content content = getContent(contentId);
-
-        Set<ContentHashtag> contentHashtags = content.getContentHashtags();
-        Set<ContentHashtag> newContentHashtags = new HashSet<>();
-        Set<UserHashtag> userHashtags = new HashSet<>();
-
-        for (ContentHashtag tag : contentHashtags) {
-
-            Hashtag hashtag = createOrUpdateHashtag(tag.getHashtag().getTag());
-
-            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, READ_WEIGHT);
-            user.addHashtag(userHashtag);
-            userHashtags.add(userHashtag);
-
-            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, READED_WEIGHT);
-            content.addHashtag(contentHashtag);
-            newContentHashtags.add(contentHashtag);
-        }
-
-        userHashtagRepository.saveAll(userHashtags);
-        contentHashtagRepository.saveAll(newContentHashtags);
+        return userHashtags.stream()
+                .map(HashtagResponseDto::new)
+                .toList();
     }
 
-    @Transactional
-    public void updateHashtagByPost(Long userId, Long postId, String type) {
+    /* Hashtag 비즈니스 로직 -> 비동기 처리 예정 (실시간 반영 필요없으므로 부하를 줄이기 위해서)
 
-        double userWeight = 0.0;
-        double contentWeight = 0.0;
+       - 작품 크롤링 : 컨텐츠 (문자열) -> 해시태그 생성 및 저장 -> 컨텐츠-해시태그 생성 및 저장 [O]
 
-        switch (type) {
-            case "read" -> {
-                userWeight = READ_WEIGHT;
-                contentWeight = READED_WEIGHT;
-            }
+       - 북마크 시 : 사용자 <-> 컨텐츠 [O]
+       - 컨텐츠 단건 조회 시 : 사용자 <-> 컨텐츠 [O]
 
-            case "comment" -> {
-                userWeight = COMMENT_WEIGHT;
-                contentWeight = COMMENTED_WEIGHT;
-            }
-        }
+       - 리뷰 작성 시 : 사용자 <-> 컨텐츠 | 사용자 입력 해시태그 + 컨텐츠 해시태그 -> 게시글 해시태그 생성 [O]
+       - 게시글 단건 조회 시 : 사용자 <-> 컨텐츠 | 게시글 -> 사용자 [O]
+       - 댓글 작성 시 : 사용자 <-> 컨텐츠 | 게시글 -> 사용자
 
-        User user = getUser(userId);
+---------------------------------------------------------------------------------------------------------------------
 
-        Post post = getPost(postId);
+       - 컨텐츠 (문자열) -> 해시태그 생성 및 저장 -> 컨텐츠-해시태그 생성 및 저장 :
+                updateAndSaveHashtag(컨텐츠.문자열) -> updateAndSaveHashtag
+       - 사용자 <-> 컨텐츠 :
+                userContentHashtagInteraction
+       - 사용자 입력 해시태그 + 컨텐츠 해시태그 -> 게시글 해시태그 생성 :
+                updateAndSaveHashtag(컨텐츠.문자열) + content.getContentHashtags.map(toHashtag) -> updateAndSaveHashtag
+       - 게시글 -> 사용자 :
+                userPostHashtagInteraction
+       - 사용자 입력 해시태그 + 컨텐츠 해시태그 -> 게시글 해시태그 생성 :
+                generatePostHashtags
 
-        Content content = post.getContent();
 
-        Set<ContentHashtag> contentHashtags = content.getContentHashtags();
-        Set<PostHashtag> postHashtags = post.getPostHashtags();
+     */
 
-        Set<Hashtag> hashtags = contentHashtags.stream().map(ContentHashtag::getHashtag).collect(Collectors.toSet());
-        hashtags.addAll(postHashtags.stream().map(PostHashtag::getHashtag).collect(Collectors.toSet()));
+    public void userContentHashtagInteraction (User user, Long contentId, double userScore, double contentScore) {
+
+        Content content = contentRepository.findById(contentId).orElseThrow(
+                () -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT)
+        );
+
+        // 사용자의 해시태그 해시태그로 불러오기
+        Set<Hashtag> hashtags = user.getUserHashtags().stream()
+                .map(this::toHashtag)
+                .collect(Collectors.toSet());
+
+        // 콘텐츠의 해시태그 해시태그로 불러와서 추가하기
+        hashtags.addAll(
+                content.getContentHashtags().stream()
+                        .map(this::toHashtag)
+                        .collect(Collectors.toSet())
+        );
+
+        // 사용자 | 컨텐츠 -해시태그 각각 갱신하기
+        updateAndSaveHashtags(user, hashtags.stream().toList(), userScore);
+        updateAndSaveHashtags(content, hashtags.stream().toList(), contentScore);
+    }
+
+    public void userPostHashtagInteraction(User user, Long postId, double userScore) {
+
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
+        );
+
+        // 사용자의 해시태그 해시태그로 불러오기
+        Set<Hashtag> hashtags = user.getUserHashtags().stream()
+                .map(this::toHashtag)
+                .collect(Collectors.toSet());
+
+        hashtags.addAll(
+                post.getPostHashtags().stream()
+                        .map(this::toHashtag)
+                        .collect(Collectors.toSet())
+        );
+
+        updateAndSaveHashtags(user, hashtags.stream().toList(), userScore);
+    }
+
+    public void generatePostHashtags(User user, Long postId, String preHashtag) {
+
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
+        );
+
+        preHashtag += post.getContent().getContentHashtags();
+
+        List<Hashtag> hashtags = updateAndSaveHashtags(preHashtag);
+
+        userContentHashtagInteraction(user, post.getContent().getId(), CREATE_WEIGHT, CREATE_WEIGHT);
+        updateAndSaveHashtags(post, hashtags);
+    }
+
+
+    /* UPDATE & SAVE hashtag
+    * 해시태그를 입력받아 생성하거나 갱신한 후 저장
+    * */
+
+    public List<Hashtag> updateAndSaveHashtags (User user, List<Hashtag> hashtags, double score) {
+
+        Set<UserHashtag> res = new HashSet<>();
 
         for (Hashtag tag : hashtags) {
-
-            Hashtag hashtag = createOrUpdateHashtag(tag.getTag());
-
-            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, userWeight);
-            user.addHashtag(userHashtag);
-
-            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, contentWeight);
-            content.addHashtag(contentHashtag);
+            UserHashtag userHashtag = createOrGetHashtag(user, tag);
+            userHashtag.incrementScore(score);
+            res.add(userHashtag);
         }
 
-        userRepository.save(user);
-        userHashtagRepository.saveAll(user.getUserHashtags());
-        contentRepository.save(content);
-        contentHashtagRepository.saveAll(content.getContentHashtags());
+        user.addHashtags(res);
+        userHashtagRepository.saveAll(res);
+
+        return res.stream()
+                .map(this::toHashtag)
+                .toList();
     }
 
-    @Transactional
-    public void updateHashtagByBookmark(Long userId, Long contentId) {
+    public List<Hashtag> updateAndSaveHashtags (Content content, List<Hashtag> hashtags, double score) {
 
-        User user = getUser(userId);
+        Set<ContentHashtag> res = new HashSet<>();
 
-        Content content = getContent(contentId);
-
-        Set<ContentHashtag> contentHashtags = content.getContentHashtags();
-
-        for (ContentHashtag tag : contentHashtags) {
-
-            Hashtag hashtag = createOrUpdateHashtag(tag.getHashtag().getTag());
-
-            UserHashtag userHashtag = createOrUpdateUserHashtag(user, hashtag, BOOKMARK_WEIGHT);
-            user.addHashtag(userHashtag);
-
-            ContentHashtag contentHashtag = createOrUpdateContentHashtag(content, hashtag, BOOKMARKED_WEIGHT);
-            content.addHashtag(contentHashtag);
+        for (Hashtag tag : hashtags) {
+            ContentHashtag contentHashtag = createOrGetHashtag(content, tag);
+            contentHashtag.incrementScore(score);
+            res.add(contentHashtag);
         }
 
-        userRepository.save(user);
-        userHashtagRepository.saveAll(user.getUserHashtags());
-        contentRepository.save(content);
-        contentHashtagRepository.saveAll(content.getContentHashtags());
+        content.addHashtags(res);
+        contentHashtagRepository.saveAll(res);
+
+        return res.stream()
+                .map(this::toHashtag)
+                .toList();
+    }
+
+    public List<Hashtag> updateAndSaveHashtags(Post post, List<Hashtag> hashtags) {
+
+        Set<PostHashtag> res = new HashSet<>();
+
+        for (Hashtag tag : hashtags) {
+            PostHashtag postHashtag = createOrGetHashtag(post, tag);
+            res.add(postHashtag);
+        }
+
+        post.addHashtags(res);
+        postHashtagRepository.saveAll(res);
+
+        return res.stream()
+                .map(this::toHashtag)
+                .toList();
+    }
+
+    public List<Hashtag> updateAndSaveHashtags (String preHashtag) {
+
+        Set<String> parsedTags = parseHashtag(preHashtag);
+        Set<Hashtag> res = new HashSet<>();
+
+        for (String tag : parsedTags) {
+            Hashtag hashtag = createOrGetHashtag(tag);
+            hashtag.incrementCount();
+            res.add(hashtag);
+        }
+
+        return hashtagRepository.saveAll(res);
     }
 
 
-    @Transactional
-    public UserHashtag createOrUpdateUserHashtag(User user, Hashtag hashtag, double score) {
+    /* CREATE & GET Hashtags
+    * 해시태그와 연관시킬 객체를 입력 받아 연관시켜주는 메서드
+    * 매핑 엔티티가 이미 연관되어 있다면 GET, 연관되어 있지 않다면 CREATE & GET
+    * */
+
+    private UserHashtag createOrGetHashtag(User user, Hashtag hashtag) {
 
         Optional<UserHashtag> optionalUserHashtag = userHashtagRepository.findByUserIdAndHashtagId(user.getId(), hashtag.getId());
         UserHashtag userHashtag;
 
         if(optionalUserHashtag.isPresent()) {
             userHashtag = optionalUserHashtag.get();
-            userHashtag.incrementScore(score);
         } else {
             userHashtag = UserHashtag.builder()
                     .user(user)
@@ -279,11 +266,11 @@ public class HashtagService {
             userHashtag.createId();
         }
 
-        return userHashtagRepository.save(userHashtag);
+        return userHashtag;
     }
 
-    @Transactional
-    public PostHashtag createOrUpdatePostHashtag(Post post, Hashtag hashtag) {
+
+    private PostHashtag createOrGetHashtag(Post post, Hashtag hashtag) {
 
         Optional<PostHashtag> optionalPostHashtag = postHashtagRepository.findByPostIdAndHashtagId(post.getId(), hashtag.getId());
         PostHashtag postHashtag;
@@ -291,26 +278,25 @@ public class HashtagService {
         if(optionalPostHashtag.isPresent()) {
             postHashtag = optionalPostHashtag.get();
         } else {
-                postHashtag = PostHashtag.builder()
-                        .post(post)
-                        .hashtag(hashtag)
-                        .build();
+            postHashtag = PostHashtag.builder()
+                    .post(post)
+                    .hashtag(hashtag)
+                    .build();
 
-                postHashtag.createId();
+            postHashtag.createId();
         }
 
-        return postHashtagRepository.save(postHashtag);
+        return postHashtag;
     }
 
-    @Transactional
-    public ContentHashtag createOrUpdateContentHashtag(Content content, Hashtag hashtag, double score) {
+
+    private ContentHashtag createOrGetHashtag(Content content, Hashtag hashtag) {
 
         Optional<ContentHashtag> optionalContentHashtag = contentHashtagRepository.findByContentIdAndHashtagId(content.getId(), hashtag.getId());
         ContentHashtag contentHashtag;
 
         if(optionalContentHashtag.isPresent()) {
             contentHashtag = optionalContentHashtag.get();
-            contentHashtag.incrementScore(score);
         } else {
             contentHashtag = ContentHashtag.builder()
                     .content(content)
@@ -320,71 +306,42 @@ public class HashtagService {
             contentHashtag.createId();
         }
 
-        return contentHashtagRepository.save(contentHashtag);
+        return contentHashtag;
     }
 
-    @Transactional
-    public Hashtag createOrUpdateHashtag(String tag) {
+    // 문자를 입력받아 해시태그 객체를 생성
+    private Hashtag createOrGetHashtag(String tag) {
 
-        Optional<Hashtag> optionalHashtag = hashtagRepository.findByTag(tag);
-        Hashtag hashtag;
-
-        if (optionalHashtag.isPresent()) {
-            hashtag = optionalHashtag.get();
-            hashtag.incrementCount();
-            hashtag.updateTier();
-        } else {
-            hashtag = Hashtag.builder()
-                    .tag(tag)
-                    .build();
-        }
-
-        return hashtagRepository.save(hashtag);
+        return hashtagRepository.findByTag(tag).orElseGet(
+                        () -> Hashtag.builder()
+                                .tag(tag)
+                                .build());
     }
 
-    // 문자열 해시태그화
-    public Set<String> parseHashtag (String preHashtag) {
+    // 문자열을 받아 각각의 단어를 분해 : Set를 이용해 예상치 못한 중복 제거
+    private Set<String> parseHashtag (String preHashtag) {
 
-        return Arrays.stream(preHashtag.split("[#/]"))
-                .filter(s -> !s.isEmpty())
+        return Arrays.stream(preHashtag
+                        .replaceAll("\\s+", "") // 모든 공백을 없애기
+                        .split("#"))
                 .collect(Collectors.toSet());
     }
 
-    // 사용자 해시태그 상위 10개
-    @Transactional
-    public List<UserHashtagResponseDto> readUserHashtags (Long userId, int limit) {
-
-        User user = getUser(userId);
-
-        return user.getUserHashtags().stream()
-                .sorted(Comparator.comparing(UserHashtag::getScore))
-                .limit(limit)
-                .map(userHashtag -> new UserHashtagResponseDto(userHashtag.getHashtag()))
-                .toList();
-    }
-
-
-
-    @Transactional
-    public List<PostResponseDto> recommendContentByUserHashtag (Long userId, long offset, int pagesize) {
-
-        User user = getUser(userId);
+    // 해시태그를 바탕으로 추천해주기
+    public List<ContentResponseDto> recommendContentByUserHashtag (User user, long offset, int pagesize) {
 
         List<Content> contents = calculateSimilarity(user);
-        List<PostResponseDto> result = new ArrayList<>();
+        List<ContentResponseDto> res = new ArrayList<>();
 
-        for (int i = (int) offset; i < i + pagesize; i++) {
-            Content content = contents.get(i);
-            Post post = postRepository.findByContentId(content.getId()).orElseGet(null);
-            result.add(new PostResponseDto(post));
+        for (int i = (int) offset; i< offset + pagesize; i++) {
+            res.add(new ContentResponseDto(contents.get(i)));
         }
 
-        return result;
-
+        return res;
     }
 
     // 해시태그 유사도 계산 부분
-    public List<Content> calculateSimilarity (User user) {
+    private List<Content> calculateSimilarity (User user) {
 
         // 컨텐츠 가져오기
         List<Content> contents = contentRepository.findAll();
@@ -476,25 +433,21 @@ public class HashtagService {
         return result;
     }
 
-    private User getUser(Long userId) {
+    //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 
-        return userRepository.findById(userId).orElseThrow(
-                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
-        );
+    private Hashtag toHashtag(UserHashtag userHashtag) {
+
+        return userHashtag.getHashtag();
     }
 
-    private Post getPost(Long postId) {
+    private Hashtag toHashtag(PostHashtag postHashtag) {
 
-        return postRepository.findById(postId).orElseThrow(
-                () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
-        );
+        return postHashtag.getHashtag();
     }
 
-    private Content getContent(Long contentId) {
+    private Hashtag toHashtag(ContentHashtag contentHashtag) {
 
-        return contentRepository.findById(contentId).orElseThrow(
-                () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
-        );
+        return contentHashtag.getHashtag();
     }
 
     public Page<HashtagResponseDto> getAdminPage(int page, int size, String sortBy, boolean asc) {
