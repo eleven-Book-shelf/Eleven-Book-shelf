@@ -5,7 +5,6 @@ import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.like.service.LikeService;
-import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +52,7 @@ public class ContentController {
      * @param pagesize 페이지 사이즈
      * @return List<ContentResponseDto> 불러온 컨텐츠 Dto 목록
      */
-    @GetMapping
+    @GetMapping("/")
     public ResponseEntity<List<ContentResponseDto>> readContentsByCondition (
             @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
             @RequestParam(value = "isBookmarked", defaultValue = "f", required = false) String isBookmarked,

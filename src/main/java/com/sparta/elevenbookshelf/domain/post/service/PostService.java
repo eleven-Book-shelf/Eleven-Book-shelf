@@ -12,6 +12,10 @@ import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -106,6 +110,25 @@ public class PostService {
         return posts.stream()
                 .map(PostResponseDto::new)
                 .toList();
+    }
+
+    public Page<PostResponseDto> getAdminPage(int page, int size, String sortBy, boolean asc) {
+
+        Sort.Direction direction = asc ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        Sort sort = Sort.by(direction, sortBy);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Post> post = postRepository.findAll(pageable);
+
+        return post.map(PostResponseDto::new);
+    }
+
+    public void deletePostAdmin(Long postId) {
+
+        Post post = getPost(postId);
+        postRepository.delete(post);
     }
 
     @Transactional

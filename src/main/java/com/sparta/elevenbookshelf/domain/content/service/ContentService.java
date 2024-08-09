@@ -56,7 +56,6 @@ public class ContentService {
      */
     public List<ContentResponseDto> readContents (long offset, int pagesize, Long userId, String genre, String contentType, String sortBy) {
 
-
         List<Content> contents = contentRepository.findContentsBySearchCondition(offset, pagesize, userId, genre, contentType, sortBy);
 
         return contents.stream()
