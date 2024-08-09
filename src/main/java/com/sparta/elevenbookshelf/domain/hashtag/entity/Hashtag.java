@@ -28,31 +28,24 @@ public class Hashtag {
 
     private int count;
 
-    @OneToMany(mappedBy = "hashtag")
+    @OneToMany(mappedBy = "hashtag", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserHashtag> userHashtags = new HashSet<>();
 
-    @OneToMany(mappedBy = "hashtag")
+    @OneToMany(mappedBy = "hashtag", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ContentHashtag> contentHashtags = new HashSet<>();
 
-    @OneToMany(mappedBy = "hashtag")
+    @OneToMany(mappedBy = "hashtag", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PostHashtag> postHashtags = new HashSet<>();
 
     @Builder
     public Hashtag(String tag) {
-        this.tier = 1;
+        this.tier = 0;
         this.tag = tag;
-        this.count = 1;
+        this.count = 0;
     }
 
     public void incrementCount() {
         this.count++;
-    }
-
-    public void decrementCount() {
-        this.count--;
-    }
-
-    public void updateTier() {
-        this.tier = (double) this.count /10;
+        this.tier = count/10.0;
     }
 }

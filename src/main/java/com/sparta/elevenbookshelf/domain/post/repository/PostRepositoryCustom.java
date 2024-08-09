@@ -6,14 +6,13 @@ import java.util.List;
 
 public interface PostRepositoryCustom {
 
-    List<Post> getPostsByBoard(Long boardId, long offset, int pagesize);
+    List<Post> getReviewPosts(long offset, int pagesize);
 
-    List<Post> getPostsByContent(Long contentId, long offset, int pagesize);
+    List<Post> getPostsByContentId(Long contentId, long offset, int pagesize);
 
     List<Post> getPostsByUserId(Long userId, long offset, int pageSize);
 
-    Long getTotalPostsByBoard(Long boardId);
-
+    List<Post> findReviewsByHashtagContainKeyword(String keyword, long offset, int pagesize);
 }
 
 

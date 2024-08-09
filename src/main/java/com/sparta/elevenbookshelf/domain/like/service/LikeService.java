@@ -191,7 +191,7 @@ public class LikeService {
                                                                      .post(post)
                                                                      .build());
 
-        post.addLikes(likePostRepository.countByPostId(post.getId()));
+        post.updateLikes(likePostRepository.countByPostId(post.getId()));
 
     }
 

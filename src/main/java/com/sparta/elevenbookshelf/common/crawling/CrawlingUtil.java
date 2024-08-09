@@ -1,11 +1,12 @@
 package com.sparta.elevenbookshelf.common.crawling;
 
-import com.sparta.elevenbookshelf.domain.board.service.BoardService;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentRequestDto;
-import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
-import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
+import com.sparta.elevenbookshelf.domain.content.service.ContentService;
+import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
+import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -37,7 +38,8 @@ public class CrawlingUtil {
 
     private final WebDriver webDriver;
     private final ContentRepository contentRepository;
-    private final BoardService boardService;
+    private final HashtagService hashtagService;
+    private final ContentService contentService;
 
     @Value("${csv.file}")
     private String csvOutputDirectory;
@@ -203,37 +205,19 @@ public class CrawlingUtil {
     }
 
     // 데이터 파일을 DB에 저장하는 메서드
-    public void saveData(ContentRequestDto requestDto, String artUrl) {
+    @Transactional
+    public void saveData(ContentRequestDto req, String artUrl) {
         Optional<Content> dataSave = contentRepository.findByUrl(artUrl);
         if (dataSave.isPresent()) {
 
             Content content = dataSave.get();
-            content.updateContent(requestDto);
-            contentRepository.save(content);
+            contentService.updateContent(content, req);
 
         } else {
 
-            Content newContent = Content.builder()
-                    .title(requestDto.getTitle())
-                    .imgUrl(requestDto.getImgUrl())
-                    .description(requestDto.getDescription())
-                    .author(requestDto.getAuthor())
-                    .platform(requestDto.getPlatform())
-                    .view(requestDto.getView())
-                    .rating(requestDto.getRating())
-                    .type(requestDto.getType())
-                    .isEnd(requestDto.getIsEnd())
-                    .likeCount(requestDto.getLikeCount())
-                    .bookMarkCount(requestDto.getBookMarkCount())
-                    .url(requestDto.getUrl())
-                    .genre(requestDto.getGenre())
-                    .contentHashTag(requestDto.getContentHashTag())
-                    .build();
-
-            contentRepository.save(newContent);
-            ContentResponseDto res = new ContentResponseDto(newContent);
-            PostRequestDto req = new PostRequestDto(res);
-            boardService.createPost(null,null, req);
+            Content content = contentService.createContent(req);
+            List<Hashtag> hashtags = hashtagService.updateAndSaveHashtags(req.getContentHashTag() + req.getGenre());
+            hashtagService.updateAndSaveHashtags(content, hashtags, hashtagService.INIT_WEIGHT);
         }
 
     }

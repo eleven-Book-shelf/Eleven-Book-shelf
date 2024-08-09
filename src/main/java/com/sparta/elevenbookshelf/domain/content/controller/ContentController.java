@@ -1,11 +1,12 @@
 package com.sparta.elevenbookshelf.domain.content.controller;
 
 
-import com.sparta.elevenbookshelf.domain.content.dto.ContentDataResponseDto;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
+import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.like.service.LikeService;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,128 +22,183 @@ public class ContentController {
 
     private final ContentService contentService;
     private final LikeService likeService;
+    private final HashtagService hashtagService;
 
-    //::::::::::::::::::::::::// Normal //::::::::::::::::::::::::// Search
-
-    // 매인 패이지의 컨탠츠 (웹툰 + 소설)
-    @GetMapping
-    public ResponseEntity<List<ContentDataResponseDto>> readContent(
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestParam(value = "genre", required = false) String genre) {
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(contentService.readContent(offset, pagesize, genre));
-    }
-
-    // 웹툰 패이지의 컨탠츠
-    @GetMapping("/webtoon")
-    public ResponseEntity<List<ContentDataResponseDto>> readContentWebtoon(
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestParam(value = "genre", required = false) String genre) {
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(contentService.readContentWebtoon(offset, pagesize, genre));
-    }
-
-    // 웹툰 패이지의 컨탠츠 탑 10
-    @GetMapping("/webtoon/top")
-    public ResponseEntity<List<ContentDataResponseDto>> readTopContentWebtoon(
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestParam(value = "search", required = false) String genre) {
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(contentService.readContentWebtoonTop(offset, pagesize, genre));
-    }
-
-    // 소설 패이지의 컨탠츠
-    @GetMapping("/webnovel")
-    public ResponseEntity<List<ContentDataResponseDto>> readContentWebnovel(
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestParam(value = "genre", required = false) String genre) {
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(contentService.readContentWebnovel(offset, pagesize, genre));
-    }
-
-    // 소설 패이지의 컨탠츠 탑 10
-    @GetMapping("/webnovel/top")
-    public ResponseEntity<List<ContentDataResponseDto>> readTopContentWebnovel(
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestParam(value = "search", required = false) String genre) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(contentService.readContentWebnovelTop(offset, pagesize, genre));
-    }
-
-    // 컨탠츠 상세 페이지
+    // 컨텐츠 상세 페이지
     @GetMapping("/{contentId}")
-    public ResponseEntity<ContentResponseDto> readContentById(@PathVariable Long contentId) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(contentService.readContent(contentId));
+    public ResponseEntity<ContentResponseDto> readContent(
+            @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
+            @PathVariable Long contentId) {
+
+        ContentResponseDto res = contentService.readContent(contentId);
+
+        if (userPrincipal != null) {
+            hashtagService.userContentHashtagInteraction(userPrincipal.getUser(), contentId,
+                    hashtagService.READ_WEIGHT, hashtagService.READED_WEIGHT);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    // 컨탠츠 본 숫자
-    @PostMapping("viewcount/{contentId}")
-    public ResponseEntity<Void> incrementViewCount(@PathVariable Long contentId) {
-        contentService.viewCount(contentId);
-        return ResponseEntity.ok().build();
+    /**
+     * 컨텐츠 검색 기능
+     * - 주어진 조건들에 맞춰 컨텐츠를 조회합니다.
+     * @param userPrincipal 사용자 정보 : Nullable
+     * @param isBookmarked 사용자의 북마크 조건으로 필터링 할 것인지 여부 : 기본 값 : "f"
+     * @param genre 검색할 키워드 : 비어있으면 전체 조회
+     * @param contentType WEBTOON || WEBNOVEL : 비어있으면 전체 조회
+     * @param sortBy 정렬조건 : 비어있으면 조회수 순 정렬
+     * @param offset 현재 위치
+     * @param pagesize 페이지 사이즈
+     * @return List<ContentResponseDto> 불러온 컨텐츠 Dto 목록
+     */
+    @GetMapping
+    public ResponseEntity<List<ContentResponseDto>> readContentsByCondition (
+            @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
+            @RequestParam(value = "isBookmarked", defaultValue = "f", required = false) String isBookmarked,
+            @RequestParam(value = "genre", required = false) String genre,
+            @RequestParam(value = "contentType", required = false) String contentType,
+            @RequestParam(value = "sortBy", required = false) String sortBy,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize) {
+
+
+        Long userId = null;
+
+        if (isBookmarked.equals("t")) {
+            if(userPrincipal != null) {
+                userId = userPrincipal.getUser().getId();
+            }
+        }
+
+        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, userId, genre, contentType, sortBy);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
+
+    // 매인 페이지의 컨텐츠 (웹툰 + 소설)
+    @GetMapping
+    public ResponseEntity<List<ContentResponseDto>> readContents(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
+            @RequestParam(value = "genre", required = false) String genre) {
+
+        List<ContentResponseDto> res = contentService.readContentsByGenre(offset, pagesize, genre);
+//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, null, null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    // 웹툰 페이지의 컨텐츠
+    @GetMapping("/webtoon")
+    public ResponseEntity<List<ContentResponseDto>> readContentWebtoon(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
+            @RequestParam(value = "genre", required = false) String genre) {
+
+        List<ContentResponseDto> res = contentService.readWebtoonContents(offset, pagesize, genre);
+//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, "COMICS", null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    // 웹툰 페이지의 컨텐츠 탑 10
+    @GetMapping("/webtoon/top")
+    public ResponseEntity<List<ContentResponseDto>> readTopContentWebtoon(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
+            @RequestParam(value = "search", required = false) String genre) {
+
+        List<ContentResponseDto> res = contentService.readWebtoonContentsOrderByView(offset, pagesize, genre);
+//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, "COMICS", null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    // 소설 페이지의 컨텐츠
+    @GetMapping("/webnovel")
+    public ResponseEntity<List<ContentResponseDto>> readContentWebnovel(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
+            @RequestParam(value = "genre", required = false) String genre) {
+
+        List<ContentResponseDto> res = contentService.readWebnovelContents(offset, pagesize, genre);
+//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, "NOVEL", null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    // 소설 페이지의 컨텐츠 탑 10
+    @GetMapping("/webnovel/top")
+    public ResponseEntity<List<ContentResponseDto>> readTopContentWebnovel(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
+            @RequestParam(value = "search", required = false) String genre) {
+
+        List<ContentResponseDto> res = contentService.readWebnovelContentsOrderByView(offset, pagesize, genre);
+//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, "NOVEL", null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
 
 
     //::::::::::::::::::::::::// User Bookmark //:::::::::::::::::::::::://
 
-    // 북마크 한 웹툰 패이지의 컨탠츠
+    // 북마크 한 웹툰 페이지의 컨텐츠
     @GetMapping("/webtoon/bookmark")
-    public ResponseEntity<List<ContentDataResponseDto>> readContentWebtoonUser(
+    public ResponseEntity<List<ContentResponseDto>> readContentWebtoonUser(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "4") int pagesize,
             @RequestParam(value = "genre", required = false) String genre) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(contentService.readContentWebtoonUser(userPrincipal.getUser().getId(), offset, pagesize, genre));
+
+        List<ContentResponseDto> res = contentService.readWebtoonContentsByUser(userPrincipal.getUser().getId(), offset, pagesize, genre);
+//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, userPrincipal.getUser().getId(), genre, "COMICS", null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    // 북마크 한 소설 패이지의 컨탠츠
+    // 북마크 한 소설 페이지의 컨텐츠
     @GetMapping("/webnovel/bookmark")
-    public ResponseEntity<List<ContentDataResponseDto>> readContentWebnovelUser(
+    public ResponseEntity<List<ContentResponseDto>> readContentWebnovelUser(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "4") int pagesize,
             @RequestParam(value = "genre", required = false) String genre) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(contentService.readContentWebnovelUser(userPrincipal.getUser().getId(), offset, pagesize, genre));
+
+        List<ContentResponseDto> res = contentService.readWebnovelContentsByUser(userPrincipal.getUser().getId(), offset, pagesize, genre);
+//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, userPrincipal.getUser().getId(), genre, "NOVEL", null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     //:::::::::::::::::// like //::::::::::::::::://
 
-    // 컨탠츠 좋아요
-    @PostMapping("like/{id}")
+    // 컨텐츠 좋아요
+    @PostMapping("/{contentId}/like")
     public ResponseEntity<Void> createLikeContent(
-            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long contentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
 
-        likeService.createLikeContent(id, userPrincipal.getUser().getId());
+        likeService.createLikeContent(contentId, userPrincipal.getUser().getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    // 컨탠츠 좋아요취소
-    @DeleteMapping("like/{id}")
+    // 컨텐츠 좋아요 취소
+    @DeleteMapping("/{contentId}/like")
     public ResponseEntity<Void> deleteLikeContent(
-            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long contentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
 
-        likeService.deleteLikeContent(id, userPrincipal.getUser().getId());
+        likeService.deleteLikeContent(contentId, userPrincipal.getUser().getId());
         return ResponseEntity.ok().build();
     }
 
     // 컨탠츠 좋아요 수
-    @GetMapping("like/{id}")
+    @GetMapping("/{contentId}/like")
     public ResponseEntity<Boolean> getLikeContent(
-            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long contentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
 
-        return ResponseEntity.ok().body(likeService.getLikeContent(id, userPrincipal.getUser().getId()));
+        return ResponseEntity.ok().body(likeService.getLikeContent(contentId, userPrincipal.getUser().getId()));
     }
 
 }
