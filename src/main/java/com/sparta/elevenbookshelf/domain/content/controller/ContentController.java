@@ -5,6 +5,7 @@ import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.like.service.LikeService;
+import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -72,6 +73,17 @@ public class ContentController {
         }
 
         List<ContentResponseDto> res = contentService.readContents(offset, pagesize, userId, genre, contentType, sortBy);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @GetMapping("/recommend")
+    public ResponseEntity<List<ContentResponseDto>> recommendContentsByUserHashtag (
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(defaultValue = "0") long offset,
+            @RequestParam(defaultValue = "20") int pagesize) {
+
+        List<ContentResponseDto> res = hashtagService.recommendContentByUserHashtag(userPrincipal.getUser(), offset, pagesize);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }

@@ -1,5 +1,8 @@
 package com.sparta.elevenbookshelf.domain.user.controller;
 
+import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagRequestDto;
+import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
+import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.domain.post.service.PostService;
 import com.sparta.elevenbookshelf.domain.user.dto.UserRequestDto;
@@ -23,6 +26,7 @@ public class UserController {
 
     private final UserService userService;
     private final PostService postService;
+    private final HashtagService hashtagService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody UserRequestDto req) {
@@ -59,6 +63,28 @@ public class UserController {
         log.info("editProfile 실행");
         UserResponseDto res = userService.editProfile(user.getUser().getId() , username );
         return ResponseEntity.noContent().build();
+    }
+
+    //::::::::::::::::::::::::// Hashtag //:::::::::::::::::::::::://
+
+    @GetMapping("/hashtags")
+    public ResponseEntity<List<HashtagResponseDto>> getUserHashtags(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(value = "limit", defaultValue = "10") int limit) {
+
+        log.info("getUserHashtag 실행");
+        List<HashtagResponseDto> res = hashtagService.readUserHashtags(userPrincipal.getUser(), limit);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @PutMapping("/hashtags")
+    public ResponseEntity<List<HashtagResponseDto>> updateUserHashtags(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestBody HashtagRequestDto req) {
+
+        log.info("updateUserHashtag 실행");
+        List<HashtagResponseDto> res = hashtagService.updateUserHashtags(userPrincipal.getUser(), req);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
 }

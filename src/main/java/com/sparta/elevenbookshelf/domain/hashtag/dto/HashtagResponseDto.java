@@ -12,6 +12,6 @@ public class HashtagResponseDto {
     public HashtagResponseDto(Hashtag hashtag) {
 
         this.id = hashtag.getId();
-        this.tag = hashtag.getTag();
+        this.tag = "#" + hashtag.getTag();
     }
 }

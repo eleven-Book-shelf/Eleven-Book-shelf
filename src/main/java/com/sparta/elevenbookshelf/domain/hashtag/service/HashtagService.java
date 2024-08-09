@@ -3,7 +3,8 @@ package com.sparta.elevenbookshelf.domain.hashtag.service;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
-import com.sparta.elevenbookshelf.domain.content.service.ContentService;
+import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagRequestDto;
+import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.ContentHashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.PostHashtag;
@@ -12,15 +13,11 @@ import com.sparta.elevenbookshelf.domain.hashtag.repository.ContentHashtagReposi
 import com.sparta.elevenbookshelf.domain.hashtag.repository.HashtagRepository;
 import com.sparta.elevenbookshelf.domain.hashtag.repository.PostHashtagRepository;
 import com.sparta.elevenbookshelf.domain.hashtag.repository.UserHashtagRepository;
-import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
-import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import com.sparta.elevenbookshelf.domain.post.repository.PostRepository;
-import com.sparta.elevenbookshelf.domain.user.dto.UserHashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,6 +62,26 @@ public class HashtagService {
         List<Hashtag> topHashtags = hashtagRepository.findTop10ByCount();
 
         return topHashtags.stream().map(Hashtag::getTag).toList();
+    }
+
+    // 사용자 해시태그 상위 limit개
+    public List<HashtagResponseDto> readUserHashtags (User user, int limit) {
+
+        return user.getUserHashtags().stream()
+                .sorted(Comparator.comparing(UserHashtag::getScore))
+                .limit(limit)
+                .map(userHashtag -> new HashtagResponseDto(userHashtag.getHashtag()))
+                .toList();
+    }
+
+    public List<HashtagResponseDto> updateUserHashtags(User user, HashtagRequestDto req) {
+
+        List<Hashtag> hashtags = updateAndSaveHashtags(req.getTags());
+        List<Hashtag> userHashtags = updateAndSaveHashtags(user, hashtags, INIT_WEIGHT);
+
+        return userHashtags.stream()
+                .map(HashtagResponseDto::new)
+                .toList();
     }
 
     /* Hashtag 비즈니스 로직 -> 비동기 처리 예정 (실시간 반영 필요없으므로 부하를 줄이기 위해서)
@@ -306,18 +323,7 @@ public class HashtagService {
                 .collect(Collectors.toSet());
     }
 
-    // 사용자 해시태그 상위 limit개
-    public List<UserHashtagResponseDto> readUserHashtags (User user, int limit) {
-
-        return user.getUserHashtags().stream()
-                .sorted(Comparator.comparing(UserHashtag::getScore))
-                .limit(limit)
-                .map(userHashtag -> new UserHashtagResponseDto(userHashtag.getHashtag()))
-                .toList();
-    }
-
-
-    // TODO: contentService methods로
+    // 해시태그를 바탕으로 추천해주기
     public List<ContentResponseDto> recommendContentByUserHashtag (User user, long offset, int pagesize) {
 
         List<Content> contents = calculateSimilarity(user);

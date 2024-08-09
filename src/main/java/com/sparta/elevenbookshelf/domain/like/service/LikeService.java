@@ -1,6 +1,5 @@
 package com.sparta.elevenbookshelf.domain.like.service;
 
-import com.sparta.elevenbookshelf.domain.board.repository.BoardRepository;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentRepository;
 import com.sparta.elevenbookshelf.domain.comment.entity.Comment;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
@@ -29,7 +28,6 @@ import java.util.Objects;
 public class LikeService {
 
     private final PostRepository postRepository;
-    private final BoardRepository boardRepository;
     private final UserRepository userRepository;
     private final ContentRepository contentRepository;
     private final CommentRepository commentRepository;
