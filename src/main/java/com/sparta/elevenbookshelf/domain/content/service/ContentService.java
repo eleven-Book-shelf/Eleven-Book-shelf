@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.domain.content.service;
 
+import com.sparta.elevenbookshelf.domain.content.dto.ContentAdminResponseDto;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
@@ -7,9 +8,15 @@ import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -155,5 +162,38 @@ public class ContentService {
         return contentRepository.findById(contentId).orElseThrow(
                 () -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT)
         );
+    }
+
+
+    public Set<String> getAllContentHashTags() {
+        List<String> contentHashTagsList = contentRepository.findAllByContentHashTag();
+
+        return contentHashTagsList.stream()
+                .flatMap(tags -> Arrays.stream(tags.split("#")))
+                .filter(tag -> !tag.isEmpty())
+                .collect(Collectors.toSet());
+    }
+
+    public List<ContentResponseDto> contentSearch(int offset, int pagesize, String search) {
+        List<Content> contents = contentRepository.search(offset, pagesize ,search);
+
+        return contents.stream()
+                .map(ContentResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public Page<ContentAdminResponseDto> getContentPage(int page, int size, String sortBy, boolean asc) {
+
+        Sort.Direction direction = asc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+
+        Pageable pageable = PageRequest.of(page, size,sort);
+
+        Page<Content> contents = contentRepository.findAll(pageable);
+
+        return contents.map(ContentAdminResponseDto::new);
+    }
+    public void updateContentPage(Long contentId) {
+        contentRepository.deleteById(contentId);
     }
 }

@@ -2,7 +2,7 @@ package com.sparta.elevenbookshelf.domain.admin.controller;
 
 import com.sparta.elevenbookshelf.domain.admin.dto.AdminUserStatusUpdateDto;
 import com.sparta.elevenbookshelf.domain.admin.service.AdminService;
-
+import com.sparta.elevenbookshelf.domain.content.dto.ContentAdminResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.domain.user.dto.UserResponseDto;
@@ -82,6 +82,25 @@ public class AdminController {
     @DeleteMapping("/hashtag/{hashtagId}")
     public ResponseEntity<?> updateHashtagPage(@PathVariable Long hashtagId) {
         adminService.updateHashtagPage(hashtagId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    //컨탠츠 전체조회 관리
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/contents/page")
+    public ResponseEntity<List<ContentAdminResponseDto>> getContentPage(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam String sortBy,
+            @RequestParam boolean asc) {
+        return ResponseEntity.ok(adminService.getContentPage(page, size, sortBy, asc));
+    }
+
+    //컨탠츠 관리
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/contents/{contentId}")
+    public ResponseEntity<?> updateContentPage(@PathVariable Long contentId) {
+        adminService.updateContentPage(contentId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

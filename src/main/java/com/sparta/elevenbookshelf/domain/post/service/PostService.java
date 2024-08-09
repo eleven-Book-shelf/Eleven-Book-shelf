@@ -2,6 +2,7 @@ package com.sparta.elevenbookshelf.domain.post.service;
 
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
+import com.sparta.elevenbookshelf.domain.like.service.LikeService;
 import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
@@ -28,6 +29,7 @@ public class PostService {
     private final PostRepository postRepository;
 
     private final UserService userService;
+    private final LikeService likeService;
     private final ContentService contentService;
 
     //:::::::::::::::::// create //::::::::::::::::://
@@ -160,6 +162,19 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    public void createLikePost(Long postId, Long userId) {
+         likeService.createLikePost( postId,  userId);
+    }
+
+    public void deleteLikePost(Long postId, Long userId) {
+         likeService.deleteLikePost( postId,  userId);
+    }
+
+    public Boolean getLikePost(Long postId, Long userId) {
+        return likeService.getLikePost( postId,  userId);
+    }
+
+
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 
     public Post getPost(Long postId) {
@@ -186,5 +201,7 @@ public class PostService {
     private Content getContent(Long contentId) {
         return contentService.getContent(contentId);
     }
+
+
 
 }

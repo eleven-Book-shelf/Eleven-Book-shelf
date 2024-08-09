@@ -1,6 +1,7 @@
 package com.sparta.elevenbookshelf.security.oauth2.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.elevenbookshelf.domain.auth.service.RefreshTokenService;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
@@ -30,10 +31,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private String allowedOrigins;
 
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
     private final OAuth2AuthorizedClientRepository authorizedClientRepository;
-
-    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -76,7 +76,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         User user = userRepository.findByUsername(principalName).orElseThrow(
                 () -> new OAuth2AuthenticationException(new OAuth2Error("invalid_token"), "Invalid user"));
 
-        user.addRefreshToken(jwtService.generateRefreshToken(user));
+        refreshTokenService.saveRefreshToken(jwtService.generateRefreshToken(user), user.getId());
         user.addOauthRefreshToken(refreshToken);
         user.addOauthAccessToken(accessToken);
         userRepository.save(user);
@@ -86,7 +86,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         User user = userRepository.findByUsername(principalName).orElseThrow(
                 () -> new OAuth2AuthenticationException(new OAuth2Error("invalid_token"), "토큰 저장 실패"));
 
-        user.addRefreshToken(jwtService.generateRefreshToken(user));
+        refreshTokenService.saveRefreshToken(jwtService.generateRefreshToken(user), user.getId());
         user.addOauthAccessToken(accessToken);
         userRepository.save(user);
     }

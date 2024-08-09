@@ -1,11 +1,9 @@
 package com.sparta.elevenbookshelf.domain.comment.service;
 
-import com.sparta.elevenbookshelf.domain.comment.dto.CommentRepository;
+import com.sparta.elevenbookshelf.domain.comment.repository.CommentRepository;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentResponseDto;
 import com.sparta.elevenbookshelf.domain.comment.entity.Comment;
-import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
-import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import com.sparta.elevenbookshelf.domain.post.repository.PostRepository;
 import com.sparta.elevenbookshelf.domain.user.entity.User;

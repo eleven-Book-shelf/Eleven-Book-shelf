@@ -1,6 +1,6 @@
 package com.sparta.elevenbookshelf.domain.like.service;
 
-import com.sparta.elevenbookshelf.domain.comment.dto.CommentRepository;
+import com.sparta.elevenbookshelf.domain.comment.repository.CommentRepository;
 import com.sparta.elevenbookshelf.domain.comment.entity.Comment;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
