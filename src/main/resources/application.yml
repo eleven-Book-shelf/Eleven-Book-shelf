@@ -201,6 +201,7 @@ r:
   rating: ${R_RATING}
   complete: ${R_COMPLETE}
   hashtag: ${R_HASHTAG}
+  image: ${R_IMAGE}
 
 m:
   page: ${M_PAGE}

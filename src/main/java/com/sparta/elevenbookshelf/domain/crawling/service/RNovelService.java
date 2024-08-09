@@ -58,6 +58,9 @@ public class RNovelService {
     @Value("${r.hashtag}")
     private String rHashTag;
 
+    @Value("${r.image}")
+    private String rImage;
+
     public void serviceStart() {
         log.info("R NOVEL 시작");
         String baseUrl = rPage;
@@ -113,13 +116,12 @@ public class RNovelService {
                         log.info("작품 게시 사이트 : {}", site);
 
                         crawlingUtil.waitForPage();
-                        String isEnd = crawlingUtil.bodyData(rIsEnd);
-                        if (isEnd.contains("미완결")) {
-                            requestDto.setIsEnd(Content.ContentEnd.NOT);
-                            log.info("완결 여부 : NOT");
-                        } else {
+                        if (crawlingUtil.isXPathPresent(rIsEnd)) {
                             requestDto.setIsEnd(Content.ContentEnd.END);
                             log.info("완결 여부 : END");
+                        } else {
+                            requestDto.setIsEnd(Content.ContentEnd.NOT);
+                            log.info("완결 여부 : NOT");
                         }
 
                         crawlingUtil.waitForPage();
@@ -135,7 +137,7 @@ public class RNovelService {
 
                         crawlingUtil.waitForPage();
                         String likeCountText = crawlingUtil.bodyData(rLikeCount);
-                        String likeCountNumber = likeCountText.replace(",", "");
+                        String likeCountNumber = likeCountText.replaceAll("[^0-9]", "");
                         Long likeCount = Long.parseLong(likeCountNumber);
                         requestDto.setLikeCount(likeCount);
                         log.info("좋아요 수 : {}", likeCount);
@@ -165,7 +167,7 @@ public class RNovelService {
                         }
 
                         crawlingUtil.waitForPage();
-                        String imgUrl = crawlingUtil.getThumbnail(".thumbnail", true);
+                        String imgUrl = crawlingUtil.getThumbnailByXPath(rImage);
                         requestDto.setImgUrl(imgUrl);
                         log.info("작품 썸네일 : {}", imgUrl);
 
