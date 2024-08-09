@@ -19,6 +19,7 @@ import com.sparta.elevenbookshelf.domain.post.repository.PostRepository;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -195,6 +196,7 @@ public class HashtagService {
                 .toList();
     }
 
+    @Transactional
     public List<Hashtag> updateAndSaveHashtags (Content content, List<Hashtag> hashtags, double score) {
 
         Set<ContentHashtag> res = new HashSet<>();
@@ -289,25 +291,25 @@ public class HashtagService {
         return postHashtag;
     }
 
-
+    //TODO : 오류 위치
     private ContentHashtag createOrGetHashtag(Content content, Hashtag hashtag) {
 
         Optional<ContentHashtag> optionalContentHashtag = contentHashtagRepository.findByContentIdAndHashtagId(content.getId(), hashtag.getId());
-        ContentHashtag contentHashtag;
 
         if(optionalContentHashtag.isPresent()) {
-            contentHashtag = optionalContentHashtag.get();
+            return optionalContentHashtag.get();
         } else {
-            contentHashtag = ContentHashtag.builder()
+            ContentHashtag contentHashtag = ContentHashtag.builder()
                     .content(content)
                     .hashtag(hashtag)
                     .build();
 
-            contentHashtag.createId();
-        }
+            contentHashtagRepository.save(contentHashtag);
 
-        return contentHashtag;
+            return contentHashtag;
+        }
     }
+
 
     // 문자를 입력받아 해시태그 객체를 생성
     private Hashtag createOrGetHashtag(String tag) {

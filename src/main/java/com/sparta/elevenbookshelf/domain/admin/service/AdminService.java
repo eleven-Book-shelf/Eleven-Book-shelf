@@ -1,7 +1,6 @@
 package com.sparta.elevenbookshelf.domain.admin.service;
 
 import com.sparta.elevenbookshelf.domain.admin.dto.AdminUserStatusUpdateDto;
-import com.sparta.elevenbookshelf.domain.board.service.BoardService;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentAdminResponseDto;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;

@@ -1,10 +1,8 @@
 package com.sparta.elevenbookshelf.domain.post.controller;
 
-import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
-import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import com.sparta.elevenbookshelf.domain.post.service.PostService;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import jakarta.annotation.Nullable;
@@ -94,5 +92,30 @@ public class PostController {
 
         postService.deletePost(userPrincipal.getUser().getId(), postId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    //:::::::::::::::::// like //::::::::::::::::://
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<Void> createLikePost(
+            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        postService.createLikePost(id, userPrincipal.getUser().getId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{postId}/like")
+    public ResponseEntity<Void> deleteLikePost(
+            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        postService.deleteLikePost(id, userPrincipal.getUser().getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{postId}/like")
+    public ResponseEntity<Boolean> getLikePost(
+            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+
+        return ResponseEntity.ok().body(postService.getLikePost(id, userPrincipal.getUser().getId()));
     }
 }

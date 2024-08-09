@@ -205,7 +205,6 @@ public class CrawlingUtil {
     }
 
     // 데이터 파일을 DB에 저장하는 메서드
-    @Transactional
     public void saveData(ContentRequestDto req, String artUrl) {
         Optional<Content> dataSave = contentRepository.findByUrl(artUrl);
         if (dataSave.isPresent()) {

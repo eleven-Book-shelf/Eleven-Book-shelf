@@ -1,14 +1,10 @@
 package com.sparta.elevenbookshelf.domain.content.service;
 
 import com.sparta.elevenbookshelf.domain.content.dto.ContentAdminResponseDto;
-import com.sparta.elevenbookshelf.domain.content.dto.ContentDataResponseDto;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
-import com.sparta.elevenbookshelf.domain.content.repository.ContentRepositoryCustom;
-import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
-import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -176,11 +174,11 @@ public class ContentService {
                 .collect(Collectors.toSet());
     }
 
-    public List<ContentDataResponseDto> contentSearch(int offset, int pagesize, String search) {
+    public List<ContentResponseDto> contentSearch(int offset, int pagesize, String search) {
         List<Content> contents = contentRepository.search(offset, pagesize ,search);
 
         return contents.stream()
-                .map(ContentDataResponseDto::new)
+                .map(ContentResponseDto::new)
                 .collect(Collectors.toList());
     }
 
