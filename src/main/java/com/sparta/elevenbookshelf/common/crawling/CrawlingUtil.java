@@ -141,6 +141,14 @@ public class CrawlingUtil {
 
     }
 
+    public String getThumbnailByXPath(String xPath) {
+        WebElement element = waitForElement(By.xpath(xPath), 10);
+
+        String srcUrl = element.getAttribute("src");
+
+        return srcUrl;
+    }
+
     // 동적 페이지 스크롤 최 하단 이동 메서드.
     // End 를 눌렀을 경우 페이지 최 하단으로 이동하는 페이지에 사용.
     public void scrollController() {
@@ -393,6 +401,15 @@ public class CrawlingUtil {
             return 0.0;
         }
 
+    }
+
+    public boolean isXPathPresent(String xPath) {
+        try {
+            webDriver.findElement(By.xpath(xPath));
+            return true;
+        } catch (NoSuchElementException e) {
+            return false;
+        }
     }
 
 }
