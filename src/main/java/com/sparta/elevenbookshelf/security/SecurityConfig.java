@@ -1,6 +1,7 @@
 package com.sparta.elevenbookshelf.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.elevenbookshelf.domain.auth.service.RefreshTokenService;
 import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
 import com.sparta.elevenbookshelf.security.config.CustomAccessDeniedHandler;
 import com.sparta.elevenbookshelf.security.filter.JwtAuthenticationEntryPoint;
@@ -19,7 +20,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -40,6 +40,7 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final RefreshTokenService refreshTokenService;
     private final OAuth2AuthorizedClientRepository authorizedClientRepository;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final UserRepository userRepository;
@@ -61,7 +62,8 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
         log.info("@Bean OAuth2AuthenticationSuccessHandler 실행");
-        return new OAuth2AuthenticationSuccessHandler(jwtService, userRepository, authorizedClientRepository, objectMapper);
+        return new OAuth2AuthenticationSuccessHandler(
+                jwtService, refreshTokenService, userRepository, authorizedClientRepository);
     }
 
     @Bean

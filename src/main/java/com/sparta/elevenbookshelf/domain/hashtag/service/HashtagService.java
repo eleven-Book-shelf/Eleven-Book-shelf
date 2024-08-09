@@ -498,7 +498,10 @@ public class HashtagService {
     }
 
     public Page<HashtagResponseDto> getAdminPage(int page, int size, String sortBy, boolean asc) {
-        Pageable pageable = PageRequest.of(page, size);
+        Sort.Direction direction = asc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<Hashtag> hashtags = hashtagRepository.findAll(pageable);
 

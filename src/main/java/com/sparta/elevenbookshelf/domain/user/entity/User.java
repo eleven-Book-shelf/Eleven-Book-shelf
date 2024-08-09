@@ -31,10 +31,6 @@ public class User extends Timestamp {
     @Column(unique = true)
     private String email;
 
-    private String accessToken;
-
-    private String refreshToken;
-
     private String oauthRefreshToken;
 
     private String oauthAccessToken;
@@ -70,18 +66,6 @@ public class User extends Timestamp {
 
     public void signOut(){
         this.status = Status.DELETED;
-    }
-
-    public void deleteRefreshToken() {
-        this.refreshToken = "out";
-    }
-
-    public void deleteAccessToken() {
-        this.accessToken = "out";
-    }
-
-    public void addRefreshToken(String RefreshToken) {
-        this.refreshToken = RefreshToken;
     }
 
     public void addPost(Post post) {

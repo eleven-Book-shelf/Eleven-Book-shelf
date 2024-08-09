@@ -1,12 +1,20 @@
 package com.sparta.elevenbookshelf.domain.content.service;
 
+import com.sparta.elevenbookshelf.domain.content.dto.ContentAdminResponseDto;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentDataResponseDto;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
+import com.sparta.elevenbookshelf.domain.content.repository.ContentRepositoryCustom;
+import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
+import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -126,6 +134,18 @@ public class ContentService {
                 .collect(Collectors.toList());
     }
 
+    public Page<ContentAdminResponseDto> getContentPage(int page, int size, String sortBy, boolean asc) {
 
+        Sort.Direction direction = asc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
 
+        Pageable pageable = PageRequest.of(page, size,sort);
+
+        Page<Content> contents = contentRepository.findAll(pageable);
+
+        return contents.map(ContentAdminResponseDto::new);
+    }
+    public void updateContentPage(Long contentId) {
+        contentRepository.deleteById(contentId);
+    }
 }

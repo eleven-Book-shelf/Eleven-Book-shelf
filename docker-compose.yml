@@ -12,3 +12,16 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       TZ: Asia/Seoul
+
+  redis:
+    image: redis:6.2.6
+    container_name: ${REDIS_HOST}
+    platform: linux/x86_64
+    restart: always
+    ports:
+      - ${REDIS_PORT}:6379
+    environment:
+      TZ: Asia/Seoul
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--appendonly", "yes"]
+

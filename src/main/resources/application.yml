@@ -182,6 +182,12 @@ spring:
             scope:
               - email
             client-name: Naver
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+
 
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS}

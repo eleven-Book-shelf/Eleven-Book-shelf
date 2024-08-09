@@ -2,6 +2,8 @@ package com.sparta.elevenbookshelf.domain.admin.service;
 
 import com.sparta.elevenbookshelf.domain.admin.dto.AdminUserStatusUpdateDto;
 import com.sparta.elevenbookshelf.domain.board.service.BoardService;
+import com.sparta.elevenbookshelf.domain.content.dto.ContentAdminResponseDto;
+import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
@@ -21,6 +23,7 @@ public class AdminService {
     private final UserService userService;
     private final BoardService boardService;
     private final HashtagService hashtagService;
+    private final ContentService contentService;
 
     @Transactional
     public void updateUserStatus(Long targetUserId, AdminUserStatusUpdateDto status) {
@@ -50,6 +53,14 @@ public class AdminService {
 
     public void updateHashtagPage(Long hashtagId) {
         hashtagService.deleteHashtag(hashtagId);
+    }
+
+    public List<ContentAdminResponseDto> getContentPage(int page, int size, String sortBy, boolean asc) {
+        return contentService.getContentPage(page,size,sortBy,asc).getContent();
+    }
+
+    public void updateContentPage(Long contentId) {
+        contentService.updateContentPage(contentId);
     }
 }
 
