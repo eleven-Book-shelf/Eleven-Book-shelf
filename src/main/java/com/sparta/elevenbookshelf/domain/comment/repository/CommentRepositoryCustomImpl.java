@@ -1,4 +1,4 @@
-package com.sparta.elevenbookshelf.domain.comment.dto;
+package com.sparta.elevenbookshelf.domain.comment.repository;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;

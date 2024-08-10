@@ -1,4 +1,4 @@
-package com.sparta.elevenbookshelf.domain.comment.dto;
+package com.sparta.elevenbookshelf.domain.comment.repository;
 
 import com.sparta.elevenbookshelf.domain.comment.entity.Comment;
 

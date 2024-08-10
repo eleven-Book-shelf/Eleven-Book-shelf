@@ -27,6 +27,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserService userService;
     private final SocialService socialService;
+    private final RefreshTokenService refreshTokenService;
 
     @Transactional
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
@@ -44,7 +45,7 @@ public class AuthService {
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
-        user.addRefreshToken(refreshToken);
+        refreshTokenService.saveRefreshToken(refreshToken, user.getId());
 
         return new LoginResponseDto(accessToken, refreshToken);
     }
@@ -52,8 +53,8 @@ public class AuthService {
     @Transactional
     public void logout(Long userid) {
         User user = userService.getUser(userid);
-        user.deleteRefreshToken();
-        user.deleteAccessToken();
+        refreshTokenService.deleteRefreshToken(userid);
+
     }
 
     @Transactional
@@ -65,7 +66,7 @@ public class AuthService {
         User user = userService.getUser(jwtService.getUsernameFromToken(token));
 
         String refreshToken = jwtService.generateRefreshToken(user);
-        user.addRefreshToken(refreshToken);
+        refreshTokenService.saveRefreshToken(refreshToken,user.getId());
 
         return new LoginResponseDto(
                 jwtService.generateAccessToken(user), refreshToken
@@ -95,7 +96,7 @@ public class AuthService {
         }
 
         user.signOut();
-        user.deleteRefreshToken();
+        refreshTokenService.deleteRefreshToken(user.getId());
 
 
     }
