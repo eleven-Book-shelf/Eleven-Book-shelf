@@ -26,7 +26,7 @@ public class BookMarkController {
             @PathVariable Long postId) {
 
         BookMarkResponseDto res = bookmarkService.addBookMark(userPrincipal.getUser().getId(), postId);
-        hashtagService.userContentHashtagInteraction(userPrincipal.getUser(), postId, hashtagService.BOOKMARK_WEIGHT, hashtagService.BOOKMARKED_WEIGHT);
+        hashtagService.userContentHashtagInteraction(userPrincipal.getUser().getId(), postId, hashtagService.BOOKMARK_WEIGHT, hashtagService.BOOKMARKED_WEIGHT);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }

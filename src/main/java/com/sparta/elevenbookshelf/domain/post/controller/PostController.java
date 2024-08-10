@@ -1,6 +1,7 @@
 package com.sparta.elevenbookshelf.domain.post.controller;
 
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
+import com.sparta.elevenbookshelf.domain.post.dto.PostMapResponseDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.domain.post.service.PostService;
@@ -31,7 +32,7 @@ public class PostController {
 
         if (req.getPostType().equals("REVIEW")) {
             res = postService.createReviewPost(userPrincipal.getUser().getId(), req);
-            hashtagService.generatePostHashtags(userPrincipal.getUser(), res.getId(), req.getPrehashtag());
+            hashtagService.generatePostHashtags(userPrincipal.getUser().getId(), res.getId(), req.getPrehashtag());
         } else {
             res = postService.createNormalPost(userPrincipal.getUser().getId(), req);
         }
@@ -48,7 +49,7 @@ public class PostController {
 
         if (userPrincipal != null && res.getPostType().equals("REVIEW")) {
 
-            hashtagService.userPostHashtagInteraction(userPrincipal.getUser(), res.getId(), hashtagService.READ_WEIGHT);
+            hashtagService.userPostHashtagInteraction(userPrincipal.getUser().getId(), res.getId(), hashtagService.READ_WEIGHT);
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
@@ -75,6 +76,17 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<PostMapResponseDto> readPostsByPostType (
+            @RequestParam String postType,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int pagesize,
+            @RequestParam boolean asc)  {
+
+        PostMapResponseDto res = postService.readPostsByPostType(postType, page, pagesize,asc);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponseDto> updatePost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -98,24 +110,24 @@ public class PostController {
 
     @PostMapping("/{postId}/like")
     public ResponseEntity<Void> createLikePost(
-            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal){
 
-        postService.createLikePost(id, userPrincipal.getUser().getId());
+        postService.createLikePost(postId, userPrincipal.getUser().getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/{postId}/like")
     public ResponseEntity<Void> deleteLikePost(
-            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal){
 
-        postService.deleteLikePost(id, userPrincipal.getUser().getId());
+        postService.deleteLikePost(postId, userPrincipal.getUser().getId());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{postId}/like")
     public ResponseEntity<Boolean> getLikePost(
-            @PathVariable Long id, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal){
 
-        return ResponseEntity.ok().body(postService.getLikePost(id, userPrincipal.getUser().getId()));
+        return ResponseEntity.ok().body(postService.getLikePost(postId, userPrincipal.getUser().getId()));
     }
 }
