@@ -21,22 +21,20 @@ public class PostResponseDto {
     private List<String> tags = new ArrayList<>();
     private String body;
     private LocalDateTime createdAt;
-    private  LocalDateTime modifiedAt;
+    private LocalDateTime modifiedAt;
 
-
-    public PostResponseDto (Post post) {
-
+    public PostResponseDto(Post post) {
         this.id = post.getId();
         this.userId = post.getUser().getId();
         this.nickname = post.getUser().getNickname();
         this.postType = post.getType().toString();
         this.viewCount = post.getViewCount();
-        this.contentId = post.getContent().getId();
+        this.contentId = (post.getContent() != null) ? post.getContent().getId() : 0L;
         this.rating = post.getRating();
         this.title = post.getTitle();
-        this.tags = post.getPostHashtags().stream()
+        this.tags = (post.getPostHashtags() != null) ? post.getPostHashtags().stream()
                 .map(postHashtag -> postHashtag.getHashtag().getTag())
-                .toList();
+                .toList() : new ArrayList<>();
         this.body = post.getBody();
         this.createdAt = post.getCreatedAt();
         this.modifiedAt = post.getModifiedAt();

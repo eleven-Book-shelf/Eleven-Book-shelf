@@ -55,8 +55,8 @@ public class Post extends Timestamp {
     private Content content;
 
     @Builder
-    public Post (String title, String body, User user, Double rating, Content content) {
-        this.type = PostType.NORMAL;
+    public Post (PostType type,String title, String body, User user, Double rating, Content content) {
+        this.type = type;
         this.title = title;
         this.body = body;
         this.user = user;

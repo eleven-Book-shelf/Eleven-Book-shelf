@@ -33,7 +33,7 @@ public class ContentController {
         ContentResponseDto res = contentService.readContent(contentId);
 
         if (userPrincipal != null) {
-            hashtagService.userContentHashtagInteraction(userPrincipal.getUser(), contentId,
+            hashtagService.userContentHashtagInteraction(userPrincipal.getUser().getId(), contentId,
                     hashtagService.READ_WEIGHT, hashtagService.READED_WEIGHT);
         }
 

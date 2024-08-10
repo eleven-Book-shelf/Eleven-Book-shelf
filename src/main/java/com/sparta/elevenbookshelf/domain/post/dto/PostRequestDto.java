@@ -11,7 +11,6 @@ public class PostRequestDto {
     private String title;
     private String body;
     private Long contentId;
-    private Long boardId;
     private String prehashtag;
     private Double rating;
 }

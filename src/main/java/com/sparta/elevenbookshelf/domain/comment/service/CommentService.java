@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.domain.comment.service;
 
+import com.sparta.elevenbookshelf.domain.comment.dto.CommentMapResponseDto;
 import com.sparta.elevenbookshelf.domain.comment.repository.CommentRepository;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentResponseDto;
@@ -7,11 +8,13 @@ import com.sparta.elevenbookshelf.domain.comment.entity.Comment;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import com.sparta.elevenbookshelf.domain.post.repository.PostRepository;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
+import com.sparta.elevenbookshelf.domain.user.service.UserService;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final UserService userService;
 
     //:::::::::::::::::// post //::::::::::::::::://
 
@@ -64,17 +68,16 @@ public class CommentService {
      * 게시물의 댓글 목록 조회 기능
      * - 해당 게시물의 댓글을 페이지 단위로 조회합니다.
      * @param postId 게시물 ID
-     * @param offset 페이지 오프셋
+     * @param page 페이지 오프셋
      * @param pageSize 페이지 크기
      * @return List<CommentResponseDto> 댓글 목록
      */
-    public List<CommentResponseDto> readCommentsPost(Long postId, int offset, int pageSize) {
-        List<Comment> comments = commentRepository.findAllByPostIdAndParentIsNull(postId, offset, pageSize)
-                .orElse(new ArrayList<>());
+    public CommentMapResponseDto readCommentsPost(Long postId, int page, int pageSize) {
+        Page<Comment> comments = commentRepository.findAllByPostIdAndParentIsNull(postId, page, pageSize);
 
-        return comments.stream()
+        return new CommentMapResponseDto(comments.getTotalPages(),comments.stream()
                 .map(this::convertToResponseDto)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -82,10 +85,12 @@ public class CommentService {
      * - 해당 게시물의 특정 댓글을 업데이트합니다.
      * @param postId 게시물 ID
      * @param commentId 댓글 ID
-     * @param user 사용자
+     * @param userId 사용자 ID
      * @param commentRequestDto 댓글 요청 DTO
      */
-    public void updateComment(Long postId, Long commentId, User user, CommentRequestDto commentRequestDto) {
+    public void updateComment(Long postId, Long commentId, Long userId, CommentRequestDto commentRequestDto) {
+
+        User user = getUser(userId);
 
         Comment comment = getComment(postId, commentId, user);
 
@@ -99,10 +104,12 @@ public class CommentService {
      * - 해당 게시물의 특정 댓글을 삭제합니다.
      * @param postId 게시물 ID
      * @param commentId 댓글 ID
-     * @param user 사용자
+     * @param userId 사용자ID
      */
     @Transactional
-    public void deleteComment(Long postId, Long commentId, User user) {
+    public void deleteComment(Long postId, Long commentId, Long userId) {
+
+        User user = getUser(userId);
 
         Comment comment = getComment(postId, commentId, user);
         if (comment.getParent() != null) {
@@ -160,6 +167,10 @@ public class CommentService {
                                       comment.getCreatedAt()
 
         );
+    }
+
+    private User getUser(Long userId) {
+        return userService.getUser(userId);
     }
 
 }

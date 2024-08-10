@@ -23,9 +23,9 @@ public class CrawlingService {
     // 크롤링 데이터를 DB에 저장
     public void allCrawlingStart() {
 
-//        rNovelService.serviceStart();
+        rNovelService.serviceStart();
         mNovelService.serviceStart();
-//        kPageService.serviceStart();
+        kPageService.serviceStart();
 
     }
 
