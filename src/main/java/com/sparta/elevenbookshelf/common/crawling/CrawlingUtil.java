@@ -216,8 +216,7 @@ public class CrawlingUtil {
         } else {
 
             Content content = contentService.createContent(req);
-            List<Hashtag> hashtags = hashtagService.updateAndSaveHashtags(req.getContentHashTag() + req.getGenre());
-            hashtagService.updateAndSaveHashtags(content, hashtags, hashtagService.INIT_WEIGHT);
+            hashtagService.generateContentHashtags(req.getContentHashTag() + req.getGenre(), content.getId());
         }
 
     }

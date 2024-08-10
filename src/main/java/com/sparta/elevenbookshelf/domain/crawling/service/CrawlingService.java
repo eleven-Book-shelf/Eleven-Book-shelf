@@ -29,6 +29,21 @@ public class CrawlingService {
 
     }
 
+    public void rCrawlingStart() {
+
+        rNovelService.serviceStart();
+    }
+
+    public void mCrawlingStart() {
+
+        mNovelService.serviceStart();
+    }
+
+    public void kCrawlingStart() {
+
+        kPageService.serviceStart();
+    }
+
     // 파일 변환 후 로컬에 저장.
     public void csvFileToLocal() {
 

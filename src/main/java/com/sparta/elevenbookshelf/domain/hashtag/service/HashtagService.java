@@ -158,6 +158,16 @@ public class HashtagService {
         updateAndSaveHashtags(user, hashtags.stream().toList(), userScore);
     }
 
+    public void generateContentHashtags(String preHashtag, Long contentId) {
+
+        Content content = contentRepository.findById(contentId).orElseThrow(
+                () -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT)
+        );
+
+        List<Hashtag> hashtags = updateAndSaveHashtags(preHashtag);
+        updateAndSaveHashtags(content, hashtags, INIT_WEIGHT);
+    }
+
     public void generatePostHashtags(User user, Long postId, String preHashtag) {
 
         Post post = postRepository.findById(postId).orElseThrow(
@@ -188,7 +198,6 @@ public class HashtagService {
         }
 
         user.addHashtags(res);
-        userHashtagRepository.saveAll(res);
 
         return res.stream()
                 .map(this::toHashtag)
@@ -206,7 +215,6 @@ public class HashtagService {
         }
 
         content.addHashtags(res);
-        contentHashtagRepository.saveAll(res);
 
         return res.stream()
                 .map(this::toHashtag)
@@ -223,7 +231,6 @@ public class HashtagService {
         }
 
         post.addHashtags(res);
-        postHashtagRepository.saveAll(res);
 
         return res.stream()
                 .map(this::toHashtag)
