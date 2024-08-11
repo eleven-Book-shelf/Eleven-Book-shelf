@@ -6,21 +6,24 @@ import com.sparta.elevenbookshelf.domain.like.service.LikeService;
 import com.sparta.elevenbookshelf.domain.post.dto.PostMapResponseDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
+import com.sparta.elevenbookshelf.domain.post.dto.PostResponseListDto;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import com.sparta.elevenbookshelf.domain.post.repository.PostRepository;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.domain.user.service.UserService;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.Synchronized;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -78,14 +81,16 @@ public class PostService {
     //:::::::::::::::::// read //::::::::::::::::://
 
     @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     public PostResponseDto readPost(Long postId) {
-
         Post post = getPost(postId);
-
         post.incrementViewCount();
-
+        System.out.println("Current view count: " + post.getViewCount());
+        postRepository.saveAndFlush(post);
         return new PostResponseDto(post);
     }
+
+
 
     public List<PostResponseDto> readPostsByUser(Long userId, long offset, int pageSize) {
 
@@ -121,7 +126,7 @@ public class PostService {
         Page<Post> posts = postRepository.findReviewsByHashtagContainPostType(type, page, pageSize,asc);
 
         return new PostMapResponseDto(posts.getTotalPages(),posts.getContent().stream()
-                                               .map(PostResponseDto::new)
+                                               .map(PostResponseListDto::new)
                                                .toList());
     }
 

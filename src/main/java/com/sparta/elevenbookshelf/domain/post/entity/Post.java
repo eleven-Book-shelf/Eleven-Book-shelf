@@ -47,6 +47,9 @@ public class Post extends Timestamp {
 
     private Double rating;
 
+    @Version
+    private Long version; // Optimistic Locking을 위한 버전 필드 추가
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PostHashtag> postHashtags = new HashSet<>();
 

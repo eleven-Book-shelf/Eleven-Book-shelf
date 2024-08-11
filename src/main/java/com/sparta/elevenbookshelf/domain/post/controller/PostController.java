@@ -23,6 +23,7 @@ public class PostController {
     private final PostService postService;
     private final HashtagService hashtagService;
 
+    // 포스트 제작
     @PostMapping
     public ResponseEntity<PostResponseDto> createPost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -40,6 +41,18 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
+    //포스트 검색
+    @GetMapping
+    public ResponseEntity<List<PostResponseDto>> readPostsByKeyword (
+            @RequestParam(value = "keyword") String keyword,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
+
+        List<PostResponseDto> res = postService.readPostsByKeyword(keyword, offset, pagesize);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    // 특정 포스트 가져오기
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponseDto> readPost(
             @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
@@ -55,6 +68,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
+    //TODO : 뭐지 이거
     @GetMapping("/content")
     public ResponseEntity<List<PostResponseDto>> readPostsByContent (
             @RequestParam(value = "content") Long contentId,
@@ -66,16 +80,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    @GetMapping
-    public ResponseEntity<List<PostResponseDto>> readPostsByKeyword (
-            @RequestParam(value = "keyword") String keyword,
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
-
-        List<PostResponseDto> res = postService.readPostsByKeyword(keyword, offset, pagesize);
-        return ResponseEntity.status(HttpStatus.OK).body(res);
-    }
-
+    // 포스트 리스트 가져오기
     @GetMapping("/list")
     public ResponseEntity<PostMapResponseDto> readPostsByPostType (
             @RequestParam String postType,
@@ -87,6 +92,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
+    //포스트 수정
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponseDto> updatePost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -97,6 +103,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
+    //포스트 수정
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deletePost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -108,6 +115,7 @@ public class PostController {
 
     //:::::::::::::::::// like //::::::::::::::::://
 
+    //포스트 좋아요
     @PostMapping("/{postId}/like")
     public ResponseEntity<Void> createLikePost(
             @PathVariable Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal){
@@ -116,6 +124,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    //포스트 좋아요 취소
     @DeleteMapping("/{postId}/like")
     public ResponseEntity<Void> deleteLikePost(
             @PathVariable Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal){
@@ -124,6 +133,7 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
+    //포스트 좋아요 상태
     @GetMapping("/{postId}/like")
     public ResponseEntity<Boolean> getLikePost(
             @PathVariable Long postId, @AuthenticationPrincipal UserPrincipal userPrincipal){

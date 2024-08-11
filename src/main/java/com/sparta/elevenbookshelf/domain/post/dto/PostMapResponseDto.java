@@ -10,9 +10,9 @@ import java.util.List;
 public class PostMapResponseDto {
 
     private int totalPages;
-    private List<PostResponseDto> responseDtoList;
+    private List<PostResponseListDto> responseDtoList;
 
-    public PostMapResponseDto(int totalPages, List<PostResponseDto> responseDtoList) {
+    public PostMapResponseDto(int totalPages, List<PostResponseListDto> responseDtoList) {
         this.totalPages = totalPages;
         this.responseDtoList = responseDtoList;
     }

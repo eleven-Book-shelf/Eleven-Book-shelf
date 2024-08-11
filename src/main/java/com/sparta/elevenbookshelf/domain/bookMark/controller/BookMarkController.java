@@ -20,6 +20,7 @@ public class BookMarkController {
     private final BookMarkService bookmarkService;
     private final HashtagService hashtagService;
 
+    // 컨탠츠 북마크
     @PostMapping("/{postId}")
     public ResponseEntity<BookMarkResponseDto> addBookMark(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -31,6 +32,7 @@ public class BookMarkController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
+    // 컨탠츠 북마크 취소
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> removeBookmark(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -40,7 +42,18 @@ public class BookMarkController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping("/user/{userId}")
+    // 컨탠츠 북마크 상태
+    @GetMapping("/{postId}/status")
+    public ResponseEntity<Boolean> isBookmarked(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @PathVariable Long postId) {
+
+        boolean isBookmarked = bookmarkService.isBookMarked(userPrincipal.getUser().getId(), postId);
+        return ResponseEntity.status(HttpStatus.OK).body(isBookmarked);
+    }
+
+    // 유저 북마크 리스트
+    @GetMapping("/user")
     public ResponseEntity<List<BookMarkResponseDto>> getUserBookmarks(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(value = "offset", defaultValue = "0") Long offset,
@@ -50,12 +63,4 @@ public class BookMarkController {
         return ResponseEntity.status(HttpStatus.OK).body(bookmarks);
     }
 
-    @GetMapping("/{postId}/status")
-    public ResponseEntity<Boolean> isBookmarked(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable Long postId) {
-
-        boolean isBookmarked = bookmarkService.isBookMarked(userPrincipal.getUser().getId(), postId);
-        return ResponseEntity.status(HttpStatus.OK).body(isBookmarked);
-    }
 }
