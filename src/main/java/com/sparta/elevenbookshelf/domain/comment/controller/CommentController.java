@@ -1,5 +1,6 @@
 package com.sparta.elevenbookshelf.domain.comment.controller;
 
+import com.sparta.elevenbookshelf.domain.comment.dto.CommentMapResponseDto;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentResponseDto;
 import com.sparta.elevenbookshelf.domain.comment.service.CommentService;
@@ -35,19 +36,19 @@ public class CommentController {
         commentService.createComment(postId, userPrincipal, commentRequestDto);
 
         // 댓글 작성 시 해시태그 갱신
-        hashtagService.userPostHashtagInteraction(userPrincipal.getUser(), postId, hashtagService.COMMENT_WEIGHT);
+        hashtagService.userPostHashtagInteraction(userPrincipal.getUser().getId(), postId, hashtagService.COMMENT_WEIGHT);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping
-    public ResponseEntity<List<CommentResponseDto>> readCommentsPost(
+    public ResponseEntity<CommentMapResponseDto> readCommentsPost(
             @PathVariable Long postId,
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam( defaultValue = "10") int pagesize) {
 
         return ResponseEntity.status(HttpStatus.OK).
-                body(commentService.readCommentsPost(postId, offset, pagesize));
+                body(commentService.readCommentsPost(postId, page, pagesize));
     }
 
     @PutMapping("/{commentId}")
@@ -56,7 +57,7 @@ public class CommentController {
             @PathVariable Long commentId,
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestBody CommentRequestDto commentRequestDto) {
-            commentService.updateComment(postId, commentId, userPrincipal.getUser(), commentRequestDto);
+            commentService.updateComment(postId, commentId, userPrincipal.getUser().getId(), commentRequestDto);
         return ResponseEntity.ok().build();
     }
 
@@ -66,7 +67,7 @@ public class CommentController {
             @PathVariable Long commentId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        commentService.deleteComment(postId, commentId, userPrincipal.getUser());
+        commentService.deleteComment(postId, commentId, userPrincipal.getUser().getId());
         return ResponseEntity.ok().build();
     }
 

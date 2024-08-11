@@ -5,9 +5,11 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.sparta.elevenbookshelf.domain.hashtag.entity.QHashtag.hashtag;
 import static com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.QPostHashtag.postHashtag;
@@ -73,4 +75,32 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .orderBy(orderSpecifier)
                 .fetch();
     }
+
+    @Override
+    public Page<Post> findReviewsByHashtagContainPostType(Post.PostType type, int page, int pageSize, boolean asc) {
+
+        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, post.createdAt);
+
+        //fetchCount 이제 안해서 아에 데이터 베이스에서 수를 계산하게해 가져옴
+        long totalCount = Optional.ofNullable(
+                jpaQueryFactory
+                        .select(post.count())
+                        .from(post)
+                        .where(post.type.eq(type))
+                        .fetchFirst()
+        ).orElse(0L);
+
+        // 페이지 요청 생성
+        Pageable pageable = PageRequest.of(page, pageSize);
+
+        List<Post> posts = jpaQueryFactory.selectFrom(post)
+                .where(post.type.eq(type))
+                .offset(pageable.getOffset())
+                .limit(pageSize)
+                .orderBy(orderSpecifier)
+                .fetch();
+
+        return new PageImpl<>(posts, pageable, totalCount);
+    }
+
 }

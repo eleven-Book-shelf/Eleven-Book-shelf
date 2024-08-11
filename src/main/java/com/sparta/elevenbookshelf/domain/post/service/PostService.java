@@ -3,6 +3,7 @@ package com.sparta.elevenbookshelf.domain.post.service;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.like.service.LikeService;
+import com.sparta.elevenbookshelf.domain.post.dto.PostMapResponseDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
@@ -40,12 +41,11 @@ public class PostService {
         User user = getUser(userId);
 
         Post post =  Post.builder()
+                .type(Post.PostType.NORMAL)
                 .title(req.getTitle())
                 .body(req.getBody())
                 .user(user)
                 .build();
-
-        user.addPost(post);
 
         postRepository.saveAndFlush(post);
 
@@ -60,6 +60,7 @@ public class PostService {
         Content content = getContent(req.getContentId());
 
         Post post = Post.builder()
+                .type(Post.PostType.REVIEW)
                 .title(req.getTitle())
                 .body(req.getBody())
                 .user(user)
@@ -67,7 +68,6 @@ public class PostService {
                 .rating(req.getRating())
                 .build();
 
-        user.addPost(post);
         content.addReview(post);
 
         postRepository.saveAndFlush(post);
@@ -112,6 +112,17 @@ public class PostService {
         return posts.stream()
                 .map(PostResponseDto::new)
                 .toList();
+    }
+
+    public PostMapResponseDto readPostsByPostType(String postType, int page, int pageSize, boolean asc) {
+
+        Post.PostType type = Post.PostType.valueOf(postType);
+
+        Page<Post> posts = postRepository.findReviewsByHashtagContainPostType(type, page, pageSize,asc);
+
+        return new PostMapResponseDto(posts.getTotalPages(),posts.getContent().stream()
+                                               .map(PostResponseDto::new)
+                                               .toList());
     }
 
     public Page<PostResponseDto> getAdminPage(int page, int size, String sortBy, boolean asc) {

@@ -29,17 +29,17 @@ public class UserController {
     private final PostService postService;
     private final HashtagService hashtagService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody UserRequestDto req) {
-        userService.signup(req);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping
     public ResponseEntity<UserResponseDto> getProfile(@AuthenticationPrincipal UserPrincipal user) {
         log.info("getProfile 실행");
         UserResponseDto res = userService.getProfile(user.getUser().getId());
         return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@RequestBody UserRequestDto req) {
+        userService.signup(req);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/posts")
@@ -67,7 +67,7 @@ public class UserController {
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
 
         log.info("getUserHashtag 실행");
-        List<HashtagResponseDto> res = hashtagService.readUserHashtags(userPrincipal.getUser(), limit);
+        List<HashtagResponseDto> res = hashtagService.readUserHashtags(userPrincipal.getUser().getId(), limit);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
@@ -77,7 +77,7 @@ public class UserController {
             @RequestBody HashtagRequestDto req) {
 
         log.info("updateUserHashtag 실행");
-        List<HashtagResponseDto> res = hashtagService.updateUserHashtags(userPrincipal.getUser(), req);
+        List<HashtagResponseDto> res = hashtagService.updateUserHashtags(userPrincipal.getUser().getId(), req);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
