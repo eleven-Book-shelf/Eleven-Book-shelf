@@ -44,7 +44,6 @@ public class JwtService {
 
         log.info("generateAccessToken 메서드 실행");
         return createToken(user.getUsername(),user.getRole(),user.getId(),user.getStatus(), accessExpireTime);
-
     }
 
     // 리프레쉬 토큰
@@ -52,7 +51,12 @@ public class JwtService {
 
         log.info("generateRefreshToken 메서드 실행");
         return createToken(user.getUsername(),user.getRole(),user.getId(),user.getStatus(), refreshExpireTime);
+    }
 
+    public String generateRefreshToken(Long userId, User user ) {
+
+        log.info("generateRefreshToken 메서드 실행");
+        return createToken(user.getUsername(),user.getRole(),userId,user.getStatus(), refreshExpireTime);
     }
 
     // 토큰 생성
@@ -119,6 +123,29 @@ public class JwtService {
     public String getUsernameFromToken(String token) {
         Claims claims = extractAllClaims(token);
         return claims.getSubject();
+    }
+
+    public Long getIdFromToken(String token) {
+        Claims claims = extractAllClaims(token);
+        Object idObject = claims.get("id");
+
+        if (idObject instanceof Integer) {
+            return ((Integer) idObject).longValue();
+        } else if (idObject instanceof Long) {
+            return (Long) idObject;
+        } else {
+            throw new IllegalArgumentException("Unexpected ID type: " + idObject.getClass());
+        }
+    }
+
+
+    public User getUserFromToken(String token) {
+        Claims claims = extractAllClaims(token);
+        return User.builder()
+                .username(claims.getSubject())
+                .role(User.Role.valueOf((String) claims.get("role")))
+                .status(User.Status.valueOf((String) claims.get("status")))
+                .build();
     }
 
     public String getErrorMessage(String token) {

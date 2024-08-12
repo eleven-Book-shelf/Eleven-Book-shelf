@@ -27,6 +27,7 @@ public class CommentController {
 
     //:::::::::::::::::// post //::::::::::::::::://
 
+    // 댓글 작성
     @PostMapping
     public ResponseEntity<Void> createCommentPost(
             @PathVariable Long postId,
@@ -41,6 +42,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    // 댓글 리스트 + 총 패이지 수 가져오기
     @GetMapping
     public ResponseEntity<CommentMapResponseDto> readCommentsPost(
             @PathVariable Long postId,
@@ -51,6 +53,7 @@ public class CommentController {
                 body(commentService.readCommentsPost(postId, page, pagesize));
     }
 
+    // 댓글 수정
     @PutMapping("/{commentId}")
     public ResponseEntity<Void> updateComment(
             @PathVariable Long postId,
@@ -61,6 +64,7 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
+    // 댓글 삭제
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long postId,
@@ -71,6 +75,7 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
+    // 댓글 좋아요
     @PostMapping("/{commentId}/like")
     public ResponseEntity<LikeResponseDto> createLikeComment(
             @PathVariable Long commentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
@@ -79,6 +84,7 @@ public class CommentController {
                 body(likeService.createLikeComment(commentId, userPrincipal.getUser().getId()));
     }
 
+    // 댓글 좋아요 취소
     @DeleteMapping("/{commentId}/like")
     public ResponseEntity<Void> DeleteLikeComment(
             @PathVariable Long commentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
@@ -87,6 +93,7 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
+    // 댓글 좋아요 상태
     @GetMapping("/{commentId}/like")
     public ResponseEntity<Boolean> getLikeComment(
             @PathVariable Long commentId, @AuthenticationPrincipal UserPrincipal userPrincipal){

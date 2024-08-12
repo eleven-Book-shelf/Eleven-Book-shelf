@@ -4,12 +4,15 @@ import com.sparta.elevenbookshelf.domain.admin.dto.AdminUserStatusUpdateDto;
 import com.sparta.elevenbookshelf.domain.admin.service.AdminService;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentAdminResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
+import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.domain.user.dto.UserResponseDto;
+import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -105,6 +108,15 @@ public class AdminController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    public ResponseEntity<PostResponseDto> createPost(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestBody PostRequestDto requestDto) {
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                adminService.createNoticePost(userPrincipal.getUser().getId(), requestDto));
+    }
 
 
 

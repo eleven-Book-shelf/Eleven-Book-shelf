@@ -36,12 +36,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody UserRequestDto req) {
-        userService.signup(req);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/posts")
     public ResponseEntity<List<PostResponseDto>> getUserPosts(
             @AuthenticationPrincipal UserPrincipal user,

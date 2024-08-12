@@ -99,6 +99,7 @@ public class Post extends Timestamp {
     @RequiredArgsConstructor
     public enum PostType {
         NORMAL,
-        REVIEW;
+        REVIEW,
+        NOTICE;
     }
 }

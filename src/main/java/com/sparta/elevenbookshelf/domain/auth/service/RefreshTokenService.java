@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
-    @Value("${refresh.expire-time}")
-    private long refreshExpireTime;
+    @Value("${REFRESH_EXPIRE_TIME}")
+    private Long refreshExpireTime;
 
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -21,8 +21,11 @@ public class RefreshTokenService {
         return new RefreshToken(refreshToken, userId, refreshExpireTime);
     }
 
-    public RefreshToken refreshToken(String refreshToken, Long userId) {
-        return new RefreshToken(refreshToken, userId, refreshExpireTime);
+    public String refreshToken(Long userId) {
+        return refreshTokenRepository.findById(userId).orElseThrow(
+                () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
+        ).getRefreshToken();
+
     }
 
     public void saveRefreshToken(String refreshToken,Long userId) {
@@ -35,5 +38,6 @@ public class RefreshTokenService {
         );
         refreshTokenRepository.delete(refreshToken);
     }
+
 
 }

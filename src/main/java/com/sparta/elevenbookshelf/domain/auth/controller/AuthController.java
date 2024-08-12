@@ -20,22 +20,32 @@ public class AuthController {
 
     private final AuthService authService;
 
+    //로그인
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
         LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
     }
 
+    //로그아웃
     @DeleteMapping("/logout")
     public ResponseEntity<String> logout(@AuthenticationPrincipal UserPrincipal userPrincipal){
         authService.logout(userPrincipal.getUser().getId());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    // 엑세스토큰 재발급
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponseDto> refresh(@RequestParam String token){
         LoginResponseDto loginResponseDto = authService.refresh(token);
         return ResponseEntity.status(HttpStatus.OK).body(loginResponseDto);
+    }
+
+    // 회원가입 ( 주로  어드민용 )
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@RequestBody UserRequestDto req) {
+        authService.signup(req);
+        return ResponseEntity.noContent().build();
     }
 
     //회원 탈퇴
