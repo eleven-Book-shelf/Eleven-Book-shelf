@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.TimeToLive;
 
 @Getter
 @RedisHash("refreshToken")
-public class RefreshToken  {
+public class RefreshToken {
 
     @Id
     private final Long userId;

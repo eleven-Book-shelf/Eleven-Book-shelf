@@ -28,6 +28,30 @@ public class CrawlingController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @PostMapping("/start/r")
+    public ResponseEntity<Void> rCrawlingStart() {
+
+        crawlingService.rCrawlingStart();
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/start/m")
+    public ResponseEntity<Void> mCrawlingStart() {
+
+        crawlingService.mCrawlingStart();
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/start/k")
+    public ResponseEntity<Void> kCrawlingStart() {
+
+        crawlingService.kCrawlingStart();
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     // 로컬 파일로 저장.
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/local")
