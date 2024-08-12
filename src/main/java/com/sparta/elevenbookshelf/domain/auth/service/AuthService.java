@@ -16,8 +16,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import static com.sparta.elevenbookshelf.domain.user.entity.QUser.user;
 
 @Service
 @RequiredArgsConstructor
@@ -59,18 +62,29 @@ public class AuthService {
 
     @Transactional
     public LoginResponseDto refresh(String token) {
+
+        Long userId = jwtService.getIdFromToken(token);
+
         if (!jwtService.isRefreshTokenValidate(token)) {
            throw new BusinessException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
 
-        User user = userService.getUser(jwtService.getUsernameFromToken(token));
+        if (!token.equals(refreshTokenService.refreshToken(userId))) {
+            throw new BusinessException(ErrorCode.REFRESH_TOKEN_EXPIRED);
+        }
 
-        String refreshToken = jwtService.generateRefreshToken(user);
-        refreshTokenService.saveRefreshToken(refreshToken,user.getId());
+        User user = jwtService.getUserFromToken(token);
+
+        String refreshToken = jwtService.generateRefreshToken(userId,user);
+        refreshTokenService.saveRefreshToken(refreshToken,userId);
 
         return new LoginResponseDto(
                 jwtService.generateAccessToken(user), refreshToken
         );
+    }
+
+    public void signup(UserRequestDto req) {
+        userService.signup(req);
     }
 
     @Transactional
@@ -97,7 +111,6 @@ public class AuthService {
 
         user.signOut();
         refreshTokenService.deleteRefreshToken(user.getId());
-
 
     }
 

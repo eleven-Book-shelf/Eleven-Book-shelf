@@ -1,3 +1,4 @@
+/*
 package com.sparta.elevenbookshelf.domain.healthCheck.controller;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -38,3 +39,4 @@ public class HealthCheckController {
         return ResponseEntity.ok(env);
     }
 }
+*/

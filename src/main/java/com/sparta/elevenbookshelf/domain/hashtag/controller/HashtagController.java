@@ -19,6 +19,7 @@ public class HashtagController {
 
     private final HashtagService hashtagService;
 
+    // 해쉬 태그 탑 10 가져오기
     @GetMapping("/top10")
     public ResponseEntity<List<String>> readTop10Hashtags () {
 
