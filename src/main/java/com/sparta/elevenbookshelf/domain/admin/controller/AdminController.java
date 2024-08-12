@@ -4,8 +4,10 @@ import com.sparta.elevenbookshelf.domain.admin.dto.AdminUserStatusUpdateDto;
 import com.sparta.elevenbookshelf.domain.admin.service.AdminService;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentAdminResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
+import com.sparta.elevenbookshelf.domain.post.dto.PostMapResponseDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
+import com.sparta.elevenbookshelf.domain.post.dto.PostResponseListDto;
 import com.sparta.elevenbookshelf.domain.user.dto.UserResponseDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +71,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+
     //해쉬태그 전체조회 관리
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/hashtag/page")
@@ -107,15 +110,25 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-
+    //공지 사항 포스트
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
-    public ResponseEntity<PostResponseDto> createPost(
+    @PostMapping("/post/notice")
+    public ResponseEntity<PostResponseDto> createNoticePost(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestBody PostRequestDto requestDto) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 adminService.createNoticePost(userPrincipal.getUser().getId(), requestDto));
+    }
+
+    //포스트 전체조회 관리
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/post/notice/page")
+    public ResponseEntity<PostMapResponseDto> getNoticePostPage(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam boolean asc) {
+        return ResponseEntity.ok(adminService.getNoticePostPage(page, size, asc));
     }
 
 

@@ -199,7 +199,7 @@ public class HashtagService {
             res.add(userHashtag);
         }
 
-        user.addHashtags(res);
+//        user.addHashtags(res);
         userHashtagRepository.saveAll(res);
 
         return res.stream()

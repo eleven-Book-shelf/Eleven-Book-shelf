@@ -97,13 +97,11 @@ public class PostService {
     }
 
     //:::::::::::::::::// read //::::::::::::::::://
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @Synchronized
     public PostResponseDto readPost(Long postId) {
-        Post post = getPost(postId);
+        Post post = postRepository.findByIdWithLock(postId);
         post.incrementViewCount();
-        postRepository.saveAndFlush(post);
+        postRepository.save(post);
         log.info("Read post ViewCount {}", post.getViewCount());
         return new PostResponseDto(post);
     }
@@ -158,6 +156,18 @@ public class PostService {
 
         return post.map(PostResponseDto::new);
     }
+
+    public PostMapResponseDto getNoticePostPage(int page, int size, boolean asc) {
+
+        Post.PostType type = Post.PostType.NOTICE;
+
+        Page<Post> posts = postRepository.findReviewsByHashtagContainPostType(type, page, size, asc);
+
+        return new PostMapResponseDto(posts.getTotalPages(), posts.getContent().stream()
+                .map(PostResponseListDto::new)
+                .toList());
+    }
+
 
     public void deletePostAdmin(Long postId) {
 

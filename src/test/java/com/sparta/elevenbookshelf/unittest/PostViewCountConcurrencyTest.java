@@ -30,38 +30,40 @@ public class PostViewCountConcurrencyTest {
     @Autowired
     private PostRepository postRepository;
 
-    private Post post;
-
     @Test
+    @Transactional
     public void testViewCountOptimisticLocking() throws InterruptedException {
         int numberOfThreads = 5;
         int viewsPerThread = 20;
-        ExecutorService executorService = Executors.newFixedThreadPool(100);
-        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads * viewsPerThread);
 
         for (int i = 0; i < numberOfThreads; i++) {
             executorService.submit(() -> {
                 try {
                     for (int j = 0; j < viewsPerThread; j++) {
-                        postService.readPost(3L);
-                        System.out.printf("Thread %s - View count incremented%n", Thread.currentThread().getName());
+                        postService.readPost(2L);
+                        System.out.printf("Thread %s", Thread.currentThread().getName());
                     }
                 } catch (Exception e) {
-                    System.out.printf("Error in thread %s: %s%n", Thread.currentThread().getName(), e.getMessage());
-                } finally {
+                    System.out.printf("에러 thread %s: %s%n", Thread.currentThread().getName(), e.getMessage());
+
+                }finally {
                     latch.countDown();
+
                 }
             });
         }
 
         latch.await();
 
-        Post updatedPost = postRepository.findById(3L).orElseThrow();
-        System.out.printf("Final view count: %d%n", updatedPost.getViewCount());
+        Post updatedPost = postRepository.findById(2L).orElseThrow();
+        System.out.printf("최종값: %d%n", updatedPost.getViewCount());
 
         assertEquals(numberOfThreads * viewsPerThread, updatedPost.getViewCount());
 
         executorService.shutdown();
     }
+
 
 }
