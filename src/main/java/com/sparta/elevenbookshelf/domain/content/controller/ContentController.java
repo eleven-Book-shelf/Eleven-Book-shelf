@@ -82,7 +82,7 @@ public class ContentController {
             @RequestParam(defaultValue = "0") long offset,
             @RequestParam(defaultValue = "20") int pagesize) {
 
-        List<ContentResponseDto> res = hashtagService.recommendContentByUserHashtag(userPrincipal.getUser(),
+        List<ContentResponseDto> res = hashtagService.recommendContentByUserHashtag(userPrincipal.getUser().getId(),
                 contentService.getContents() ,offset, pagesize);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);

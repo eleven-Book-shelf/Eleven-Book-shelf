@@ -35,7 +35,7 @@ Authorization:{{access_token}}
 }
 
 ### readContent
-GET localhost:8080/api/contents/2
+GET localhost:8080/api/contents/4
 Authorization:{{access_token}}
 
 ### createReviewPost : 리뷰 게시물 작성
@@ -47,7 +47,7 @@ Authorization:{{access_token}}
   "postType": "REVIEW",
   "title": "test review post2",
   "body": "test review body4",
-  "contentId" : 3,
+  "contentId" : 14,
   "prehashtag" : "#test #hashtag",
   "rating": 5.0
 }
