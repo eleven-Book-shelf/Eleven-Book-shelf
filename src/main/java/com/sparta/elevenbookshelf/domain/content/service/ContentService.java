@@ -164,6 +164,11 @@ public class ContentService {
         );
     }
 
+    public List<Content> getContents() {
+
+        return contentRepository.findAll();
+    }
+
 
     public Set<String> getAllContentHashTags() {
         List<String> contentHashTagsList = contentRepository.findAllByContentHashTag();
@@ -196,4 +201,6 @@ public class ContentService {
     public void updateContentPage(Long contentId) {
         contentRepository.deleteById(contentId);
     }
+
+
 }
