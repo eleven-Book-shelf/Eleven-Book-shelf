@@ -13,7 +13,7 @@ POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "username": "username2",
+  "username": "username",
   "password": "password@1234"
 }
 
@@ -24,7 +24,17 @@ Content-Type: application/json
 
 ### 모든 크롤링 서비스 시작.
 POST localhost:8080/api/content/start/all
-Authorization:eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBRE1JTiIsImlhdCI6MTcyMzA3Nzc4NCwi7Yag7YGwX-yDneyEsV_tg5zsiqTtirgiOiLtg5zsiqTtirgiLCJleHAiOjE3MjMwNzgzODR9.r0KsAgIL8IQY6J0kdFbnj5Nv3rjnNW3O6VKhq-lrSSg
+Authorization:{{access_token}}
+
+### r
+POST localhost:8080/api/content/start/r
+Authorization:{{access_token}}
+### m
+POST localhost:8080/api/content/start/m
+Authorization:{{access_token}}
+### k
+POST localhost:8080/api/content/start/k
+Authorization:{{access_token}}
 
 ### DB 크롤링 데이터 로컬에 저장.
 GET localhost:8080/content/local

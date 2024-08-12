@@ -3,8 +3,9 @@ package com.sparta.elevenbookshelf.domain.hashtag.service;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
-import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
+import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagRequestDto;
+import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.ContentHashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.PostHashtag;
@@ -14,19 +15,18 @@ import com.sparta.elevenbookshelf.domain.hashtag.repository.HashtagRepository;
 import com.sparta.elevenbookshelf.domain.hashtag.repository.PostHashtagRepository;
 import com.sparta.elevenbookshelf.domain.hashtag.repository.UserHashtagRepository;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
-import com.sparta.elevenbookshelf.domain.post.repository.PostRepository;
+import com.sparta.elevenbookshelf.domain.post.service.PostService;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.domain.user.service.UserService;
-import com.sparta.elevenbookshelf.exception.BusinessException;
-import com.sparta.elevenbookshelf.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j(topic = "HashtagService")
 public class HashtagService {
 
-    private final UserService userService;
+    private final PostService postService;
     @Value("${READ_WEIGHT}")
     public double READ_WEIGHT;
     @Value("${READED_WEIGHT}")
@@ -55,9 +55,12 @@ public class HashtagService {
     @Value("${INIT_WEIGHT}")
     public double INIT_WEIGHT;
 
-    private final ContentRepository contentRepository;
+
+    private final ContentService contentService;
+    private final UserService userService;
+
     private final HashtagRepository hashtagRepository;
-    private final PostRepository postRepository;
+
     private final ContentHashtagRepository contentHashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
     private final UserHashtagRepository userHashtagRepository;
@@ -94,6 +97,22 @@ public class HashtagService {
                 .toList();
     }
 
+    public Page<HashtagResponseDto> getAdminPage(int page, int size, String sortBy, boolean asc) {
+        Sort.Direction direction = asc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Hashtag> hashtags = hashtagRepository.findAll(pageable);
+
+        return hashtags.map(HashtagResponseDto::new);
+    }
+
+    public void deleteHashtag(Long hashtagId) {
+        hashtagRepository.deleteById(hashtagId);
+    }
+
+
     /* Hashtag 비즈니스 로직 -> 비동기 처리 예정 (실시간 반영 필요없으므로 부하를 줄이기 위해서)
 
        - 작품 크롤링 : 컨텐츠 (문자열) -> 해시태그 생성 및 저장 -> 컨텐츠-해시태그 생성 및 저장 [O]
@@ -120,19 +139,21 @@ public class HashtagService {
 
 
      */
+
+    @Async
     @Transactional
     public void userContentHashtagInteraction (Long userId, Long contentId, double userScore, double contentScore) {
 
         User user = getUser(userId);
 
-        Content content = contentRepository.findById(contentId).orElseThrow(
-                () -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT)
-        );
+        Content content = getContent(contentId);
 
-        // 사용자의 해시태그 해시태그로 불러오기 TODO 문제 발생
+        // 사용자의 해시태그 해시태그로 불러오기
         Set<Hashtag> hashtags = user.getUserHashtags().stream()
                 .map(this::toHashtag)
                 .collect(Collectors.toSet());
+
+        log.info("getUserHashtags" + hashtags.stream().map(Hashtag::getTag).toString());
 
         // 콘텐츠의 해시태그 해시태그로 불러와서 추가하기
         hashtags.addAll(
@@ -141,18 +162,20 @@ public class HashtagService {
                         .collect(Collectors.toSet())
         );
 
+        log.info("getUserAndContentHashtags" + hashtags.stream().map(Hashtag::getTag).toString());
+
         // 사용자 | 컨텐츠 -해시태그 각각 갱신하기
         updateAndSaveHashtags(user, hashtags.stream().toList(), userScore);
         updateAndSaveHashtags(content, hashtags.stream().toList(), contentScore);
     }
 
+    @Async
+    @Transactional
     public void userPostHashtagInteraction(Long userId, Long postId, double userScore) {
 
         User user = getUser(userId);
 
-        Post post = postRepository.findById(postId).orElseThrow(
-                () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
-        );
+        Post post = getPost(postId);
 
         // 사용자의 해시태그 해시태그로 불러오기
         Set<Hashtag> hashtags = user.getUserHashtags().stream()
@@ -169,13 +192,27 @@ public class HashtagService {
     }
 
     @Transactional
+    public void generateContentHashtags(String preHashtag, Long contentId) {
+
+        Content content = getContent(contentId);
+
+        List<Hashtag> hashtags = updateAndSaveHashtags(preHashtag);
+        updateAndSaveHashtags(content, hashtags, INIT_WEIGHT);
+    }
+
+    @Transactional
     public void generatePostHashtags(Long userId, Long postId, String preHashtag) {
 
-        Post post = postRepository.findById(postId).orElseThrow(
-                () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
-        );
+        Post post = getPost(postId);
 
-        preHashtag += post.getContent().getContentHashtags();
+        List<String> contentTags = post.getContent().getContentHashtags().stream()
+                .map(hashtag -> hashtag.getHashtag().getTag())
+                .toList();
+
+        for (String tag : contentTags) {
+
+            preHashtag += ("#" + tag);
+        }
 
         List<Hashtag> hashtags = updateAndSaveHashtags(preHashtag);
 
@@ -184,12 +221,11 @@ public class HashtagService {
     }
 
 
-
     /* UPDATE & SAVE hashtag
     * 해시태그를 입력받아 생성하거나 갱신한 후 저장
     * */
 
-    private List<Hashtag> updateAndSaveHashtags (User user, List<Hashtag> hashtags, double score) {
+    public List<Hashtag> updateAndSaveHashtags (User user, List<Hashtag> hashtags, double score) {
 
         Set<UserHashtag> res = new HashSet<>();
 
@@ -200,7 +236,6 @@ public class HashtagService {
         }
 
         user.addHashtags(res);
-        userHashtagRepository.saveAll(res);
 
         return res.stream()
                 .map(this::toHashtag)
@@ -300,7 +335,7 @@ public class HashtagService {
         return postHashtag;
     }
 
-    //TODO : 오류 위치
+    //TODO : 해결
     private ContentHashtag createOrGetHashtag(Content content, Hashtag hashtag) {
 
         Optional<ContentHashtag> optionalContentHashtag = contentHashtagRepository.findByContentIdAndHashtagId(content.getId(), hashtag.getId());
@@ -313,7 +348,7 @@ public class HashtagService {
                     .hashtag(hashtag)
                     .build();
 
-            contentHashtagRepository.save(contentHashtag);
+            contentHashtag.createId();
 
             return contentHashtag;
         }
@@ -334,28 +369,26 @@ public class HashtagService {
 
         return Arrays.stream(preHashtag
                         .replaceAll("\\s+", "") // 모든 공백을 없애기
-                        .split("#"))
+                        .split("[#,]"))
+                .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
     }
 
     // 해시태그를 바탕으로 추천해주기
-    public List<ContentResponseDto> recommendContentByUserHashtag (User user, long offset, int pagesize) {
+    public List<ContentResponseDto> recommendContentByUserHashtag (User user, List<Content> contents, long offset, int pagesize) {
 
-        List<Content> contents = calculateSimilarity(user);
+        List<Content> recommendedContents = calculateSimilarity(user, contents);
         List<ContentResponseDto> res = new ArrayList<>();
 
         for (int i = (int) offset; i< offset + pagesize; i++) {
-            res.add(new ContentResponseDto(contents.get(i)));
+            res.add(new ContentResponseDto(recommendedContents.get(i)));
         }
 
         return res;
     }
 
     // 해시태그 유사도 계산 부분
-    private List<Content> calculateSimilarity (User user) {
-
-        // 컨텐츠 가져오기
-        List<Content> contents = contentRepository.findAll();
+    private List<Content> calculateSimilarity (User user, List<Content> contents) {
 
         // 차이를 저장할 맵
         Map<Double, Content> resultMap = new HashMap<>();
@@ -461,23 +494,19 @@ public class HashtagService {
         return contentHashtag.getHashtag();
     }
 
-    public Page<HashtagResponseDto> getAdminPage(int page, int size, String sortBy, boolean asc) {
-        Sort.Direction direction = asc ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(direction, sortBy);
+    // get Entity
+    private User getUser (Long userId) {
 
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        Page<Hashtag> hashtags = hashtagRepository.findAll(pageable);
-
-        return hashtags.map(HashtagResponseDto::new);
-    }
-
-    public void deleteHashtag(Long hashtagId) {
-        hashtagRepository.deleteById(hashtagId);
-    }
-
-    private User getUser(Long userId) {
         return userService.getUser(userId);
     }
 
+    private Content getContent(Long contentId) {
+
+        return contentService.getContent(contentId);
+    }
+
+    private Post getPost(Long postId) {
+
+        return postService.getPost(postId);
+    }
 }
