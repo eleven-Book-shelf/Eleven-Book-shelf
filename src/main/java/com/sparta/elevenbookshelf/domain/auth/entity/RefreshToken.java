@@ -1,7 +1,5 @@
 package com.sparta.elevenbookshelf.domain.auth.entity;
 
-
-
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;

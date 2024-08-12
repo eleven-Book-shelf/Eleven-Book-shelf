@@ -217,8 +217,7 @@ public class HashtagService {
             res.add(contentHashtag);
         }
 
-//        content.addHashtags(res); TODO 동일한 식별자
-        contentHashtagRepository.saveAll(res);
+        content.addHashtags(res);
 
         return res.stream()
                 .map(this::toHashtag)
@@ -235,8 +234,7 @@ public class HashtagService {
             res.add(postHashtag);
         }
 
-//        post.addHashtags(res); TODO 동일한 식별자
-        postHashtagRepository.saveAll(res);
+        post.addHashtags(res);
 
         return res.stream()
                 .map(this::toHashtag)

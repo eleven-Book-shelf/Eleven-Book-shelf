@@ -68,7 +68,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    //TODO : 뭐지 이거
     @GetMapping("/content")
     public ResponseEntity<List<PostResponseDto>> readPostsByContent (
             @RequestParam(value = "content") Long contentId,

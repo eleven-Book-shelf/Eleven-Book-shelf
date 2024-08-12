@@ -5,6 +5,7 @@ import com.sparta.elevenbookshelf.domain.content.dto.ContentAdminResponseDto;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
+import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.domain.post.service.PostService;
 import com.sparta.elevenbookshelf.domain.user.dto.UserResponseDto;
@@ -63,6 +64,10 @@ public class AdminService {
 
     public void updateContentPage(Long contentId) {
         contentService.updateContentPage(contentId);
+    }
+
+    public PostResponseDto createNoticePost(Long userId, PostRequestDto requestDto) {
+        return postService.createNoticePost(userId,requestDto);
     }
 }
 

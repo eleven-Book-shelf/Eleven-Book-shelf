@@ -13,19 +13,20 @@ import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.domain.user.service.UserService;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
-import jakarta.persistence.LockModeType;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -43,7 +44,7 @@ public class PostService {
 
         User user = getUser(userId);
 
-        Post post =  Post.builder()
+        Post post = Post.builder()
                 .type(Post.PostType.NORMAL)
                 .title(req.getTitle())
                 .body(req.getBody())
@@ -78,19 +79,34 @@ public class PostService {
         return new PostResponseDto(post);
     }
 
-    //:::::::::::::::::// read //::::::::::::::::://
-
     @Transactional
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    public PostResponseDto readPost(Long postId) {
-        Post post = getPost(postId);
-        post.incrementViewCount();
-        System.out.println("Current view count: " + post.getViewCount());
+    public PostResponseDto createNoticePost(Long userId, PostRequestDto req) {
+
+        User user = getUser(userId);
+
+        Post post = Post.builder()
+                .type(Post.PostType.NOTICE)
+                .title(req.getTitle())
+                .body(req.getBody())
+                .user(user)
+                .build();
+
         postRepository.saveAndFlush(post);
+
         return new PostResponseDto(post);
     }
 
+    //:::::::::::::::::// read //::::::::::::::::://
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Synchronized
+    public PostResponseDto readPost(Long postId) {
+        Post post = getPost(postId);
+        post.incrementViewCount();
+        postRepository.saveAndFlush(post);
+        log.info("Read post ViewCount {}", post.getViewCount());
+        return new PostResponseDto(post);
+    }
 
     public List<PostResponseDto> readPostsByUser(Long userId, long offset, int pageSize) {
 
@@ -123,11 +139,11 @@ public class PostService {
 
         Post.PostType type = Post.PostType.valueOf(postType);
 
-        Page<Post> posts = postRepository.findReviewsByHashtagContainPostType(type, page, pageSize,asc);
+        Page<Post> posts = postRepository.findReviewsByHashtagContainPostType(type, page, pageSize, asc);
 
-        return new PostMapResponseDto(posts.getTotalPages(),posts.getContent().stream()
-                                               .map(PostResponseListDto::new)
-                                               .toList());
+        return new PostMapResponseDto(posts.getTotalPages(), posts.getContent().stream()
+                .map(PostResponseListDto::new)
+                .toList());
     }
 
     public Page<PostResponseDto> getAdminPage(int page, int size, String sortBy, boolean asc) {
@@ -179,15 +195,15 @@ public class PostService {
     }
 
     public void createLikePost(Long postId, Long userId) {
-         likeService.createLikePost( postId,  userId);
+        likeService.createLikePost(postId, userId);
     }
 
     public void deleteLikePost(Long postId, Long userId) {
-         likeService.deleteLikePost( postId,  userId);
+        likeService.deleteLikePost(postId, userId);
     }
 
     public Boolean getLikePost(Long postId, Long userId) {
-        return likeService.getLikePost( postId,  userId);
+        return likeService.getLikePost(postId, userId);
     }
 
 
@@ -217,7 +233,6 @@ public class PostService {
     private Content getContent(Long contentId) {
         return contentService.getContent(contentId);
     }
-
 
 
 }
