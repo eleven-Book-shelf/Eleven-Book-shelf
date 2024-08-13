@@ -4,6 +4,7 @@ import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.post.dto.PostMapResponseDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
+import com.sparta.elevenbookshelf.domain.post.dto.PostSearchCond;
 import com.sparta.elevenbookshelf.domain.post.service.PostService;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import jakarta.annotation.Nullable;
@@ -41,17 +42,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
-    //포스트 검색
-    @GetMapping
-    public ResponseEntity<List<PostResponseDto>> readPostsByKeyword (
-            @RequestParam(value = "keyword") String keyword,
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
-
-        List<PostResponseDto> res = postService.readPostsByKeyword(keyword, offset, pagesize);
-        return ResponseEntity.status(HttpStatus.OK).body(res);
-    }
-
     // 특정 포스트 가져오기
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponseDto> readPost(
@@ -67,6 +57,41 @@ public class PostController {
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
+
+    /**
+     * 게시글 검색 기능
+     * - 주어진 조건들에 맞춰 컨텐츠를 조회합니다.
+     * @param offset 현재 위치
+     * @param pagesize 페이지 사이즈
+     * @Body  : PostSearchCond
+     *      userId 작성자 id
+     *      contentId 컨텐츠 id
+     *      keyword 검색할 키워드 : 비어있으면 전체 조회
+     *      postType NORMAL || REVIEW || NOTICE : 비어있으면 전체 조회
+     *      sortBy 정렬조건 : 비어있으면 생성 순 정렬
+     * @return List<PostResponseDto> 불러온 게시글 Dto 목록
+     */
+    @GetMapping
+    public ResponseEntity<List<PostResponseDto>> readPosts(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "20") int pagesize,
+            @RequestBody PostSearchCond cond) {
+
+        List<PostResponseDto> res = postService.readPostsBySearchCond(offset, pagesize, cond);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    //포스트 검색
+    @GetMapping("/keyword")
+    public ResponseEntity<List<PostResponseDto>> readPostsByKeyword (
+            @RequestParam(value = "keyword") String keyword,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
+
+        List<PostResponseDto> res = postService.readPostsByKeyword(keyword, offset, pagesize);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
 
     @GetMapping("/content")
     public ResponseEntity<List<PostResponseDto>> readPostsByContent (

@@ -3,9 +3,10 @@ package com.sparta.elevenbookshelf.domain.content.dto;
 import lombok.Data;
 
 @Data
-public class ContentSearchRequestDto {
+public class ContentSearchCond {
 
-    private String isBookmarked;
+    private Long userId;
+    private Boolean isBookmarked = false;
     private String keyword;
     private String contentType;
     private String sortBy;

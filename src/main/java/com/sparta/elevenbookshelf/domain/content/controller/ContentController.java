@@ -2,7 +2,7 @@ package com.sparta.elevenbookshelf.domain.content.controller;
 
 
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
-import com.sparta.elevenbookshelf.domain.content.dto.ContentSearchRequestDto;
+import com.sparta.elevenbookshelf.domain.content.dto.ContentSearchCond;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.like.service.LikeService;
@@ -59,18 +59,15 @@ public class ContentController {
             @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestBody ContentSearchRequestDto req) {
+            @RequestBody ContentSearchCond cond) {
 
-
-        Long userId = null;
-
-        if (req.getIsBookmarked().equals("t")) {
+        if (cond.getIsBookmarked()) {
             if(userPrincipal != null) {
-                userId = userPrincipal.getUser().getId();
+                cond.setUserId(userPrincipal.getUser().getId());
             }
         }
 
-        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, userId, req.getKeyword(), req.getContentType(), req.getSortBy());
+        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, cond);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }

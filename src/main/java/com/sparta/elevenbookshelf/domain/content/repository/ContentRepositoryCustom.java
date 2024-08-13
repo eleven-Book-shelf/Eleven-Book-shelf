@@ -1,12 +1,13 @@
 package com.sparta.elevenbookshelf.domain.content.repository;
 
+import com.sparta.elevenbookshelf.domain.content.dto.ContentSearchCond;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 
 import java.util.List;
 
 public interface ContentRepositoryCustom {
 
-    List<Content> findContentsBySearchCondition (long offset, int pagesize, Long userId, String genre, String contentType, String sortBy);
+    List<Content> findContentsBySearchCondition (long offset, int pagesize, ContentSearchCond cond);
 
     List<Content> findTopByView(long offset, int pageSize, Content.ContentType contentType, String genre);
 

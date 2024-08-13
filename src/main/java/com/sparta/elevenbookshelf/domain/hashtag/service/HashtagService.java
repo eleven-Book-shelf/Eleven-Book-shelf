@@ -215,6 +215,7 @@ public class HashtagService {
 
         userContentHashtagInteraction(userId, post.getContent().getId(), CREATE_WEIGHT, CREATE_WEIGHT);
         updateAndSaveHashtags(post, hashtags, this::createOrGetHashtag, 0);
+        post.addHashtag();
     }
 
 
@@ -356,9 +357,7 @@ public class HashtagService {
     // 문자열을 받아 각각의 단어를 분해 : Set를 이용해 예상치 못한 중복 제거
     private Set<String> parseHashtag (String preHashtag) {
 
-        return Arrays.stream(preHashtag
-                        .replaceAll("\\s+", "") // 모든 공백을 없애기
-                        .split("[#,]"))
+        return Arrays.stream(preHashtag.split("[#,/]"))
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
     }
