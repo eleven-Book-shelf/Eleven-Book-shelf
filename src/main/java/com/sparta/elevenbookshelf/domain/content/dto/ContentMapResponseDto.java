@@ -10,9 +10,9 @@ import java.util.List;
 public class ContentMapResponseDto {
 
     private int totalPages;
-    private List<ContentResponseDateDto> responseDtoList;
+    private List<ContentResponseDto> responseDtoList;
 
-    public ContentMapResponseDto(int totalPages, List<ContentResponseDateDto> responseDtoList) {
+    public ContentMapResponseDto(int totalPages, List<ContentResponseDto> responseDtoList) {
         this.totalPages = totalPages;
         this.responseDtoList = responseDtoList;
     }

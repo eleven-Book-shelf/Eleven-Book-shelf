@@ -103,7 +103,6 @@ public class ContentRepositoryCustomImpl implements ContentRepositoryCustom {
 
     }
 
-
     @Override
     public List<Content> findContentsByGenre(long offset, int pageSize, String platform, String genre) {
         return jpaQueryFactory

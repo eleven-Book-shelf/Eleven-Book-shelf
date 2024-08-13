@@ -1,16 +1,8 @@
 package com.sparta.elevenbookshelf.domain.content.service;
 
 import com.sparta.elevenbookshelf.domain.content.dto.*;
-import com.sparta.elevenbookshelf.domain.content.dto.ContentAdminResponseDto;
-import com.sparta.elevenbookshelf.domain.content.dto.ContentRequestDto;
-import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
-import com.sparta.elevenbookshelf.domain.content.dto.ContentSearchCond;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
-import com.sparta.elevenbookshelf.domain.post.dto.PostMapResponseDto;
-import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
-import com.sparta.elevenbookshelf.domain.post.dto.PostResponseListDto;
-import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +61,7 @@ public class ContentService {
      *      sortBy 정렬조건 : 비어있으면 조회수 순 정렬
      * @return List<ContentResponseDto> 불러온 컨텐츠 Dto 목록
      */
-    public List<ContentResponseDto> readContents(long offset, int pagesize, Long userId, String genre, String contentType, String sortBy) {
+//    public List<ContentResponseDto> readContents(long offset, int pagesize, Long userId, String genre, String contentType, String sortBy) {
     public List<ContentResponseDto> readContents (long offset, int pagesize, ContentSearchCond cond) {
 
         List<Content> contents = contentRepository.findContentsBySearchCondition(offset, pagesize, cond);
@@ -180,7 +172,7 @@ public class ContentService {
         Page<Content> contents = contentRepository.findreadSearchByKeyword(keyword, offset, pagesize);
 
         return new ContentMapResponseDto(contents.getTotalPages(), contents.getContent().stream()
-                .map(ContentResponseDateDto::new)
+                .map(ContentResponseDto::new)
                 .toList());
     }
 
