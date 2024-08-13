@@ -121,7 +121,7 @@ public class AdminController {
                 adminService.createNoticePost(userPrincipal.getUser().getId(), requestDto));
     }
 
-    //포스트 전체조회 관리
+    //공지 사항 포스트 전체조회 관리
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/post/notice/page")
     public ResponseEntity<PostMapResponseDto> getNoticePostPage(

@@ -1,10 +1,12 @@
 package com.sparta.elevenbookshelf.domain.content.controller;
 
 
+import com.sparta.elevenbookshelf.domain.content.dto.ContentMapResponseDto;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.like.service.LikeService;
+import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -93,9 +95,10 @@ public class ContentController {
     public ResponseEntity<List<ContentResponseDto>> readContents(
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
+            @RequestParam(value = "platform", required = false)String platform,
             @RequestParam(value = "genre", required = false) String genre) {
 
-        List<ContentResponseDto> res = contentService.readContentsByGenre(offset, pagesize, genre);
+        List<ContentResponseDto> res = contentService.readContentsByGenre(offset, pagesize, platform,genre);
 //        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, null, null);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
@@ -106,9 +109,10 @@ public class ContentController {
     public ResponseEntity<List<ContentResponseDto>> readContentWebtoon(
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
+            @RequestParam(value = "platform", required = false)String platform,
             @RequestParam(value = "genre", required = false) String genre) {
 
-        List<ContentResponseDto> res = contentService.readWebtoonContents(offset, pagesize, genre);
+        List<ContentResponseDto> res = contentService.readWebtoonContents(offset, pagesize, platform ,genre);
 //        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, "COMICS", null);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
@@ -132,9 +136,10 @@ public class ContentController {
     public ResponseEntity<List<ContentResponseDto>> readContentWebnovel(
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
+            @RequestParam(value = "platform", required = false)String platform,
             @RequestParam(value = "genre", required = false) String genre) {
 
-        List<ContentResponseDto> res = contentService.readWebnovelContents(offset, pagesize, genre);
+        List<ContentResponseDto> res = contentService.readWebnovelContents(offset, pagesize,platform, genre);
 //        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, "NOVEL", null);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
@@ -153,7 +158,15 @@ public class ContentController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<ContentMapResponseDto> readPostsByKeyword (
+            @RequestParam(value = "keyword") String keyword,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
 
+        ContentMapResponseDto res = contentService.readSearchByKeyword(keyword, offset, pagesize);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
 
     //::::::::::::::::::::::::// User Bookmark //:::::::::::::::::::::::://
 
@@ -166,7 +179,6 @@ public class ContentController {
             @RequestParam(value = "genre", required = false) String genre) {
 
         List<ContentResponseDto> res = contentService.readWebtoonContentsByUser(userPrincipal.getUser().getId(), offset, pagesize, genre);
-//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, userPrincipal.getUser().getId(), genre, "COMICS", null);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
@@ -180,7 +192,6 @@ public class ContentController {
             @RequestParam(value = "genre", required = false) String genre) {
 
         List<ContentResponseDto> res = contentService.readWebnovelContentsByUser(userPrincipal.getUser().getId(), offset, pagesize, genre);
-//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, userPrincipal.getUser().getId(), genre, "NOVEL", null);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }

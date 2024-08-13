@@ -16,4 +16,5 @@ public interface ContentRepository extends JpaRepository<Content, Long>, Queryds
 
     @Query(value = "SELECT content.content_hash_tag FROM content", nativeQuery = true)
     List<String> findAllByContentHashTag();
+
 }

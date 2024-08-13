@@ -101,7 +101,6 @@ public class PostService {
     public PostResponseDto readPost(Long postId) {
         Post post = postRepository.findByIdWithLock(postId);
         post.incrementViewCount();
-        postRepository.save(post);
         log.info("Read post ViewCount {}", post.getViewCount());
         return new PostResponseDto(post);
     }

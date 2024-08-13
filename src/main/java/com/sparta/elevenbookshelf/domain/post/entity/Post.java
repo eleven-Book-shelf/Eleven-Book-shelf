@@ -41,9 +41,6 @@ public class Post extends Timestamp {
     @Column(nullable = false)
     private int likes;
 
-    @Version
-    private Long version;
-
     private Double rating;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -79,9 +79,11 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     @Override
     public Page<Post> findReviewsByHashtagContainPostType(Post.PostType type, int page, int pageSize, boolean asc) {
 
-        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, post.createdAt);
+        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(
+                asc ? Order.ASC : Order.DESC,
+                post.createdAt
+        );
 
-        //fetchCount 이제 안해서 아에 데이터 베이스에서 수를 계산하게해 가져옴
         long totalCount = Optional.ofNullable(
                 jpaQueryFactory
                         .select(post.count())
@@ -90,7 +92,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                         .fetchFirst()
         ).orElse(0L);
 
-        // 페이지 요청 생성
         Pageable pageable = PageRequest.of(page, pageSize);
 
         List<Post> posts = jpaQueryFactory.selectFrom(post)
@@ -102,5 +103,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
         return new PageImpl<>(posts, pageable, totalCount);
     }
+
 
 }

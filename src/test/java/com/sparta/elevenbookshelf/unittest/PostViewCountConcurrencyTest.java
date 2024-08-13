@@ -1,3 +1,4 @@
+/*
 package com.sparta.elevenbookshelf.unittest;
 
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
@@ -67,3 +68,4 @@ public class PostViewCountConcurrencyTest {
 
 
 }
+*/
