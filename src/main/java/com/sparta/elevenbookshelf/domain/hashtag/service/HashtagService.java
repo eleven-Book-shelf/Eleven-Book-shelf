@@ -6,6 +6,7 @@ import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagRequestDto;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
+import com.sparta.elevenbookshelf.domain.hashtag.entity.Scorable;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.ContentHashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.PostHashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.UserHashtag;
@@ -29,6 +30,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,7 +91,7 @@ public class HashtagService {
         User user = getUser(userId);
 
         List<Hashtag> hashtags = updateAndSaveHashtags(req.getTags());
-        List<Hashtag> userHashtags = updateAndSaveHashtags(user, hashtags, INIT_WEIGHT);
+        List<Hashtag> userHashtags = updateAndSaveHashtags(user, hashtags, this::createOrGetHashtag, INIT_WEIGHT);
 
         return userHashtags.stream()
                 .map(HashtagResponseDto::new)
@@ -135,7 +137,7 @@ public class HashtagService {
                 generatePostHashtags
      */
 
-    @Async
+    @Async(value = "asyncThreadPool")
     @Transactional
     public void userContentHashtagInteraction (Long userId, Long contentId, double userScore, double contentScore) {
 
@@ -160,11 +162,11 @@ public class HashtagService {
         log.info("getUserAndContentHashtags" + hashtags.stream().map(Hashtag::getTag).toString());
 
         // 사용자 | 컨텐츠 -해시태그 각각 갱신하기
-        updateAndSaveHashtags(user, hashtags.stream().toList(), userScore);
-        updateAndSaveHashtags(content, hashtags.stream().toList(), contentScore);
+        updateAndSaveHashtags(user, hashtags.stream().toList(), this::createOrGetHashtag, userScore);
+        updateAndSaveHashtags(content, hashtags.stream().toList(), this::createOrGetHashtag, contentScore);
     }
 
-    @Async
+    @Async(value = "asyncThreadPool")
     @Transactional
     public void userPostHashtagInteraction(Long userId, Long postId, double userScore) {
 
@@ -183,7 +185,7 @@ public class HashtagService {
                         .collect(Collectors.toSet())
         );
 
-        updateAndSaveHashtags(user, hashtags.stream().toList(), userScore);
+        updateAndSaveHashtags(user, hashtags.stream().toList(), this::createOrGetHashtag, userScore);
     }
 
     @Transactional
@@ -192,7 +194,7 @@ public class HashtagService {
         Content content = getContent(contentId);
 
         List<Hashtag> hashtags = updateAndSaveHashtags(preHashtag);
-        updateAndSaveHashtags(content, hashtags, INIT_WEIGHT);
+        updateAndSaveHashtags(content, hashtags, this::createOrGetHashtag, INIT_WEIGHT);
     }
 
     @Transactional
@@ -212,7 +214,7 @@ public class HashtagService {
         List<Hashtag> hashtags = updateAndSaveHashtags(preHashtag);
 
         userContentHashtagInteraction(userId, post.getContent().getId(), CREATE_WEIGHT, CREATE_WEIGHT);
-        updateAndSaveHashtags(post, hashtags);
+        updateAndSaveHashtags(post, hashtags, this::createOrGetHashtag, 0);
     }
 
 
@@ -220,58 +222,51 @@ public class HashtagService {
     * 해시태그를 입력받아 생성하거나 갱신한 후 저장
     * */
 
-    public List<Hashtag> updateAndSaveHashtags (User user, List<Hashtag> hashtags, double score) {
+    private <T, U> List<Hashtag> updateAndSaveHashtags(T entity, List<Hashtag> hashtags, BiFunction<T, Hashtag, U> createOrGetHashtagFunc, double score) {
 
-        Set<UserHashtag> res = new HashSet<>();
+        Set<U> res = new HashSet<>();
 
         for (Hashtag tag : hashtags) {
-            UserHashtag userHashtag = createOrGetHashtag(user, tag);
-            userHashtag.incrementScore(score);
-            res.add(userHashtag);
+            U entityHashtag = createOrGetHashtagFunc.apply(entity, tag);
+            incrementScoreIfPossible(entityHashtag, score);
+            res.add(entityHashtag);
         }
 
-        user.addHashtags(res);
+        addHashtags(entity, res);
 
         return res.stream()
-                .map(UserHashtag::getHashtag)
+                .map(this::extractHashtag)
                 .toList();
     }
 
-    public List<Hashtag> updateAndSaveHashtags (Content content, List<Hashtag> hashtags, double score) {
-
-        Set<ContentHashtag> res = new HashSet<>();
-
-        for (Hashtag tag : hashtags) {
-            ContentHashtag contentHashtag = createOrGetHashtag(content, tag);
-            contentHashtag.incrementScore(score);
-            res.add(contentHashtag);
+    private <U> void incrementScoreIfPossible(U entityHashtag, double score) {
+        if (entityHashtag instanceof Scorable) {
+            ((Scorable) entityHashtag).incrementScore(score);
         }
-
-        content.addHashtags(res);
-
-        return res.stream()
-                .map(ContentHashtag::getHashtag)
-                .toList();
     }
 
-
-    public List<Hashtag> updateAndSaveHashtags(Post post, List<Hashtag> hashtags) {
-
-        Set<PostHashtag> res = new HashSet<>();
-
-        for (Hashtag tag : hashtags) {
-            PostHashtag postHashtag = createOrGetHashtag(post, tag);
-            res.add(postHashtag);
+    private <T, U> void addHashtags(T entity, Set<U> res) {
+        if (entity instanceof User) {
+            ((User) entity).addHashtags((Set<UserHashtag>) res);
+        } else if (entity instanceof Content) {
+            ((Content) entity).addHashtags((Set<ContentHashtag>) res);
+        } else if (entity instanceof Post) {
+            ((Post) entity).addHashtags((Set<PostHashtag>) res);
         }
-
-        post.addHashtags(res);
-
-        return res.stream()
-                .map(PostHashtag::getHashtag)
-                .toList();
     }
 
-    public List<Hashtag> updateAndSaveHashtags (String preHashtag) {
+    private Hashtag extractHashtag(Object entityHashtag) {
+        if (entityHashtag instanceof UserHashtag) {
+            return ((UserHashtag) entityHashtag).getHashtag();
+        } else if (entityHashtag instanceof ContentHashtag) {
+            return ((ContentHashtag) entityHashtag).getHashtag();
+        } else if (entityHashtag instanceof PostHashtag) {
+            return ((PostHashtag) entityHashtag).getHashtag();
+        }
+        throw new IllegalArgumentException("Unsupported entity hashtag type");
+    }
+
+    private List<Hashtag> updateAndSaveHashtags (String preHashtag) {
 
         Set<String> parsedTags = parseHashtag(preHashtag);
         Set<Hashtag> res = new HashSet<>();
@@ -461,22 +456,6 @@ public class HashtagService {
     }
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
-
-    private Hashtag toHashtag(UserHashtag userHashtag) {
-
-        return userHashtag.getHashtag();
-    }
-
-    private Hashtag toHashtag(PostHashtag postHashtag) {
-
-        return postHashtag.getHashtag();
-    }
-
-    private Hashtag toHashtag(ContentHashtag contentHashtag) {
-
-        return contentHashtag.getHashtag();
-    }
-
     // get Entity
     private User getUser (Long userId) {
 

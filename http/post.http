@@ -34,10 +34,6 @@ Authorization:{{access_token}}
 
 }
 
-### readContent
-GET localhost:8080/api/contents/4
-Authorization:{{access_token}}
-
 ### createReviewPost : 리뷰 게시물 작성
 POST localhost:8080/api/post
 Content-Type: application/json
@@ -51,3 +47,7 @@ Authorization:{{access_token}}
   "prehashtag" : "#test #hashtag",
   "rating": 5.0
 }
+
+### readPost
+GET localhost:8080/api/post
+Authorization:{{access_token}}

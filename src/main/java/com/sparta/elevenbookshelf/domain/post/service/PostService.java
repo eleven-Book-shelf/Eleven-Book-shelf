@@ -108,6 +108,11 @@ public class PostService {
         return new PostResponseDto(post);
     }
 
+    public List<PostResponseDto> readPosts(long offset, int pageSize) {
+
+
+    }
+
     public List<PostResponseDto> readPostsByUser(Long userId, long offset, int pageSize) {
 
         List<Post> posts = postRepository.getPostsByUserId(userId, offset, pageSize);

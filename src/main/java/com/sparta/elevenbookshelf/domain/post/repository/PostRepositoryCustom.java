@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface PostRepositoryCustom {
 
+    List<Post> getPosts(long offset, int pagesize);
+
     List<Post> getReviewPosts(long offset, int pagesize);
 
     List<Post> getPostsByContentId(Long contentId, long offset, int pagesize);

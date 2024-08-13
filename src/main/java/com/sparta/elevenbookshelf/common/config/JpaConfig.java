@@ -1,4 +1,4 @@
-package com.sparta.elevenbookshelf.common;
+package com.sparta.elevenbookshelf.common.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

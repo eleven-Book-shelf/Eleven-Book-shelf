@@ -2,6 +2,7 @@ package com.sparta.elevenbookshelf.domain.content.controller;
 
 
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
+import com.sparta.elevenbookshelf.domain.content.dto.ContentSearchRequestDto;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.like.service.LikeService;
@@ -44,34 +45,32 @@ public class ContentController {
      * 컨텐츠 검색 기능
      * - 주어진 조건들에 맞춰 컨텐츠를 조회합니다.
      * @param userPrincipal 사용자 정보 : Nullable
-     * @param isBookmarked 사용자의 북마크 조건으로 필터링 할 것인지 여부 : 기본 값 : "f"
-     * @param genre 검색할 키워드 : 비어있으면 전체 조회
-     * @param contentType WEBTOON || WEBNOVEL : 비어있으면 전체 조회
-     * @param sortBy 정렬조건 : 비어있으면 조회수 순 정렬
      * @param offset 현재 위치
      * @param pagesize 페이지 사이즈
+     * @Body
+     *      isBookmarked 사용자의 북마크 조건으로 필터링 할 것인지 여부 : 기본 값 : "f"
+     *      keyword 검색할 키워드 : 비어있으면 전체 조회
+     *      contentType WEBTOON || WEBNOVEL : 비어있으면 전체 조회
+     *      sortBy 정렬조건 : 비어있으면 조회수 순 정렬
      * @return List<ContentResponseDto> 불러온 컨텐츠 Dto 목록
      */
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<ContentResponseDto>> readContentsByCondition (
             @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
-            @RequestParam(value = "isBookmarked", defaultValue = "f", required = false) String isBookmarked,
-            @RequestParam(value = "genre", required = false) String genre,
-            @RequestParam(value = "contentType", required = false) String contentType,
-            @RequestParam(value = "sortBy", required = false) String sortBy,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize) {
+            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
+            @RequestBody ContentSearchRequestDto req) {
 
 
         Long userId = null;
 
-        if (isBookmarked.equals("t")) {
+        if (req.getIsBookmarked().equals("t")) {
             if(userPrincipal != null) {
                 userId = userPrincipal.getUser().getId();
             }
         }
 
-        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, userId, genre, contentType, sortBy);
+        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, userId, req.getKeyword(), req.getContentType(), req.getSortBy());
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
@@ -89,7 +88,7 @@ public class ContentController {
     }
 
     // 매인 페이지의 컨텐츠 (웹툰 + 소설)
-    @GetMapping
+    @GetMapping("/genre")
     public ResponseEntity<List<ContentResponseDto>> readContents(
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,

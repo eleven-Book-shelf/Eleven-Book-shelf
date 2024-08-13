@@ -23,6 +23,18 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
+    public List<Post> getPosts(long offset, int pagesize) {
+
+        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, post.createdAt);
+
+        return jpaQueryFactory.selectFrom(post)
+                .offset(offset)
+                .limit(pagesize)
+                .orderBy(orderSpecifier)
+                .fetch();
+    }
+
+    @Override
     public List<Post> getReviewPosts(long offset, int pagesize) {
 
         OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, post.createdAt);
