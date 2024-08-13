@@ -2,6 +2,7 @@ package com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity;
 
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
+import com.sparta.elevenbookshelf.domain.hashtag.entity.Scorable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,13 +11,13 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class ContentHashtag {
+public class ContentHashtag implements Scorable {
 
     @EmbeddedId
     private ContentHashtagId id;
 
     @Builder.Default
-    private double score = 1.0;
+    private double score = 0.0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("contentId")
@@ -32,6 +33,7 @@ public class ContentHashtag {
         this.id = new ContentHashtagId(content.getId(), hashtag.getId());
     }
 
+    @Override
     public void incrementScore (double score) {
         this.score += score;
     }

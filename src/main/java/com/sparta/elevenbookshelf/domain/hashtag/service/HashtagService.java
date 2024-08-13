@@ -2,11 +2,11 @@ package com.sparta.elevenbookshelf.domain.hashtag.service;
 
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
-import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagRequestDto;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
+import com.sparta.elevenbookshelf.domain.hashtag.entity.Scorable;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.ContentHashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.PostHashtag;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.UserHashtag;
@@ -30,6 +30,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +38,6 @@ import java.util.stream.Collectors;
 @Slf4j(topic = "HashtagService")
 public class HashtagService {
 
-    private final PostService postService;
     @Value("${READ_WEIGHT}")
     public double READ_WEIGHT;
     @Value("${READED_WEIGHT}")
@@ -55,7 +55,7 @@ public class HashtagService {
     @Value("${INIT_WEIGHT}")
     public double INIT_WEIGHT;
 
-
+    private final PostService postService;
     private final ContentService contentService;
     private final UserService userService;
 
@@ -85,12 +85,13 @@ public class HashtagService {
                 .toList();
     }
 
+    // 사용자의 입력을 받아 사용자의 해시태그를 업데이트
     public List<HashtagResponseDto> updateUserHashtags(Long userId, HashtagRequestDto req) {
 
         User user = getUser(userId);
 
         List<Hashtag> hashtags = updateAndSaveHashtags(req.getTags());
-        List<Hashtag> userHashtags = updateAndSaveHashtags(user, hashtags, INIT_WEIGHT);
+        List<Hashtag> userHashtags = updateAndSaveHashtags(user, hashtags, this::createOrGetHashtag, INIT_WEIGHT);
 
         return userHashtags.stream()
                 .map(HashtagResponseDto::new)
@@ -127,20 +128,16 @@ public class HashtagService {
 ---------------------------------------------------------------------------------------------------------------------
 
        - 컨텐츠 (문자열) -> 해시태그 생성 및 저장 -> 컨텐츠-해시태그 생성 및 저장 :
-                updateAndSaveHashtag(컨텐츠.문자열) -> updateAndSaveHashtag
+                GenerateContentHashtag
        - 사용자 <-> 컨텐츠 :
                 userContentHashtagInteraction
-       - 사용자 입력 해시태그 + 컨텐츠 해시태그 -> 게시글 해시태그 생성 :
-                updateAndSaveHashtag(컨텐츠.문자열) + content.getContentHashtags.map(toHashtag) -> updateAndSaveHashtag
        - 게시글 -> 사용자 :
                 userPostHashtagInteraction
        - 사용자 입력 해시태그 + 컨텐츠 해시태그 -> 게시글 해시태그 생성 :
                 generatePostHashtags
-
-
      */
 
-    @Async
+    @Async(value = "asyncThreadPool")
     @Transactional
     public void userContentHashtagInteraction (Long userId, Long contentId, double userScore, double contentScore) {
 
@@ -150,7 +147,7 @@ public class HashtagService {
 
         // 사용자의 해시태그 해시태그로 불러오기
         Set<Hashtag> hashtags = user.getUserHashtags().stream()
-                .map(this::toHashtag)
+                .map(UserHashtag::getHashtag)
                 .collect(Collectors.toSet());
 
         log.info("getUserHashtags" + hashtags.stream().map(Hashtag::getTag).toString());
@@ -158,18 +155,18 @@ public class HashtagService {
         // 콘텐츠의 해시태그 해시태그로 불러와서 추가하기
         hashtags.addAll(
                 content.getContentHashtags().stream()
-                        .map(this::toHashtag)
+                        .map(ContentHashtag::getHashtag)
                         .collect(Collectors.toSet())
         );
 
         log.info("getUserAndContentHashtags" + hashtags.stream().map(Hashtag::getTag).toString());
 
         // 사용자 | 컨텐츠 -해시태그 각각 갱신하기
-        updateAndSaveHashtags(user, hashtags.stream().toList(), userScore);
-        updateAndSaveHashtags(content, hashtags.stream().toList(), contentScore);
+        updateAndSaveHashtags(user, hashtags.stream().toList(), this::createOrGetHashtag, userScore);
+        updateAndSaveHashtags(content, hashtags.stream().toList(), this::createOrGetHashtag, contentScore);
     }
 
-    @Async
+    @Async(value = "asyncThreadPool")
     @Transactional
     public void userPostHashtagInteraction(Long userId, Long postId, double userScore) {
 
@@ -179,16 +176,16 @@ public class HashtagService {
 
         // 사용자의 해시태그 해시태그로 불러오기
         Set<Hashtag> hashtags = user.getUserHashtags().stream()
-                .map(this::toHashtag)
+                .map(UserHashtag::getHashtag)
                 .collect(Collectors.toSet());
 
         hashtags.addAll(
                 post.getPostHashtags().stream()
-                        .map(this::toHashtag)
+                        .map(PostHashtag::getHashtag)
                         .collect(Collectors.toSet())
         );
 
-        updateAndSaveHashtags(user, hashtags.stream().toList(), userScore);
+        updateAndSaveHashtags(user, hashtags.stream().toList(), this::createOrGetHashtag, userScore);
     }
 
     @Transactional
@@ -197,7 +194,7 @@ public class HashtagService {
         Content content = getContent(contentId);
 
         List<Hashtag> hashtags = updateAndSaveHashtags(preHashtag);
-        updateAndSaveHashtags(content, hashtags, INIT_WEIGHT);
+        updateAndSaveHashtags(content, hashtags, this::createOrGetHashtag, INIT_WEIGHT);
     }
 
     @Transactional
@@ -217,7 +214,8 @@ public class HashtagService {
         List<Hashtag> hashtags = updateAndSaveHashtags(preHashtag);
 
         userContentHashtagInteraction(userId, post.getContent().getId(), CREATE_WEIGHT, CREATE_WEIGHT);
-        updateAndSaveHashtags(post, hashtags);
+        updateAndSaveHashtags(post, hashtags, this::createOrGetHashtag, 0);
+        post.addHashtag();
     }
 
 
@@ -225,58 +223,51 @@ public class HashtagService {
     * 해시태그를 입력받아 생성하거나 갱신한 후 저장
     * */
 
-    public List<Hashtag> updateAndSaveHashtags (User user, List<Hashtag> hashtags, double score) {
+    private <T, U> List<Hashtag> updateAndSaveHashtags(T entity, List<Hashtag> hashtags, BiFunction<T, Hashtag, U> createOrGetHashtagFunc, double score) {
 
-        Set<UserHashtag> res = new HashSet<>();
+        Set<U> res = new HashSet<>();
 
         for (Hashtag tag : hashtags) {
-            UserHashtag userHashtag = createOrGetHashtag(user, tag);
-            userHashtag.incrementScore(score);
-            res.add(userHashtag);
+            U entityHashtag = createOrGetHashtagFunc.apply(entity, tag);
+            incrementScoreIfPossible(entityHashtag, score);
+            res.add(entityHashtag);
         }
 
-        user.addHashtags(res);
+        addHashtags(entity, res);
 
         return res.stream()
-                .map(this::toHashtag)
+                .map(this::extractHashtag)
                 .toList();
     }
 
-    public List<Hashtag> updateAndSaveHashtags (Content content, List<Hashtag> hashtags, double score) {
-
-        Set<ContentHashtag> res = new HashSet<>();
-
-        for (Hashtag tag : hashtags) {
-            ContentHashtag contentHashtag = createOrGetHashtag(content, tag);
-            contentHashtag.incrementScore(score);
-            res.add(contentHashtag);
+    private <U> void incrementScoreIfPossible(U entityHashtag, double score) {
+        if (entityHashtag instanceof Scorable) {
+            ((Scorable) entityHashtag).incrementScore(score);
         }
-
-        content.addHashtags(res);
-
-        return res.stream()
-                .map(this::toHashtag)
-                .toList();
     }
 
-
-    public List<Hashtag> updateAndSaveHashtags(Post post, List<Hashtag> hashtags) {
-
-        Set<PostHashtag> res = new HashSet<>();
-
-        for (Hashtag tag : hashtags) {
-            PostHashtag postHashtag = createOrGetHashtag(post, tag);
-            res.add(postHashtag);
+    private <T, U> void addHashtags(T entity, Set<U> res) {
+        if (entity instanceof User) {
+            ((User) entity).addHashtags((Set<UserHashtag>) res);
+        } else if (entity instanceof Content) {
+            ((Content) entity).addHashtags((Set<ContentHashtag>) res);
+        } else if (entity instanceof Post) {
+            ((Post) entity).addHashtags((Set<PostHashtag>) res);
         }
-
-        post.addHashtags(res);
-
-        return res.stream()
-                .map(this::toHashtag)
-                .toList();
     }
 
-    public List<Hashtag> updateAndSaveHashtags (String preHashtag) {
+    private Hashtag extractHashtag(Object entityHashtag) {
+        if (entityHashtag instanceof UserHashtag) {
+            return ((UserHashtag) entityHashtag).getHashtag();
+        } else if (entityHashtag instanceof ContentHashtag) {
+            return ((ContentHashtag) entityHashtag).getHashtag();
+        } else if (entityHashtag instanceof PostHashtag) {
+            return ((PostHashtag) entityHashtag).getHashtag();
+        }
+        throw new IllegalArgumentException("Unsupported entity hashtag type");
+    }
+
+    private List<Hashtag> updateAndSaveHashtags (String preHashtag) {
 
         Set<String> parsedTags = parseHashtag(preHashtag);
         Set<Hashtag> res = new HashSet<>();
@@ -335,7 +326,6 @@ public class HashtagService {
         return postHashtag;
     }
 
-    //TODO : 해결
     private ContentHashtag createOrGetHashtag(Content content, Hashtag hashtag) {
 
         Optional<ContentHashtag> optionalContentHashtag = contentHashtagRepository.findByContentIdAndHashtagId(content.getId(), hashtag.getId());
@@ -367,15 +357,15 @@ public class HashtagService {
     // 문자열을 받아 각각의 단어를 분해 : Set를 이용해 예상치 못한 중복 제거
     private Set<String> parseHashtag (String preHashtag) {
 
-        return Arrays.stream(preHashtag
-                        .replaceAll("\\s+", "") // 모든 공백을 없애기
-                        .split("[#,]"))
+        return Arrays.stream(preHashtag.split("[#,/]"))
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
     }
 
     // 해시태그를 바탕으로 추천해주기
-    public List<ContentResponseDto> recommendContentByUserHashtag (User user, List<Content> contents, long offset, int pagesize) {
+    public List<ContentResponseDto> recommendContentByUserHashtag (Long userId, List<Content> contents, long offset, int pagesize) {
+
+        User user = getUser(userId);
 
         List<Content> recommendedContents = calculateSimilarity(user, contents);
         List<ContentResponseDto> res = new ArrayList<>();
@@ -394,9 +384,10 @@ public class HashtagService {
         Map<Double, Content> resultMap = new HashMap<>();
 
         // 비교군 : 사용자 해시태그
-        List<UserHashtag> userHashtags = user.getUserHashtags().stream().toList();
+        List<UserHashtag> userHashtags = new ArrayList<>(user.getUserHashtags());
 
         for(Content content : contents) {
+
             List<Hashtag> xTags = new ArrayList<>(userHashtags.stream()
                     .map(UserHashtag::getHashtag)
                     .toList());
@@ -414,45 +405,30 @@ public class HashtagService {
 
             // 각 객체-해시태그에 할당된 점수값을 해당 해시태그의 티어로 나눠 개인맞춤을 가중
             for (Hashtag tag : xTags) {
-                Double a = userHashtags.stream()
+
+                UserHashtag aTag = userHashtags.stream()
                         .filter(userHashtag -> userHashtag.getHashtag().equals(tag))
                         .findAny()
-                        .get()
-                        .getScore();
+                        .get();
 
-                Double aTier = userHashtags.stream()
-                        .filter(userHashtag -> userHashtag.getHashtag().equals(tag))
-                        .findAny()
-                        .get()
-                        .getHashtag()
-                        .getTier();
-
-                aList.add(a/aTier);
-
-                Double b = contentHashtags.stream()
+                ContentHashtag bTag = contentHashtags.stream()
                         .filter(contentHashtag -> contentHashtag.getHashtag().equals(tag))
                         .findAny()
-                        .get()
-                        .getScore();
+                        .get();
 
-                Double bTier = contentHashtags.stream()
-                        .filter(contentHashtag -> contentHashtag.getHashtag().equals(tag))
-                        .findAny()
-                        .get()
-                        .getHashtag()
-                        .getTier();
-
-                bList.add(b/bTier);
+                aList.add(aTag.getScore()/aTag.getHashtag().getTier());
+                bList.add(bTag.getScore()/bTag.getHashtag().getTier());
             }
 
             // 단순 유클리안 거리 계산으로 유사도 측정 | 값이 작을 수록 유사도 높음
-            resultMap.put(operateEuclideanDistance(aList, bList),content);
+            resultMap.put(operateEuclideanDistance(aList, bList), content);
         }
 
         Map<Double, Content> sortedMap = sortMapByKey(resultMap);
         Collection<Content> values = sortedMap.values();
         return new ArrayList<>(values);
     }
+
 
     private Double operateEuclideanDistance (List<Double> a, List<Double> b) {
 
@@ -467,6 +443,7 @@ public class HashtagService {
 
     // 유사도로 맵 정렬
     private static LinkedHashMap<Double, Content> sortMapByKey(Map<Double, Content> map) {
+
         List<Map.Entry<Double, Content>> entries = new LinkedList<>(map.entrySet());
         entries.sort(Comparator.comparing(Map.Entry::getKey));
 
@@ -478,22 +455,6 @@ public class HashtagService {
     }
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
-
-    private Hashtag toHashtag(UserHashtag userHashtag) {
-
-        return userHashtag.getHashtag();
-    }
-
-    private Hashtag toHashtag(PostHashtag postHashtag) {
-
-        return postHashtag.getHashtag();
-    }
-
-    private Hashtag toHashtag(ContentHashtag contentHashtag) {
-
-        return contentHashtag.getHashtag();
-    }
-
     // get Entity
     private User getUser (Long userId) {
 

@@ -223,7 +223,7 @@ public class CrawlingUtil {
         } else {
 
             Content content = contentService.createContent(req);
-            hashtagService.generateContentHashtags(req.getContentHashTag() + req.getGenre(), content.getId());
+            hashtagService.generateContentHashtags(req.getContentHashTag() + "#" + req.getGenre(), content.getId());
         }
 
     }

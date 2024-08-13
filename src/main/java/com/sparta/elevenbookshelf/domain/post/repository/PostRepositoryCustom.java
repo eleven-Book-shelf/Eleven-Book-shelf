@@ -1,11 +1,16 @@
 package com.sparta.elevenbookshelf.domain.post.repository;
 
+import com.sparta.elevenbookshelf.domain.post.dto.PostSearchCond;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 public interface PostRepositoryCustom {
+
+    List<Post> getPostsBySearchCondition(long offset, int pagesize, PostSearchCond cond);
+
+    List<Post> getPosts(long offset, int pagesize);
 
     List<Post> getReviewPosts(long offset, int pagesize);
 

@@ -29,6 +29,8 @@ public class Post extends Timestamp {
     @Enumerated(EnumType.STRING)
     private PostType type;
 
+    private String postHashtag;
+
     @Column(nullable = false)
     private String title;
 
@@ -87,6 +89,11 @@ public class Post extends Timestamp {
 
     public void incrementViewCount() {
         this.viewCount++;
+    }
+
+    public void addHashtag() {
+        this.postHashtag += this.postHashtags.stream()
+                .map(tag -> "#" + tag.getHashtag().getTag());
     }
 
     public void addHashtags(Set<PostHashtag> hashtags) {

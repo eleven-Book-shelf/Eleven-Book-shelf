@@ -1,6 +1,7 @@
 package com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity;
 
 import com.sparta.elevenbookshelf.domain.hashtag.entity.Hashtag;
+import com.sparta.elevenbookshelf.domain.hashtag.entity.Scorable;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class UserHashtag {
+public class UserHashtag implements Scorable {
 
     @EmbeddedId
     private UserHashtagId id;
@@ -33,11 +34,8 @@ public class UserHashtag {
         this.id = new UserHashtagId(user.getId(), hashtag.getId());
     }
 
+    @Override
     public void incrementScore(double score) {
         this.score += score;
-    }
-
-    public void decrementScore(double score) {
-        this.score -= score;
     }
 }
