@@ -3,10 +3,7 @@ package com.sparta.elevenbookshelf.domain.post.service;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.like.service.LikeService;
-import com.sparta.elevenbookshelf.domain.post.dto.PostMapResponseDto;
-import com.sparta.elevenbookshelf.domain.post.dto.PostRequestDto;
-import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
-import com.sparta.elevenbookshelf.domain.post.dto.PostResponseListDto;
+import com.sparta.elevenbookshelf.domain.post.dto.*;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import com.sparta.elevenbookshelf.domain.post.repository.PostRepository;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
@@ -103,6 +100,36 @@ public class PostService {
         post.incrementViewCount();
         log.info("Read post ViewCount {}", post.getViewCount());
         return new PostResponseDto(post);
+    }
+
+    public List<PostResponseDto> readPosts(long offset, int pageSize) {
+
+        List<Post> posts = postRepository.getPosts(offset, pageSize);
+
+        return posts.stream()
+                .map(PostResponseDto::new)
+                .toList();
+    }
+
+    /**
+     * 게시글 검색 기능
+     * - 주어진 조건들에 맞춰 컨텐츠를 조회합니다.
+     * @param offset 현재 위치
+     * @param pagesize 페이지 사이즈
+     * @Body  : PostSearchCond
+     *      userId 작성자 id
+     *      contentId 컨텐츠 id
+     *      keyword 검색할 키워드 : 비어있으면 전체 조회
+     *      postType NORMAL || REVIEW || NOTICE : 비어있으면 전체 조회
+     *      sortBy 정렬조건 : 비어있으면 생성 순 정렬
+     * @return List<PostResponseDto> 불러온 게시글 Dto 목록
+     */
+    public List<PostResponseDto> readPostsBySearchCond(long offset, int pageSize, PostSearchCond cond) {
+
+        List<Post> posts = postRepository.getPostsBySearchCondition(offset, pageSize, cond);
+        return posts.stream()
+                .map(PostResponseDto::new)
+                .toList();
     }
 
     public List<PostResponseDto> readPostsByUser(Long userId, long offset, int pageSize) {

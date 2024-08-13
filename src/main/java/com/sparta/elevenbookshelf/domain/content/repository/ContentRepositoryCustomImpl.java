@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sparta.elevenbookshelf.domain.content.dto.ContentSearchCond;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -72,16 +73,16 @@ public class ContentRepositoryCustomImpl implements ContentRepositoryCustom {
     }
 
     @Override
-    public List<Content> findContentsBySearchCondition(long offset, int pagesize, Long userId, String genre, String contentType, String sortBy) {
+    public List<Content> findContentsBySearchCondition (long offset, int pagesize, ContentSearchCond cond) {
 
         BooleanBuilder searchCond = new BooleanBuilder();
-        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(sortBy);
+        OrderSpecifier<?> orderSpecifier = getOrderSpecifier(cond.getSortBy());
 
-        searchCond.and(buildContentCondition(genre, contentType));
+        searchCond.and(buildContentCondition(cond.getKeyword(), cond.getContentType()));
 
-        if (userId != null) {
+        if (cond.getUserId() != null) {
 
-            searchCond.and(buildUserCondition(userId));
+            searchCond.and(buildUserCondition(cond.getUserId()));
             return jpaQueryFactory.selectFrom(content)
                     .join(bookMark).on(content.id.eq(bookMark.content.id))
                     .where(searchCond)
