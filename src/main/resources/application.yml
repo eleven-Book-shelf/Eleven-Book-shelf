@@ -1,105 +1,3 @@
-spring:
-  profiles:
-    active: local
-    group:
-      local: local, common, secret
-      blue: blue, common, secret
-      green: green, common, secret
-
-server:
-  env: blue
-
----
-spring:
-  config:
-    activate:
-      on-profile: local
-  security:
-    oauth2:
-      client:
-        kakao:
-          redirect-uri: ${SOCIAL_KAKAO_REDIRECT_URL}
-        naver:
-          redirect-uri: ${SOCIAL_KAKAO_REDIRECT_URL}
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/${MYSQL_DATABASE}
-    username: ${RDS_USERNAME}
-    password: ${RDS_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: update
-      dialect: org.hibernate.dialect.MySQLDialect
-
-server:
-  port: 8080
-  serverAddress: localhost
-
-serverName: local_server
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: blue
-  security:
-    oauth2:
-      client:
-        kakao:
-          redirect-uri: ${SOCIAL_KAKAO_REDIRECT_URL}
-        naver:
-          redirect-uri: ${SOCIAL_KAKAO_REDIRECT_URL}
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/${MYSQL_DATABASE}
-    username: ${RDS_USERNAME}
-    password: ${RDS_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: update
-      dialect: org.hibernate.dialect.MySQLDialect
-
-server:
-  port: 8080
-  serverAddress: 54.180.132.230
-
-serverName: blue_server
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: green
-  security:
-    oauth2:
-      client:
-        kakao:
-          redirect-uri: ${SOCIAL_KAKAO_REDIRECT_URL}
-        naver:
-          redirect-uri: ${SOCIAL_KAKAO_REDIRECT_URL}
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/${MYSQL_DATABASE}
-    username: ${RDS_USERNAME}
-    password: ${RDS_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: update
-      dialect: org.hibernate.dialect.MySQLDialect
-
-server:
-  port: 8081
-  serverAddress: 54.180.132.230
-
-serverName: green_server
-
----
-
 jwt:
   access-expire-time: ${ACCESS_EXPIRE_TIME}
   key: ${JWT_SECRET_KEY}
@@ -110,11 +8,10 @@ spring:
     name: eleven-book
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-
     url: jdbc:mysql://${DB_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
-    
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -227,3 +124,8 @@ k:
 csv:
   file: ${CSV_FILE}
   file_locate: ${CSV_FILE_LOCATE}
+
+kakao:
+  pay:
+    admin-key: ${KAKAO_PAY_ADMIN_KEY}
+    cid: TC0ONETIME  # 상점 ID를 기본값으로 설정

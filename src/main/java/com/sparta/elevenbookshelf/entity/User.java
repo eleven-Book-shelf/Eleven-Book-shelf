@@ -49,6 +49,9 @@ public class User extends Timestamp {
     @OneToMany(mappedBy = "user")
     private Set<UserHashtag> userHashtags = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Payment> payments = new ArrayList<>();
+
     @Builder
     public User(String username,String nickname ,String password,String email,String socialId ,Status status, Role role) {
         this.username = username;
