@@ -1,7 +1,7 @@
 package com.sparta.elevenbookshelf.security.oauth2.service;
 
-import com.sparta.elevenbookshelf.entity.User;
-import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
+import com.sparta.elevenbookshelf.domain.user.entity.User;
+import com.sparta.elevenbookshelf.domain.user.repository.UserRepository;
 import com.sparta.elevenbookshelf.security.SecurityConfig;
 import com.sparta.elevenbookshelf.security.jwt.JwtService;
 import com.sparta.elevenbookshelf.security.oauth2.userinfo.GoogleOAuth2UserInfo;
@@ -40,29 +40,34 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
         log.info("getAttributes : {}", oAuth2User.getAttributes());
-
         String provider = userRequest.getClientRegistration().getRegistrationId();
-        OAuth2UserInfo userInfo;
-
-        if ("google".equals(provider)) {
-            userInfo = new GoogleOAuth2UserInfo();
-        } else if ("naver".equals(provider)) {
-            userInfo = new NaverOAuth2UserInfo();
-        } else if ("kakao".equals(provider)) {
-            userInfo = new KakaoOAuth2UserInfo();
-        } else {
-            throw new OAuth2AuthenticationException(new OAuth2Error("unsupported_provider"), "Unsupported provider: " + provider);
-        }
+        OAuth2UserInfo userInfo = getUserInfoByProvider(provider);
 
         String socialId = userInfo.getProviderId(oAuth2User.getAttributes());
         Optional<User> optionalUser = userRepository.findBySocialId(socialId);
+        User user = getUser(optionalUser, provider, socialId, userInfo, oAuth2User);
+
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+
+        context.setAuthentication(authentication);
+
+        SecurityContextHolder.setContext(context);
+
+        return userPrincipal;
+    }
+
+    private User getUser(Optional<User> optionalUser, String provider, String socialId, OAuth2UserInfo userInfo, OAuth2User oAuth2User) {
         User user;
 
         if (optionalUser.isEmpty()) {
             user = User.builder()
                     .username(provider + "_" + socialId)
                     .nickname(userInfo.getNameFromAttributes(oAuth2User.getAttributes()))
-                    .password(encoder.passwordEncoder().encode("default_password"))
+                    .password(encoder.passwordEncoder().encode("ZWxldmVuX2Jvb2tz"))
                     .email(userInfo.getEmailFromAttributes(oAuth2User.getAttributes()))
                     .socialId(socialId)
                     .role(User.Role.USER)
@@ -70,24 +75,30 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
                     .build();
 
             userRepository.save(user);
-            user.addRefreshToken(jwtService.generateRefreshToken(provider + "_" + socialId));
         } else {
             user = optionalUser.get();
             if (user.getStatus() == User.Status.DELETED) {
-                throw new OAuth2AuthenticationException(new OAuth2Error("user_deleted"), "탈퇴한 사용자 입니다.");
+                throw new OAuth2AuthenticationException(new OAuth2Error("user_deleted"),
+                                                        "탈퇴한 사용자 입니다. 관리자에게 문의해 주시기 바랍니다.");
             }
             if (user.getStatus() == User.Status.BLOCKED) {
-                throw new OAuth2AuthenticationException(new OAuth2Error("user_blocked"), "차단된 사용자 입니다.");
+                throw new OAuth2AuthenticationException(new OAuth2Error("user_blocked"),
+                                                        "차단된 사용자 입니다. 관리자에게 문의해 주시기 바랍니다");
             }
         }
+        return user;
+    }
 
-        UserPrincipal userPrincipal = new UserPrincipal(user);
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
+    private OAuth2UserInfo getUserInfoByProvider(String provider){
 
-        return userPrincipal;
+        if ("google".equals(provider)) {
+            return new GoogleOAuth2UserInfo();
+        } else if ("naver".equals(provider)) {
+            return new NaverOAuth2UserInfo();
+        } else if ("kakao".equals(provider)) {
+            return new KakaoOAuth2UserInfo();
+        } else {
+            throw new OAuth2AuthenticationException(new OAuth2Error("unsupported_provider"), "Unsupported provider: " + provider);
+        }
     }
 }

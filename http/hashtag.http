@@ -13,11 +13,11 @@ Content-Type: application/json
 %}
 
 ### getUserHashtags
-GET localhost:8080/api/user/hashtag
+GET localhost:8080/api/user/hashtags
 Authorization:{{access_token}}
 
 ### updateUserHashtags
-PUT localhost:8080/api/user/hashtag
+PUT localhost:8080/api/user/hashtags
 Content-Type: application/json
 Authorization:{{access_token}}
 

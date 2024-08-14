@@ -35,7 +35,7 @@ public class NaverOAuth2UserInfo implements OAuth2UserInfo {
             return "Unknown";
         }
 
-        return (String) response.getOrDefault("name", "Unknown");
+        return (String) response.getOrDefault("nickname", "Unknown");
 
     }
 }

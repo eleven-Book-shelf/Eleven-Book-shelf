@@ -1,6 +1,6 @@
 package com.sparta.elevenbookshelf.security.principal;
 
-import com.sparta.elevenbookshelf.entity.User;
+import com.sparta.elevenbookshelf.domain.user.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +32,7 @@ public class UserPrincipal implements UserDetails , OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(
-                new SimpleGrantedAuthority(user.getRole().toString())
-        );
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
     @Override
