@@ -2,6 +2,7 @@ package com.sparta.elevenbookshelf.domain.like.service;
 
 import com.sparta.elevenbookshelf.domain.comment.repository.CommentRepository;
 import com.sparta.elevenbookshelf.domain.comment.entity.Comment;
+import com.sparta.elevenbookshelf.domain.comment.service.CommentService;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.repository.ContentRepository;
 import com.sparta.elevenbookshelf.domain.like.dto.LikeResponseDto;
@@ -31,6 +32,7 @@ public class LikeService {
     private final UserRepository userRepository;
     private final ContentRepository contentRepository;
     private final CommentRepository commentRepository;
+    private final CommentService commentService;
 
     private final LikeCommentRepository likeCommentRepository;
     private final LikeContentRepository likeContentRepository;
@@ -48,10 +50,7 @@ public class LikeService {
     @Transactional
     public LikeResponseDto createLikeComment(Long commentId, Long userId) {
 
-        Comment comment = commentRepository.findById(commentId).orElseThrow(
-                ()-> new BusinessException(ErrorCode.NOTFOUND)
-        );
-
+        Comment comment = commentService.getCommentId(commentId);
         User user = getUser(userId);
 
         if (Objects.equals(comment.getUser().getId(), userId)) {
@@ -80,9 +79,9 @@ public class LikeService {
      */
     @Transactional
     public void deleteLikeComment(Long commentId, Long userId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(
-                () -> new BusinessException(ErrorCode.NOTFOUND)
-        );
+
+        Comment comment = commentService.getCommentId(commentId);
+
 
         LikeComment likeComment = likeCommentRepository.findByUserIdAndCommentId(userId, comment.getId()).orElseThrow(
                 () -> new BusinessException(ErrorCode.NOT_LIKE)

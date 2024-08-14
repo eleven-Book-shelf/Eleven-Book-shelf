@@ -2,6 +2,8 @@ package com.sparta.elevenbookshelf.domain.bookMark.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.elevenbookshelf.domain.bookMark.entity.BookMark;
+
+
 import com.sparta.elevenbookshelf.domain.bookMark.entity.QBookMark;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

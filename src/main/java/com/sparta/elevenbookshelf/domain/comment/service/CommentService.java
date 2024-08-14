@@ -1,12 +1,14 @@
 package com.sparta.elevenbookshelf.domain.comment.service;
 
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentMapResponseDto;
-import com.sparta.elevenbookshelf.domain.comment.repository.CommentRepository;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.domain.comment.dto.CommentResponseDto;
 import com.sparta.elevenbookshelf.domain.comment.entity.Comment;
+import com.sparta.elevenbookshelf.domain.comment.repository.CommentRepository;
+import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import com.sparta.elevenbookshelf.domain.post.repository.PostRepository;
+import com.sparta.elevenbookshelf.domain.post.service.PostService;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.domain.user.service.UserService;
 import com.sparta.elevenbookshelf.exception.BusinessException;
@@ -17,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,8 +29,10 @@ public class CommentService {
     private static final Double COMMENT_WEIGHT = 2.0;
 
     private final CommentRepository commentRepository;
+    private final HashtagService hashtagService;
     private final PostRepository postRepository;
     private final UserService userService;
+    private final PostService postService;
 
     //:::::::::::::::::// post //::::::::::::::::://
 
@@ -43,7 +46,7 @@ public class CommentService {
      */
     public void createComment(Long postId, UserPrincipal userPrincipal, CommentRequestDto commentRequestDto) {
 
-        Post post = postRepository.findById(postId).orElse(null);
+        Post post = postService.getPost(postId);
 
         User user = userPrincipal.getUser();
         Comment parentComment = null;
@@ -144,6 +147,15 @@ public class CommentService {
             throw new BusinessException(ErrorCode.USER_NOT_FOUND);
 
         }
+        return comment;
+    }
+
+    public  Comment getCommentId(Long commentId){
+
+        Comment comment = commentRepository.findById(commentId).orElseThrow(
+                ()-> new BusinessException(ErrorCode.COMMENT_NOT_FOUND)
+        );
+
         return comment;
     }
 

@@ -3,9 +3,7 @@ package com.sparta.elevenbookshelf.domain.post.repository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.post.dto.PostSearchCond;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +17,7 @@ import static com.sparta.elevenbookshelf.domain.content.entity.QContent.content;
 import static com.sparta.elevenbookshelf.domain.hashtag.entity.QHashtag.hashtag;
 import static com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.QPostHashtag.postHashtag;
 import static com.sparta.elevenbookshelf.domain.post.entity.QPost.post;
+
 
 
 @Repository

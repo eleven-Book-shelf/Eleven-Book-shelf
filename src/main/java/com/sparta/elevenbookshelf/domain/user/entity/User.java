@@ -2,6 +2,7 @@ package com.sparta.elevenbookshelf.domain.user.entity;
 
 import com.sparta.elevenbookshelf.common.Timestamp;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.UserHashtag;
+import com.sparta.elevenbookshelf.domain.payment.entity.Payment;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,6 +49,9 @@ public class User extends Timestamp {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserHashtag> userHashtags = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Payment> payments = new ArrayList<>();
 
     @Builder
     public User(String username,String nickname ,String password,String email,String socialId ,Status status, Role role) {
