@@ -27,4 +27,12 @@ public class HashtagController {
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<String>> readHashtags () {
+
+        List<String> res = hashtagService.readHashtags();
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
 }

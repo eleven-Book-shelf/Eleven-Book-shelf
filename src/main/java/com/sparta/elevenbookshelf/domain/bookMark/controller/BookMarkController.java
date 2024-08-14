@@ -21,34 +21,34 @@ public class BookMarkController {
     private final HashtagService hashtagService;
 
     // 컨탠츠 북마크
-    @PostMapping("/{postId}")
+    @PostMapping("/{contentsId}")
     public ResponseEntity<BookMarkResponseDto> addBookMark(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable Long postId) {
+            @PathVariable Long contentsId) {
 
-        BookMarkResponseDto res = bookmarkService.addBookMark(userPrincipal.getUser().getId(), postId);
-        hashtagService.userContentHashtagInteraction(userPrincipal.getUser().getId(), postId, hashtagService.BOOKMARK_WEIGHT, hashtagService.BOOKMARKED_WEIGHT);
+        BookMarkResponseDto res = bookmarkService.addBookMark(userPrincipal.getUser().getId(), contentsId);
+        hashtagService.userContentHashtagInteraction(userPrincipal.getUser().getId(), contentsId, hashtagService.BOOKMARK_WEIGHT, hashtagService.BOOKMARKED_WEIGHT);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     // 컨탠츠 북마크 취소
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/{contentsId}")
     public ResponseEntity<Void> removeBookmark(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable Long postId) {
+            @PathVariable Long contentsId) {
 
-        bookmarkService.removeBookMark(userPrincipal.getUser().getId(), postId);
+        bookmarkService.removeBookMark(userPrincipal.getUser().getId(), contentsId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     // 컨탠츠 북마크 상태
-    @GetMapping("/{postId}/status")
+    @GetMapping("/{contentsId}/status")
     public ResponseEntity<Boolean> isBookmarked(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable Long postId) {
+            @PathVariable Long contentsId) {
 
-        boolean isBookmarked = bookmarkService.isBookMarked(userPrincipal.getUser().getId(), postId);
+        boolean isBookmarked = bookmarkService.isBookMarked(userPrincipal.getUser().getId(), contentsId);
         return ResponseEntity.status(HttpStatus.OK).body(isBookmarked);
     }
 

@@ -13,6 +13,7 @@ public class PostResponseListDto {
     private Long id;
     private Long userId;
     private String nickname;
+    private String title;
     private String postType;
     private int viewCount;
     private Long contentId;
@@ -22,6 +23,7 @@ public class PostResponseListDto {
     public PostResponseListDto(Post post) {
         this.id = post.getId();
         this.userId = post.getUser().getId();
+        this.title = post.getTitle();
         this.nickname = post.getUser().getNickname();
         this.postType = post.getType().toString();
         this.viewCount = post.getViewCount();

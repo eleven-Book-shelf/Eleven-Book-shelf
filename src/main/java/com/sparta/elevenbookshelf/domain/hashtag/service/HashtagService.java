@@ -73,6 +73,13 @@ public class HashtagService {
         return topHashtags.stream().map(Hashtag::getTag).toList();
     }
 
+    public List<String> readHashtags() {
+
+        return  hashtagRepository.findAll().stream()
+                .map(Hashtag::getTag)
+                .toList();
+    }
+
     // 사용자 해시태그 상위 limit개
     public List<HashtagResponseDto> readUserHashtags (Long userId, int limit) {
 

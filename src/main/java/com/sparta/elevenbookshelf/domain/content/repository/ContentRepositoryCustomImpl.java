@@ -7,6 +7,10 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentSearchCond;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,7 +19,6 @@ import static com.sparta.elevenbookshelf.domain.bookMark.entity.QBookMark.bookMa
 import static com.sparta.elevenbookshelf.domain.content.entity.QContent.content;
 import static com.sparta.elevenbookshelf.domain.hashtag.entity.QHashtag.hashtag;
 import static com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.QContentHashtag.contentHashtag;
-import static com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.QPostHashtag.postHashtag;
 
 
 @Repository
@@ -62,7 +65,7 @@ public class ContentRepositoryCustomImpl implements ContentRepositoryCustom {
 
     private OrderSpecifier<?> getOrderSpecifier(String sortBy) {
 
-        if ("like" .equalsIgnoreCase(sortBy)) {
+        if ("like".equalsIgnoreCase(sortBy)) {
             return content.likeCount.desc();
         }
         // 다른 정렬 기준 추가 가능
@@ -100,94 +103,113 @@ public class ContentRepositoryCustomImpl implements ContentRepositoryCustom {
 
     }
 
-
     @Override
-    public List<Content> findContentsByGenre(long offset, int pageSize, String genre) {
+    public List<Content> findContentsByGenre(long offset, int pageSize, String platform, String genre) {
         return jpaQueryFactory
                 .selectFrom(content)
                 .orderBy(content.view.desc())
-                .where(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null)
+                .where((genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null),
+                        (platform != null && !platform.isEmpty() ? content.platform.eq(platform) : null))
                 .offset(offset)
                 .limit(pageSize)
                 .fetch();
     }
 
     @Override
-    public List<Content> findTopByView(long offset, int pageSize ,Content.ContentType contentType , String genre) {
+    public List<Content> findTopByView(long offset, int pageSize, Content.ContentType contentType, String genre) {
         return jpaQueryFactory.selectFrom(content)
                 .orderBy(content.view.desc())
                 .where(content.type.eq(contentType)
-                        .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
+                               .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
                 .offset(offset)
                 .limit(pageSize)
                 .fetch();
     }
 
-        @Override
-        public List<Content> findWebtoonContentsByGenre ( long offset, int pageSize, String genre){
-            return jpaQueryFactory
-                    .selectFrom(content)
-                    .where(content.type.eq(Content.ContentType.COMICS)
-                            .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
-                    .offset(offset)
-                    .limit(pageSize)
-                    .fetch();
-        }
-
-        @Override
-        public List<Content> findWebnovelContentsByGenre ( long offset, int pageSize, String genre){
-            return jpaQueryFactory
-                    .selectFrom(content)
-                    .where(content.type.eq(Content.ContentType.NOVEL)
-                            .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
-                    .offset(offset)
-                    .limit(pageSize)
-                    .fetch();
-        }
-
-        @Override
-        public List<Content> findWebtoonContentsByGenreByUser (Long userId,long offset, int pageSize, String genre){
-            return jpaQueryFactory
-                    .selectFrom(content)
-                    .join(bookMark).on(content.id.eq(bookMark.content.id))
-                    .where(bookMark.user.id.eq(userId)
-                            .and(content.type.eq(Content.ContentType.COMICS))
-                            .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
-                    .offset(offset)
-                    .limit(pageSize)
-                    .fetch();
-        }
-
-        @Override
-        public List<Content> findWebnovelContentsByGenreByUser (Long userId,long offset, int pageSize, String genre){
-            return jpaQueryFactory
-                    .selectFrom(content)
-                    .join(bookMark).on(content.id.eq(bookMark.content.id))
-                    .where(bookMark.user.id.eq(userId)
-                            .and(content.type.eq(Content.ContentType.NOVEL))
-                            .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
-                    .offset(offset)
-                    .limit(pageSize)
-                    .fetch();
-        }
-
-        @Override
-        public List<Content> search ( int offset, int pagesize, String search){
-            return List.of();
-        }
-
-        @Override
-        public List<Content> findContentsByHashtagContainKeyword (String keyword, long offset, int pageSize){
-
-            OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, content.likeCount);
-
-            return jpaQueryFactory.selectFrom(content)
-                    .join(content.contentHashtags, contentHashtag)
-                    .join(contentHashtag.hashtag, hashtag)
-                    .where(hashtag.tag.contains(keyword))
-                    .offset(offset)
-                    .limit(pageSize)
-                    .orderBy(orderSpecifier)
-                    .fetch();
-        }
+    @Override
+    public List<Content> findWebtoonContentsByGenre(long offset, int pageSize, String platform, String genre) {
+        return jpaQueryFactory
+                .selectFrom(content)
+                .where(content.type.eq(Content.ContentType.COMICS)
+                               .and(platform != null && !platform.isEmpty() ? content.platform.eq(platform) : null)
+                               .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
+                .offset(offset)
+                .limit(pageSize)
+                .fetch();
     }
+
+    @Override
+    public List<Content> findWebnovelContentsByGenre(long offset, int pageSize, String platform, String genre) {
+        return jpaQueryFactory
+                .selectFrom(content)
+                .where(content.type.eq(Content.ContentType.NOVEL)
+                               .and(platform != null && !platform.isEmpty() ? content.platform.eq(platform ) : null)
+                               .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
+                .offset(offset)
+                .limit(pageSize)
+                .fetch();
+    }
+
+    @Override
+    public List<Content> findWebtoonContentsByGenreByUser(Long userId, long offset, int pageSize, String genre) {
+        return jpaQueryFactory
+                .selectFrom(content)
+                .join(bookMark).on(content.id.eq(bookMark.content.id))
+                .where(bookMark.user.id.eq(userId)
+                               .and(content.type.eq(Content.ContentType.COMICS))
+                               .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
+                .offset(offset)
+                .limit(pageSize)
+                .fetch();
+    }
+
+    @Override
+    public List<Content> findWebnovelContentsByGenreByUser(Long userId, long offset, int pageSize, String genre) {
+        return jpaQueryFactory
+                .selectFrom(content)
+                .join(bookMark).on(content.id.eq(bookMark.content.id))
+                .where(bookMark.user.id.eq(userId)
+                               .and(content.type.eq(Content.ContentType.NOVEL))
+                               .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
+                .offset(offset)
+                .limit(pageSize)
+                .fetch();
+    }
+
+    @Override
+    public List<Content> findContentsByHashtagContainKeyword(String keyword, long offset, int pageSize) {
+
+        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, content.likeCount);
+
+        return jpaQueryFactory.selectFrom(content)
+                .join(content.contentHashtags, contentHashtag)
+                .join(contentHashtag.hashtag, hashtag)
+                .where(hashtag.tag.contains(keyword))
+                .offset(offset)
+                .limit(pageSize)
+                .orderBy(orderSpecifier)
+                .fetch();
+    }
+
+    @Override
+    public Page<Content> findreadSearchByKeyword(String keyword, int offset, int pagesize) {
+
+        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, content.createdAt);
+
+        Pageable pageable = PageRequest.of(offset, pagesize);
+
+        List<Content> contents = jpaQueryFactory.selectFrom(content)
+                .where(content.title.like("%" + keyword + "%"))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(orderSpecifier)
+                .fetch();
+
+        long total = jpaQueryFactory.selectFrom(content)
+                .where(content.title.like("%" + keyword + "%"))
+                .fetchCount();
+
+        return new PageImpl<>(contents, pageable, total);
+    }
+
+}
