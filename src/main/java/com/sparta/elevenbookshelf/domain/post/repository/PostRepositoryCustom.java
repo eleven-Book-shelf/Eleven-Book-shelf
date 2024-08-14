@@ -16,7 +16,7 @@ public interface PostRepositoryCustom {
 
     List<Post> getPostsByContentId(Long contentId, long offset, int pagesize);
 
-    List<Post> getPostsByUserId(Long userId, long offset, int pageSize);
+    Page<Post> getPostsByUserId(Long userId, int page, int pageSize, boolean asc);
 
     List<Post> findReviewsByHashtagContainKeyword(String keyword, long offset, int pagesize);
 

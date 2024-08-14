@@ -3,6 +3,7 @@ package com.sparta.elevenbookshelf.domain.user.controller;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagRequestDto;
 import com.sparta.elevenbookshelf.domain.hashtag.dto.HashtagResponseDto;
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
+import com.sparta.elevenbookshelf.domain.post.dto.PostMapResponseDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.domain.post.service.PostService;
 import com.sparta.elevenbookshelf.domain.user.dto.UserRequestDto;
@@ -37,12 +38,13 @@ public class UserController {
     }
 
     @GetMapping("/posts")
-    public ResponseEntity<List<PostResponseDto>> getUserPosts(
+    public ResponseEntity<PostMapResponseDto> getUserPosts(
             @AuthenticationPrincipal UserPrincipal user,
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int pagesize,
+            @RequestParam boolean asc)  {
 
-        List<PostResponseDto> res = postService.readPostsByUser(user.getUser().getId(), offset, pagesize);
+        PostMapResponseDto res = postService.readPostsByUser(user.getUser().getId(), page, pagesize,asc);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 

@@ -19,7 +19,6 @@ public class CrawlingController {
     private final CrawlingService crawlingService;
 
     // 전체 크롤링 시작.
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/start/all")
     public ResponseEntity<Void> allCrawlingStart() {
 
@@ -28,6 +27,7 @@ public class CrawlingController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/start/r")
     public ResponseEntity<Void> rCrawlingStart() {
 
@@ -36,6 +36,7 @@ public class CrawlingController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/start/m")
     public ResponseEntity<Void> mCrawlingStart() {
 
@@ -44,6 +45,7 @@ public class CrawlingController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/start/k")
     public ResponseEntity<Void> kCrawlingStart() {
 
