@@ -66,7 +66,7 @@ public class UserService {
 
     //::::::::::::::::::::::::// TOOL BOX  //:::::::::::::::::::::::://
 
-    private User getUser(Long userId) {
+    public User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );

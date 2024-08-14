@@ -2,10 +2,7 @@ package com.sparta.elevenbookshelf.service;
 
 import com.sparta.elevenbookshelf.dto.CommentRequestDto;
 import com.sparta.elevenbookshelf.dto.CommentResponseDto;
-import com.sparta.elevenbookshelf.entity.Comment;
-import com.sparta.elevenbookshelf.entity.Content;
-import com.sparta.elevenbookshelf.entity.Hashtag;
-import com.sparta.elevenbookshelf.entity.User;
+import com.sparta.elevenbookshelf.entity.*;
 import com.sparta.elevenbookshelf.entity.mappingEntity.ContentHashtag;
 import com.sparta.elevenbookshelf.entity.mappingEntity.UserHashtag;
 import com.sparta.elevenbookshelf.entity.post.Post;
@@ -31,8 +28,7 @@ public class CommentService {
     private static final Double COMMENT_WEIGHT = 2.0;
 
     private final CommentRepository commentRepository;
-    private final PostRepository postRepository;
-    private final ContentRepository contentRepository;
+    private final BoardService boardService;
     private final HashtagService hashtagService;
 
     //:::::::::::::::::// post //::::::::::::::::://
@@ -47,7 +43,7 @@ public class CommentService {
      */
     public void createComment(Long postId, UserPrincipal userPrincipal, CommentRequestDto commentRequestDto) {
 
-        Post post = postRepository.findById(postId).orElse(null);
+        Post post = boardService.getPost(postId);
 
         User user = userPrincipal.getUser();
         Comment parentComment = null;
@@ -149,6 +145,15 @@ public class CommentService {
             throw new BusinessException(ErrorCode.USER_NOT_FOUND);
 
         }
+        return comment;
+    }
+
+    Comment getCommentId(Long commentId){
+
+        Comment comment = commentRepository.findById(commentId).orElseThrow(
+                ()-> new BusinessException(ErrorCode.COMMENT_NOT_FOUND)
+        );
+
         return comment;
     }
 

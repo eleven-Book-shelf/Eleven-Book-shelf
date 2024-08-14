@@ -3,28 +3,18 @@ package com.sparta.elevenbookshelf.service;
 import com.sparta.elevenbookshelf.dto.BookMarkResponseDto;
 import com.sparta.elevenbookshelf.entity.BookMark;
 import com.sparta.elevenbookshelf.entity.Content;
-import com.sparta.elevenbookshelf.entity.Hashtag;
 import com.sparta.elevenbookshelf.entity.User;
-import com.sparta.elevenbookshelf.entity.mappingEntity.ContentHashtag;
-import com.sparta.elevenbookshelf.entity.mappingEntity.PostHashtag;
-import com.sparta.elevenbookshelf.entity.mappingEntity.UserHashtag;
-import com.sparta.elevenbookshelf.entity.post.Post;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import com.sparta.elevenbookshelf.repository.bookmarkRepository.BookMarkRepository;
-import com.sparta.elevenbookshelf.repository.contentRepository.ContentRepository;
-import com.sparta.elevenbookshelf.repository.hashtagRepository.ContentHashtagRepository;
-import com.sparta.elevenbookshelf.repository.hashtagRepository.UserHashtagRepository;
-import com.sparta.elevenbookshelf.repository.userRepository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,11 +25,9 @@ public class BookMarkService {
     private static final Double BOOKMARKED_WEIGHT = 5.0;
 
     private final BookMarkRepository bookmarkRepository;
-    private final UserRepository userRepository;
-    private final ContentRepository contentRepository;
+    private final UserService userService;
+    private final ContentService contentService;
     private final HashtagService hashtagService;
-    private final ContentHashtagRepository contentHashtagRepository;
-    private final UserHashtagRepository userHashtagRepository;
 
     /**
      * 북마크 추가 기능
@@ -55,10 +43,8 @@ public class BookMarkService {
     @CacheEvict(value = "bookMarkCache", key = "#userId + '-' + #contentId")
     public BookMarkResponseDto addBookMark(Long userId, Long contentId) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT));
+        User user = userService.getUser(userId);
+        Content content = contentService.getContent(contentId);
 
         BookMark bookmark = bookmarkRepository.findByUserAndPost(userId, contentId)
                 .orElse(BookMark.builder()
@@ -85,12 +71,15 @@ public class BookMarkService {
     @Transactional
     @CacheEvict(value = "bookMarkCache", key = "#userId + '-' + #contentId")
     public void removeBookMark(Long userId, Long contentId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT));
+        User user = userService.getUser(userId);
+        Content content = contentService.getContent(contentId);
 
-        bookmarkRepository.deleteByUserAndPost(userId, contentId);
+        // 북마크가 존재하는지 확인하고, 북마크 객체를 가져옵니다.
+        BookMark bookmark = bookmarkRepository.findByUserIdAndContentId(userId, contentId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.BOOKMARK_NOT_FOUND));
+
+        // 북마크 삭제
+        bookmarkRepository.delete(bookmark);
     }
 
     /**
@@ -104,8 +93,7 @@ public class BookMarkService {
     @Transactional
     @Cacheable(value = "bookMarkCache", key = "#userId + '-' + #offset + '-' + #pageSize")
     public List<BookMarkResponseDto> getUserBookMarks(Long userId, Long offset, int pageSize) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        User user = userService.getUser(userId);
 
         return bookmarkRepository.findAllByUser(userId, offset, pageSize).stream()
                 .map(bookmark -> BookMarkResponseDto.fromPost(bookmark.getContent()))
@@ -115,7 +103,7 @@ public class BookMarkService {
     /**
      * 북마크 여부 확인 기능
      * - 해당 유저가 특정 콘텐츠를 북마크했는지 확인합니다.
-     * @param userId 유저 ID
+     * @param userId    유저 ID
      * @param contentId 콘텐츠 ID
      * @return boolean 북마크 여부
      */

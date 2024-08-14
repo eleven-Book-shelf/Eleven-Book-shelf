@@ -18,7 +18,7 @@ public class BookMarkController {
     private final BookMarkService bookmarkService;
 
     @PostMapping("/{postId}")
-    public ResponseEntity<BookMarkResponseDto> addBookMark(
+    public ResponseEntity<Void> addBookMark(
             @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long postId) {
         bookmarkService.addBookMark(userPrincipal.getUser().getId(), postId);
         return ResponseEntity.ok().build();
@@ -28,7 +28,7 @@ public class BookMarkController {
     public ResponseEntity<Void> removeBookmark(
             @AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable Long postId) {
         bookmarkService.removeBookMark(userPrincipal.getUser().getId(), postId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/user/{userId}")

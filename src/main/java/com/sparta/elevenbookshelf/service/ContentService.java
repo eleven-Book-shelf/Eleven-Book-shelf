@@ -102,7 +102,7 @@ public class ContentService {
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 
-    private Content getContent(Long cardId) {
+    public Content getContent(Long cardId) {
         return contentRepository.findById(cardId).orElseThrow(
                 () -> new BusinessException(ErrorCode.NOT_FOUND_CONTENT)
         );

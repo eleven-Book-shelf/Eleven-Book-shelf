@@ -307,7 +307,7 @@ public class BoardService {
 
     //::::::::::::::::::::::::// TOOL BOX //:::::::::::::::::::::::://
 
-    private Post getPost(Long postId) {
+    public Post getPost(Long postId) {
 
         return postRepository.findById(postId).orElseThrow(
                 () -> new BusinessException(ErrorCode.POST_NOT_FOUND)

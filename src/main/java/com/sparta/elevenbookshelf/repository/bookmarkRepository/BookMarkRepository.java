@@ -10,5 +10,6 @@ public interface BookMarkRepository extends JpaRepository<BookMark, Long>,
         QuerydslPredicateExecutor<BookMark>
         ,BookMarkRepositoryCustom{
 
+    Optional<BookMark> findByUserIdAndContentId(Long userId, Long contentId);
     boolean existsByUserIdAndContentId(Long userId, Long contentId);
 }

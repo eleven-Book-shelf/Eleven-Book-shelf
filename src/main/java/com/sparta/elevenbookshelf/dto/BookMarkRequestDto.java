@@ -9,6 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BookMarkRequestDto {
     private Long userId;
-    private String message;
     private boolean status;
 }
