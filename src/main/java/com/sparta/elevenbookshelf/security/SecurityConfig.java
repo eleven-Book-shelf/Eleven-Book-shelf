@@ -100,7 +100,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
-                                                   .requestMatchers("/api/content/**").permitAll()
+/*                                                   .requestMatchers("/api/content/**").permitAll()
                                                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                    .requestMatchers("/api/user/signup").permitAll()
                                                    .requestMatchers("/api/auth/login").permitAll()
@@ -110,8 +110,8 @@ public class SecurityConfig {
                                                    .requestMatchers("/api/auth/**").permitAll()
                                                    .requestMatchers(HttpMethod.GET, "/api/post/**").permitAll()
                                                    .requestMatchers( HttpMethod.GET,"/api/hashtag").permitAll()
-                                                   .anyRequest().authenticated()
-//                                                   .anyRequest().permitAll()
+                                                   .anyRequest().authenticated()*/
+                                                   .anyRequest().permitAll()
         );
 
 
