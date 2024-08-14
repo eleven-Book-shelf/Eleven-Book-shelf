@@ -3,7 +3,7 @@ POST http://localhost:8080/api/auth/signup
 Content-Type: application/json
 
 {
-  "username": "name",
+  "username": "master",
   "password": "1234",
   "email": "test1@gmail.com"
 }
