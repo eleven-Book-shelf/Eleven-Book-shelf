@@ -100,7 +100,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
-                                                   .requestMatchers("/api/contents").permitAll()
+                                                   .requestMatchers("/api/content/**").permitAll()
                                                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                    .requestMatchers("/api/user/signup").permitAll()
                                                    .requestMatchers("/api/auth/login").permitAll()

@@ -122,16 +122,31 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public List<Post> getPostsByUserId(Long userId, long offset, int pageSize) {
+    public Page<Post> getPostsByUserId(Long userId, int page, int pageSize, boolean asc) {
 
-        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(Order.DESC, post.createdAt);
+        OrderSpecifier<?> orderSpecifier = new OrderSpecifier<>(
+                asc ? Order.ASC : Order.DESC,
+                post.createdAt
+        );
 
-        return jpaQueryFactory.selectFrom(post)
+        long totalCount = Optional.ofNullable(
+                jpaQueryFactory
+                        .select(post.count())
+                        .from(post)
+                        .where(post.user.id.eq(userId))
+                        .fetchFirst()
+        ).orElse(0L);
+
+        Pageable pageable = PageRequest.of(page, pageSize);
+
+        List<Post> posts = jpaQueryFactory.selectFrom(post)
                 .where(post.user.id.eq(userId))
-                .offset(offset)
+                .offset(pageable.getOffset())
                 .limit(pageSize)
                 .orderBy(orderSpecifier)
                 .fetch();
+
+        return new PageImpl<>(posts, pageable, totalCount);
     }
 
     @Override
@@ -176,6 +191,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
         return new PageImpl<>(posts, pageable, totalCount);
     }
+
 
 
 }

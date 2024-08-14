@@ -11,7 +11,6 @@ import com.sparta.elevenbookshelf.domain.user.service.UserService;
 import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -115,7 +114,7 @@ public class PostService {
      * 게시글 검색 기능
      * - 주어진 조건들에 맞춰 컨텐츠를 조회합니다.
      * @param offset 현재 위치
-     * @param pagesize 페이지 사이즈
+     * @param pageSize 페이지 사이즈
      * @Body  : PostSearchCond
      *      userId 작성자 id
      *      contentId 컨텐츠 id
@@ -132,14 +131,13 @@ public class PostService {
                 .toList();
     }
 
-    public List<PostResponseDto> readPostsByUser(Long userId, long offset, int pageSize) {
+    public PostMapResponseDto readPostsByUser(Long userId, int page, int pageSize, boolean asc) {
 
-        List<Post> posts = postRepository.getPostsByUserId(userId, offset, pageSize);
+        Page<Post> posts = postRepository.getPostsByUserId(userId, page, pageSize,asc);
 
-        return posts.stream()
-                .map(PostResponseDto::new)
-                .toList();
+        return getPostMapResponseDto(posts);
     }
+
 
     public List<PostResponseDto> readPostsByContent(Long contentId, long offset, int pagesize) {
 
@@ -165,9 +163,7 @@ public class PostService {
 
         Page<Post> posts = postRepository.findReviewsByHashtagContainPostType(type, page, pageSize, asc);
 
-        return new PostMapResponseDto(posts.getTotalPages(), posts.getContent().stream()
-                .map(PostResponseListDto::new)
-                .toList());
+        return getPostMapResponseDto(posts);
     }
 
     public Page<PostResponseDto> getAdminPage(int page, int size, String sortBy, boolean asc) {
@@ -189,9 +185,7 @@ public class PostService {
 
         Page<Post> posts = postRepository.findReviewsByHashtagContainPostType(type, page, size, asc);
 
-        return new PostMapResponseDto(posts.getTotalPages(), posts.getContent().stream()
-                .map(PostResponseListDto::new)
-                .toList());
+        return getPostMapResponseDto(posts);
     }
 
 
@@ -270,5 +264,10 @@ public class PostService {
         return contentService.getContent(contentId);
     }
 
+    private PostMapResponseDto getPostMapResponseDto(Page<Post> posts) {
+        return new PostMapResponseDto(posts.getTotalPages(), posts.getContent().stream()
+                .map(PostResponseListDto::new)
+                .toList());
+    }
 
 }

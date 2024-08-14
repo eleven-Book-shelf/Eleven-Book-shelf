@@ -15,9 +15,12 @@ import com.sparta.elevenbookshelf.domain.hashtag.repository.HashtagRepository;
 import com.sparta.elevenbookshelf.domain.hashtag.repository.PostHashtagRepository;
 import com.sparta.elevenbookshelf.domain.hashtag.repository.UserHashtagRepository;
 import com.sparta.elevenbookshelf.domain.post.entity.Post;
+import com.sparta.elevenbookshelf.domain.post.repository.PostRepository;
 import com.sparta.elevenbookshelf.domain.post.service.PostService;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
 import com.sparta.elevenbookshelf.domain.user.service.UserService;
+import com.sparta.elevenbookshelf.exception.BusinessException;
+import com.sparta.elevenbookshelf.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,11 +58,12 @@ public class HashtagService {
     @Value("${INIT_WEIGHT}")
     public double INIT_WEIGHT;
 
-    private final PostService postService;
+//    private final PostService postService;
     private final ContentService contentService;
     private final UserService userService;
 
     private final HashtagRepository hashtagRepository;
+    private final PostRepository postRepository;
 
     private final ContentHashtagRepository contentHashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
@@ -474,7 +478,8 @@ public class HashtagService {
     }
 
     private Post getPost(Long postId) {
-
-        return postService.getPost(postId);
+        return postRepository.findById(postId).orElseThrow(
+                () -> new BusinessException(ErrorCode.POST_NOT_FOUND)
+        );
     }
 }
