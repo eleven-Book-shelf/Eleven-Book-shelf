@@ -27,22 +27,6 @@ public class ContentController {
     private final LikeService likeService;
     private final HashtagService hashtagService;
 
-    // 컨텐츠 상세 페이지
-    @GetMapping("/{contentId}")
-    public ResponseEntity<ContentResponseDto> readContent(
-            @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
-            @PathVariable Long contentId) {
-
-        ContentResponseDto res = contentService.readContent(contentId);
-
-        if (userPrincipal != null) {
-            hashtagService.userContentHashtagInteraction(userPrincipal.getUser().getId(), contentId,
-                    hashtagService.READ_WEIGHT, hashtagService.READED_WEIGHT);
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(res);
-    }
-
     /**
      * 컨텐츠 검색 기능
      * - 주어진 조건들에 맞춰 컨텐츠를 조회합니다.
@@ -70,6 +54,22 @@ public class ContentController {
         }
 
         List<ContentResponseDto> res = contentService.readContents(offset, pagesize, cond);
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    // 컨텐츠 상세 페이지
+    @GetMapping("/{contentId}")
+    public ResponseEntity<ContentResponseDto> readContent(
+            @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
+            @PathVariable Long contentId) {
+
+        ContentResponseDto res = contentService.readContent(contentId);
+
+        if (userPrincipal != null) {
+            hashtagService.userContentHashtagInteraction(userPrincipal.getUser().getId(), contentId,
+                                                         hashtagService.READ_WEIGHT, hashtagService.READED_WEIGHT);
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
