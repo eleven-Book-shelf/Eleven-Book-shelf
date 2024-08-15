@@ -42,6 +42,8 @@ public enum ErrorCode {
 
     //Content
     NOT_FOUND_CONTENT(HttpStatus.BAD_REQUEST, "컨탠츠를 찾을 수 없습니다." ),
+    BOOKMARK_NOT_FOUND(HttpStatus.BAD_REQUEST, "북마크를 찾을 수 없습니다." ),
+
 
     //payment
     PAYMENT_FAILURE(HttpStatus.BAD_REQUEST, "결제를 실패 하였습니다." ),

@@ -72,8 +72,7 @@ public class KakaoPayService {
 
         try {
             ResponseEntity<Map> responseEntity = restTemplate.postForEntity(KAKAO_READY_URL, request, Map.class);
-            Map<String, Object> response = responseEntity.getBody(); // TODO 에러
-
+            Map<String, Object> response = responseEntity.getBody();
             User user = userService.getUser(paymentRequestDto.getUserId());
 
             Payment payment = Payment.builder()

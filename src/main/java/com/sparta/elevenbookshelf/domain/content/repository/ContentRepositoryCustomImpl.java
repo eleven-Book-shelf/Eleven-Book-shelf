@@ -6,7 +6,9 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentSearchCond;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
+import com.sparta.elevenbookshelf.domain.content.entity.QContent;
 import lombok.RequiredArgsConstructor;
+import org.objectweb.asm.Attribute;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -15,8 +17,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+
 import static com.sparta.elevenbookshelf.domain.bookMark.entity.QBookMark.bookMark;
-import static com.sparta.elevenbookshelf.domain.content.entity.QContent.content;
 import static com.sparta.elevenbookshelf.domain.hashtag.entity.QHashtag.hashtag;
 import static com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.QContentHashtag.contentHashtag;
 
@@ -26,6 +28,7 @@ import static com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.QCo
 public class ContentRepositoryCustomImpl implements ContentRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
+    private QContent content;
 
     // 검색할 장르 및 타입 설정
     private BooleanBuilder buildContentCondition(String genre, String contentType) {

@@ -17,7 +17,6 @@ import java.util.Optional;
 
 import static com.sparta.elevenbookshelf.domain.comment.entity.QComment.comment;
 
-
 @Repository
 @RequiredArgsConstructor
 public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {

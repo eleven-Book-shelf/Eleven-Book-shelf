@@ -112,9 +112,9 @@ spring:
     name: eleven-book
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/${MYSQL_DATABASE}
-    username: ${RDS_USERNAME}
-    password: ${RDS_PASSWORD}
+    url: jdbc:mysql://${DB_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
 
   jpa:
     hibernate:
@@ -235,7 +235,9 @@ k:
 csv:
   file: ${CSV_FILE}
   file_locate: ${CSV_FILE_LOCATE}
+
 kakao:
   pay:
     admin-key: ${KAKAO_PAY_ADMIN_KEY}
     cid: TC0ONETIME  # 상점 ID를 기본값으로 설정
+
