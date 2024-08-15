@@ -77,11 +77,13 @@ public class ContentController {
     @GetMapping("/recommend")
     public ResponseEntity<List<ContentResponseDto>> recommendContentsByUserHashtag (
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam(defaultValue = "0") long offset,
-            @RequestParam(defaultValue = "20") int pagesize) {
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
+            @RequestParam(value = "platform", required = false)String platform,
+            @RequestParam(value = "genre", required = false) String genre) {
 
         List<ContentResponseDto> res = hashtagService.recommendContentByUserHashtag(userPrincipal.getUser().getId(),
-                contentService.getContents() ,offset, pagesize);
+                contentService.getContents() ,offset, pagesize,platform,genre);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
