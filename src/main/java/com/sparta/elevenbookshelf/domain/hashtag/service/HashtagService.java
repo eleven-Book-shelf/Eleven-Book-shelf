@@ -374,19 +374,29 @@ public class HashtagService {
     }
 
     // 해시태그를 바탕으로 추천해주기
-    public List<ContentResponseDto> recommendContentByUserHashtag (Long userId, List<Content> contents, long offset, int pagesize) {
+    public List<ContentResponseDto> recommendContentByUserHashtag (
+            Long userId, List<Content> contents, long offset, int pagesize, String platform, String genre) {
 
         User user = getUser(userId);
 
+        // Calculate similarity
         List<Content> recommendedContents = calculateSimilarity(user, contents);
+
+        // 선택지 제작
+        recommendedContents = recommendedContents.stream()
+                .filter(content -> (platform == null || platform.isEmpty() || content.getPlatform().equals(platform)))
+                .filter(content -> (genre == null || genre.isEmpty() || content.getContentHashTag().contains(genre)))
+                .toList();
+
         List<ContentResponseDto> res = new ArrayList<>();
 
-        for (int i = (int) offset; i< offset + pagesize; i++) {
+        for (int i = (int) offset; i < offset + pagesize && i < recommendedContents.size(); i++) {
             res.add(new ContentResponseDto(recommendedContents.get(i)));
         }
 
         return res;
     }
+
 
     // 해시태그 유사도 계산 부분
     private List<Content> calculateSimilarity (User user, List<Content> contents) {
