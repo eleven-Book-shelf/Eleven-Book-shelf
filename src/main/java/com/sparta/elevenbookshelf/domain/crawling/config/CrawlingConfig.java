@@ -1,4 +1,4 @@
-package com.sparta.elevenbookshelf.common.crawling;
+package com.sparta.elevenbookshelf.domain.crawling.config;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import jakarta.annotation.PreDestroy;

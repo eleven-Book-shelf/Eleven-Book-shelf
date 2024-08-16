@@ -1,6 +1,5 @@
 package com.sparta.elevenbookshelf.domain.crawling.service;
 
-import com.sparta.elevenbookshelf.common.crawling.CrawlingUtil;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import lombok.RequiredArgsConstructor;

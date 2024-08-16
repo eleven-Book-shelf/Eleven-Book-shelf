@@ -1,4 +1,4 @@
-package com.sparta.elevenbookshelf.common.crawling;
+package com.sparta.elevenbookshelf.domain.crawling.service;
 
 import com.sparta.elevenbookshelf.domain.content.dto.ContentRequestDto;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
