@@ -58,7 +58,6 @@ public class HashtagService {
     @Value("${INIT_WEIGHT}")
     public double INIT_WEIGHT;
 
-//    private final PostService postService;
     private final ContentService contentService;
     private final UserService userService;
 
