@@ -379,7 +379,6 @@ public class HashtagService {
 
         User user = getUser(userId);
 
-        // Calculate similarity
         List<Content> recommendedContents = calculateSimilarity(user, contents);
 
         // 선택지 제작
