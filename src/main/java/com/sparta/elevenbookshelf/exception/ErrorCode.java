@@ -44,12 +44,15 @@ public enum ErrorCode {
     NOT_FOUND_CONTENT(HttpStatus.BAD_REQUEST, "컨탠츠를 찾을 수 없습니다." ),
     BOOKMARK_NOT_FOUND(HttpStatus.BAD_REQUEST, "북마크를 찾을 수 없습니다." ),
 
-
     //payment
     PAYMENT_FAILURE(HttpStatus.BAD_REQUEST, "결제를 실패 하였습니다." ),
     PAYMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "잘못된 아이디 정보입니다." ),
     PAYMENT_APPROVAL_FAILURE(HttpStatus.BAD_REQUEST, "결제 승인을 실패했습니다." ),
-    PAYMENT_CANCELLATION_FAILURE(HttpStatus.BAD_REQUEST, "결제 취소를 실패하였습니다.")
+    PAYMENT_CANCELLATION_FAILURE(HttpStatus.BAD_REQUEST, "결제 취소를 실패하였습니다."),
+
+    //Report
+    NOT_FOUND_REPORT(HttpStatus.BAD_REQUEST, "신고내용을 찾을 수 없습니다." )
+
     ;
 
     private final HttpStatus status;

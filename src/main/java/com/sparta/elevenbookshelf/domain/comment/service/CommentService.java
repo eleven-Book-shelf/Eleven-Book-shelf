@@ -173,4 +173,9 @@ public class CommentService {
         return userService.getUser(userId);
     }
 
+    public Comment getComment(Long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(
+                () -> new BusinessException(ErrorCode.COMMENT_NOT_FOUND)
+        );
+    }
 }
