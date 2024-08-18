@@ -101,6 +101,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(request ->
                                            request
+                                                   .requestMatchers("/api/contents/webnovel/top").denyAll()
                                                    .requestMatchers("/api/content/**").permitAll()
                                                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                    .requestMatchers("/api/user/signup").permitAll()
