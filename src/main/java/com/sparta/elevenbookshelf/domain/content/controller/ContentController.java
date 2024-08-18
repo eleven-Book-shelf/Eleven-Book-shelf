@@ -4,10 +4,10 @@ package com.sparta.elevenbookshelf.domain.content.controller;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentMapResponseDto;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentResponseDto;
 import com.sparta.elevenbookshelf.domain.content.dto.ContentSearchCond;
+import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.content.service.ContentService;
 import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.like.service.LikeService;
-import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -30,25 +30,25 @@ public class ContentController {
     /**
      * 컨텐츠 검색 기능
      * - 주어진 조건들에 맞춰 컨텐츠를 조회합니다.
+     *
      * @param userPrincipal 사용자 정보 : Nullable
-     * @param offset 현재 위치
-     * @param pagesize 페이지 사이즈
-     * @Body
-     *      isBookmarked 사용자의 북마크 조건으로 필터링 할 것인지 여부 : 기본 값 : "f"
-     *      keyword 검색할 키워드 : 비어있으면 전체 조회
-     *      contentType WEBTOON || WEBNOVEL : 비어있으면 전체 조회
-     *      sortBy 정렬조건 : 비어있으면 조회수 순 정렬
+     * @param offset        현재 위치
+     * @param pagesize      페이지 사이즈
      * @return List<ContentResponseDto> 불러온 컨텐츠 Dto 목록
+     * @Body isBookmarked 사용자의 북마크 조건으로 필터링 할 것인지 여부 : 기본 값 : "f"
+     * keyword 검색할 키워드 : 비어있으면 전체 조회
+     * contentType WEBTOON || WEBNOVEL : 비어있으면 전체 조회
+     * sortBy 정렬조건 : 비어있으면 조회수 순 정렬
      */
     @GetMapping
-    public ResponseEntity<List<ContentResponseDto>> readContentsByCondition (
+    public ResponseEntity<List<ContentResponseDto>> readContentsByCondition(
             @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
             @RequestBody ContentSearchCond cond) {
 
         if (cond.getIsBookmarked()) {
-            if(userPrincipal != null) {
+            if (userPrincipal != null) {
                 cond.setUserId(userPrincipal.getUser().getId());
             }
         }
@@ -75,15 +75,15 @@ public class ContentController {
     }
 
     @GetMapping("/recommend")
-    public ResponseEntity<List<ContentResponseDto>> recommendContentsByUserHashtag (
+    public ResponseEntity<List<ContentResponseDto>> recommendContentsByUserHashtag(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestParam(value = "platform", required = false)String platform,
+            @RequestParam(value = "platform", required = false) String platform,
             @RequestParam(value = "genre", required = false) String genre) {
 
         List<ContentResponseDto> res = hashtagService.recommendContentByUserHashtag(userPrincipal.getUser().getId(),
-                contentService.getContents() ,offset, pagesize,platform,genre);
+                                                                                    contentService.getContents(), offset, pagesize, platform, genre);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
@@ -93,71 +93,45 @@ public class ContentController {
     public ResponseEntity<List<ContentResponseDto>> readContents(
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestParam(value = "platform", required = false)String platform,
-            @RequestParam(value = "genre", required = false) String genre) {
+            @RequestParam(value = "platform", required = false) String platform,
+            @RequestParam(value = "genre", required = false) String genre,
+            @RequestParam(value = "end", required = false) String end) {
 
-        List<ContentResponseDto> res = contentService.readContentsByGenre(offset, pagesize, platform,genre);
-//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, null, null);
+        List<ContentResponseDto> res = contentService.readContentsByGenre(offset, pagesize, platform, genre,end);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     // 웹툰 페이지의 컨텐츠
-    @GetMapping("/webtoon")
+    @GetMapping("/type/{contentType}")
     public ResponseEntity<List<ContentResponseDto>> readContentWebtoon(
+            @PathVariable String contentType,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestParam(value = "platform", required = false)String platform,
-            @RequestParam(value = "genre", required = false) String genre) {
+            @RequestParam(value = "platform", required = false) String platform,
+            @RequestParam(value = "genre", required = false) String genre,
+            @RequestParam(value = "end", required = false) String end) {
 
-        List<ContentResponseDto> res = contentService.readWebtoonContents(offset, pagesize, platform ,genre);
-//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, "COMICS", null);
+        List<ContentResponseDto> res = contentService.readWebtoonContents(contentType ,offset, pagesize, platform, genre, end);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     // 웹툰 페이지의 컨텐츠 탑 10
-    @GetMapping("/webtoon/top")
-    public ResponseEntity<List<ContentResponseDto>> readTopContentWebtoon(
+    @GetMapping("/type/{contentType}/top")
+    public ResponseEntity<List<ContentResponseDto>> readTopContent(
+            @PathVariable String contentType,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
             @RequestParam(value = "search", required = false) String genre) {
 
-        List<ContentResponseDto> res = contentService.readWebtoonContentsOrderByView(offset, pagesize, genre);
-//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, "COMICS", null);
-
-        return ResponseEntity.status(HttpStatus.OK).body(res);
-    }
-
-    // 소설 페이지의 컨텐츠
-    @GetMapping("/webnovel")
-    public ResponseEntity<List<ContentResponseDto>> readContentWebnovel(
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestParam(value = "platform", required = false)String platform,
-            @RequestParam(value = "genre", required = false) String genre) {
-
-        List<ContentResponseDto> res = contentService.readWebnovelContents(offset, pagesize,platform, genre);
-//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, "NOVEL", null);
-
-        return ResponseEntity.status(HttpStatus.OK).body(res);
-    }
-
-    // 소설 페이지의 컨텐츠 탑 10
-    @GetMapping("/webnovel/top")
-    public ResponseEntity<List<ContentResponseDto>> readTopContentWebnovel(
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pagesize", defaultValue = "10") int pagesize,
-            @RequestParam(value = "search", required = false) String genre) {
-
-        List<ContentResponseDto> res = contentService.readWebnovelContentsOrderByView(offset, pagesize, genre);
-//        List<ContentResponseDto> res = contentService.readContents(offset, pagesize, null, genre, "NOVEL", null);
+        List<ContentResponseDto> res = contentService.readContentsOrderByView(contentType,offset, pagesize, genre);
 
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ContentMapResponseDto> readPostsByKeyword (
+    public ResponseEntity<ContentMapResponseDto> readPostsByKeyword(
             @RequestParam(value = "keyword") String keyword,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pagesize", defaultValue = "20") int pagesize) {
@@ -199,7 +173,7 @@ public class ContentController {
     // 컨텐츠 좋아요
     @PostMapping("/{contentId}/like")
     public ResponseEntity<Void> createLikeContent(
-            @PathVariable Long contentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long contentId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         likeService.createLikeContent(contentId, userPrincipal.getUser().getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -208,7 +182,7 @@ public class ContentController {
     // 컨텐츠 좋아요 취소
     @DeleteMapping("/{contentId}/like")
     public ResponseEntity<Void> deleteLikeContent(
-            @PathVariable Long contentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long contentId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         likeService.deleteLikeContent(contentId, userPrincipal.getUser().getId());
         return ResponseEntity.ok().build();
@@ -217,7 +191,7 @@ public class ContentController {
     // 컨탠츠 좋아요 수
     @GetMapping("/{contentId}/like")
     public ResponseEntity<Boolean> getLikeContent(
-            @PathVariable Long contentId, @AuthenticationPrincipal UserPrincipal userPrincipal){
+            @PathVariable Long contentId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         return ResponseEntity.ok().body(likeService.getLikeContent(contentId, userPrincipal.getUser().getId()));
     }

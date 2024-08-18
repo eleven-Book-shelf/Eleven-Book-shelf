@@ -1,6 +1,7 @@
 package com.sparta.elevenbookshelf.domain.user.service;
 
 import com.sparta.elevenbookshelf.domain.auth.dto.LoginRequestDto;
+import com.sparta.elevenbookshelf.domain.user.dto.UserPublicResponseDto;
 import com.sparta.elevenbookshelf.domain.user.dto.UserRequestDto;
 import com.sparta.elevenbookshelf.domain.user.dto.UserResponseDto;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
@@ -47,6 +48,11 @@ public class UserService {
         return new UserResponseDto(user);
     }
 
+    public UserPublicResponseDto getPublicUserData(Long userId) {
+        User user = getUser(userId);
+        return new UserPublicResponseDto(user);
+    }
+
     @Transactional
     public UserResponseDto editProfile(Long userId, String username) {
         User user = getUser(userId);
@@ -86,4 +92,6 @@ public class UserService {
                 () -> new BusinessException(ErrorCode.USER_NOT_FOUND)
         );
     }
+
+
 }

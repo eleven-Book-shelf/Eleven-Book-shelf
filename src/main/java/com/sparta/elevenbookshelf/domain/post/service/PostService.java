@@ -12,6 +12,8 @@ import com.sparta.elevenbookshelf.exception.BusinessException;
 import com.sparta.elevenbookshelf.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,33 +38,17 @@ public class PostService {
     //:::::::::::::::::// create //::::::::::::::::://
 
     @Transactional
-    public PostResponseDto createNormalPost(Long userId, PostRequestDto req) {
-
-        User user = getUser(userId);
-
-        Post post = Post.builder()
-                .type(Post.PostType.NORMAL)
-                .title(req.getTitle())
-                .body(req.getBody())
-                .user(user)
-                .build();
-
-        postRepository.saveAndFlush(post);
-
-        return new PostResponseDto(post);
-    }
-
-    @Transactional
     public PostResponseDto createReviewPost(Long userId, PostRequestDto req) {
 
         User user = getUser(userId);
-
         Content content = getContent(req.getContentId());
+
+        String cleanedBody = cleanHtml(req.getBody());
 
         Post post = Post.builder()
                 .type(Post.PostType.REVIEW)
                 .title(req.getTitle())
-                .body(req.getBody())
+                .body(cleanedBody)
                 .user(user)
                 .content(content)
                 .rating(req.getRating())
@@ -75,15 +61,38 @@ public class PostService {
         return new PostResponseDto(post);
     }
 
+    // 일반 포스트 생성
+    @Transactional
+    public PostResponseDto createNormalPost(Long userId, PostRequestDto req) {
+
+        User user = getUser(userId);
+
+        String cleanedBody = cleanHtml(req.getBody());
+
+        Post post = Post.builder()
+                .type(Post.PostType.NORMAL)
+                .title(req.getTitle())
+                .body(cleanedBody)
+                .user(user)
+                .build();
+
+        postRepository.saveAndFlush(post);
+
+        return new PostResponseDto(post);
+    }
+
+    // 공지사항 포스트 생성
     @Transactional
     public PostResponseDto createNoticePost(Long userId, PostRequestDto req) {
 
         User user = getUser(userId);
 
+        String cleanedBody = cleanHtml(req.getBody());
+
         Post post = Post.builder()
                 .type(Post.PostType.NOTICE)
                 .title(req.getTitle())
-                .body(req.getBody())
+                .body(cleanedBody)
                 .user(user)
                 .build();
 
@@ -202,6 +211,8 @@ public class PostService {
 
         Post post = getPost(postId);
 
+        String cleanedBody = cleanHtml(req.getBody());
+
         validateUser(user, post);
 
         post.updateTitle(req.getTitle());
@@ -268,6 +279,10 @@ public class PostService {
         return new PostMapResponseDto(posts.getTotalPages(), posts.getContent().stream()
                 .map(PostResponseListDto::new)
                 .toList());
+    }
+    // HTML 정화 메서드
+    private String cleanHtml(String body) {
+        return Jsoup.clean(body, Safelist.basic());
     }
 
 }

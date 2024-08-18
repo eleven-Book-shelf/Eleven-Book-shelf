@@ -1,6 +1,7 @@
 package com.sparta.elevenbookshelf.domain.post.entity;
 
 import com.sparta.elevenbookshelf.common.Timestamp;
+import com.sparta.elevenbookshelf.domain.comment.entity.Comment;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.PostHashtag;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
@@ -8,7 +9,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -47,6 +50,9 @@ public class Post extends Timestamp {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PostHashtag> postHashtags = new HashSet<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)  // 댓글 관계 추가
+    private List<Comment> comments = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_id")

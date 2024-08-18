@@ -104,12 +104,13 @@ public class ContentRepositoryCustomImpl implements ContentRepositoryCustom {
     }
 
     @Override
-    public List<Content> findContentsByGenre(long offset, int pageSize, String platform, String genre) {
+    public List<Content> findContentsByGenre(long offset, int pageSize, String platform, String genre, Content.ContentEnd end) {
         return jpaQueryFactory
                 .selectFrom(content)
                 .orderBy(content.view.desc())
                 .where((genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null),
-                        (platform != null && !platform.isEmpty() ? content.platform.eq(platform) : null))
+                        (platform != null && !platform.isEmpty() ? content.platform.eq(platform) : null),
+                        (end != null ? content.isEnd.eq(end) : null))
                 .offset(offset)
                 .limit(pageSize)
                 .fetch();
@@ -127,24 +128,13 @@ public class ContentRepositoryCustomImpl implements ContentRepositoryCustom {
     }
 
     @Override
-    public List<Content> findWebtoonContentsByGenre(long offset, int pageSize, String platform, String genre) {
+    public List<Content> findContentsByGenre( Content.ContentType type ,long offset, int pageSize, String platform, String genre, Content.ContentEnd end) {
         return jpaQueryFactory
                 .selectFrom(content)
-                .where(content.type.eq(Content.ContentType.COMICS)
+                .where(content.type.eq(type)
                                .and(platform != null && !platform.isEmpty() ? content.platform.eq(platform) : null)
-                               .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
-                .offset(offset)
-                .limit(pageSize)
-                .fetch();
-    }
-
-    @Override
-    public List<Content> findWebnovelContentsByGenre(long offset, int pageSize, String platform, String genre) {
-        return jpaQueryFactory
-                .selectFrom(content)
-                .where(content.type.eq(Content.ContentType.NOVEL)
-                               .and(platform != null && !platform.isEmpty() ? content.platform.eq(platform ) : null)
-                               .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null))
+                               .and(genre != null && !genre.isEmpty() ? content.contentHashTag.like("%" + genre + "%") : null)
+                               .and(end != null ? content.isEnd.eq(end) : null))
                 .offset(offset)
                 .limit(pageSize)
                 .fetch();

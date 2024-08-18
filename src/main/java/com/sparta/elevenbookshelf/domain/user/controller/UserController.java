@@ -6,6 +6,7 @@ import com.sparta.elevenbookshelf.domain.hashtag.service.HashtagService;
 import com.sparta.elevenbookshelf.domain.post.dto.PostMapResponseDto;
 import com.sparta.elevenbookshelf.domain.post.dto.PostResponseDto;
 import com.sparta.elevenbookshelf.domain.post.service.PostService;
+import com.sparta.elevenbookshelf.domain.user.dto.UserPublicResponseDto;
 import com.sparta.elevenbookshelf.domain.user.dto.UserRequestDto;
 import com.sparta.elevenbookshelf.domain.user.dto.UserResponseDto;
 import com.sparta.elevenbookshelf.domain.user.service.UserService;
@@ -37,6 +38,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserPublicResponseDto> getPublicUserData(@PathVariable Long userId) {
+        UserPublicResponseDto res = userService.getPublicUserData(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
     @GetMapping("/posts")
     public ResponseEntity<PostMapResponseDto> getUserPosts(
             @AuthenticationPrincipal UserPrincipal user,
@@ -45,6 +52,17 @@ public class UserController {
             @RequestParam boolean asc)  {
 
         PostMapResponseDto res = postService.readPostsByUser(user.getUser().getId(), page, pagesize,asc);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @GetMapping("/posts/{userId}")
+    public ResponseEntity<PostMapResponseDto> getUserPosts(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int pagesize,
+            @RequestParam boolean asc)  {
+
+        PostMapResponseDto res = postService.readPostsByUser(userId, page, pagesize,asc);
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 

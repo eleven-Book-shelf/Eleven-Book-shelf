@@ -28,8 +28,8 @@ public class ReportController {
     public ResponseEntity<?> createReport(
             @AuthenticationPrincipal UserPrincipal user,
             @RequestBody ReportRequestDto reportRequestDto,
-            @RequestParam Long postId,
-            @RequestParam Long commentId) {
+            @RequestParam(required = false) Long postId,
+            @RequestParam(required = false) Long commentId) {
         reportService.createReport(user.getUser().getId(),reportRequestDto,postId,commentId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

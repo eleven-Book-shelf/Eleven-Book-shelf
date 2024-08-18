@@ -12,11 +12,9 @@ public interface ContentRepositoryCustom {
 
     List<Content> findTopByView(long offset, int pageSize, Content.ContentType contentType, String genre);
 
-    List<Content> findContentsByGenre(long offset, int pageSize,String platform, String genre);
+    List<Content> findContentsByGenre(long offset, int pageSize,String platform, String genre,Content.ContentEnd end );
 
-    List<Content> findWebtoonContentsByGenre(long offset, int pageSize,String platform, String genre );
-
-    List<Content> findWebnovelContentsByGenre(long offset, int pageSize,String platform, String genre);
+    List<Content> findContentsByGenre(Content.ContentType type ,long offset, int pageSize,String platform, String genre , Content.ContentEnd end );
 
     List<Content> findWebtoonContentsByGenreByUser(Long userId, long offset, int pageSize, String genre);
 
