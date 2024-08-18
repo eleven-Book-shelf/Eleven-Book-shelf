@@ -58,7 +58,7 @@ public class ContentController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    // 컨텐츠 상세 페이지
+    // 컨텐츠 상세 페이지 태스트
     @GetMapping("/{contentId}")
     public ResponseEntity<ContentResponseDto> readContent(
             @AuthenticationPrincipal @Nullable UserPrincipal userPrincipal,
