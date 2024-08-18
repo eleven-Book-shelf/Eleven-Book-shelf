@@ -2,9 +2,7 @@ package com.sparta.elevenbookshelf.domain.report.controller;
 
 import com.sparta.elevenbookshelf.domain.report.dto.ReportMapResponseDto;
 import com.sparta.elevenbookshelf.domain.report.dto.ReportRequestDto;
-import com.sparta.elevenbookshelf.domain.report.dto.ReportResponseDto;
 import com.sparta.elevenbookshelf.domain.report.service.ReportService;
-import com.sparta.elevenbookshelf.domain.user.dto.UserResponseDto;
 import com.sparta.elevenbookshelf.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

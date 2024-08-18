@@ -6,16 +6,17 @@ import lombok.Data;
 @Data
 public class ReportResponseDto {
 
-    private Long reportId;
+    private Long id;
     private String title;
+    private String postType;
     private String content;
     private Long postId;
     private Long commentId;
     private Report.ReportStatus reportStatus;
 
-
     public ReportResponseDto(Report report) {
-        this.reportId = report.getId();
+        this.id = report.getId();
+        this.postType = "Report";
         this.title = report.getTitle();
         this.content = report.getContent();
         this.reportStatus = report.getReportStatus();
