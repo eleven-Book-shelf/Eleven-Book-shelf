@@ -85,7 +85,7 @@ public class KPageService {
 
         try {
             crawlingUtil.waitForPage();
-//            crawlingUtil.scrollToEndOfPage();
+            crawlingUtil.scrollToEndOfPage();
 
             // cssSelector 를 사용하여 해당
             List<WebElement> linkElements = crawlingUtil.waitForElements(By.cssSelector(pageArtLink), 10);
