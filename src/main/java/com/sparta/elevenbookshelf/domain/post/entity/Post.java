@@ -5,6 +5,7 @@ import com.sparta.elevenbookshelf.domain.comment.entity.Comment;
 import com.sparta.elevenbookshelf.domain.content.entity.Content;
 import com.sparta.elevenbookshelf.domain.hashtag.entity.mappingEntity.PostHashtag;
 import com.sparta.elevenbookshelf.domain.user.entity.User;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -26,7 +27,7 @@ public class Post extends Timestamp {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private PostType type;
+    private PostType type = PostType.NORMAL;
 
     private String postHashtag;
 
