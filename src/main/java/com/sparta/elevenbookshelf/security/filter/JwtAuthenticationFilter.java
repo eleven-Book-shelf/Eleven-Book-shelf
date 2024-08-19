@@ -36,12 +36,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String requestUrl = request.getRequestURL().toString();
 
-        // 2024-08-19-03:32 어딘가에서 캐시된 이전 배포가 계속 요청되는 것을 막기 위해 일단 필터에서 무시하도록 설정.
-//        if (requestUrl.contains("/api/contents/webnovel/top")) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
-
         log.info("doFilterInternal 실행 - 요청 URL: " + requestUrl);
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         log.info("doFilterInternal accessToken 가져오기 : " + accessToken);
