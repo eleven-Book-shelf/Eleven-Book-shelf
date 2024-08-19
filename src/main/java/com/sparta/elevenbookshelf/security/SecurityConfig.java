@@ -106,7 +106,7 @@ public class SecurityConfig {
                                                    .requestMatchers("/api/auth/login").permitAll()
                                                    .requestMatchers("/api/contents/**").permitAll()
                                                    .requestMatchers("/api/hashtag/**").permitAll()
-                                                   .requestMatchers("/api/boards/**").permitAll()
+                                                   .requestMatchers("/login/**").permitAll()
                                                    .requestMatchers("/api/auth/**").permitAll()
                                                    .requestMatchers(HttpMethod.GET, "/api/post/**").permitAll()
                                                    .requestMatchers( HttpMethod.GET,"/api/hashtag").permitAll()
