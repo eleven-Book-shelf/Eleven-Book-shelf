@@ -55,7 +55,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
-    @GetMapping("/posts/{userId}")
+    @GetMapping("{userId}/posts")
     public ResponseEntity<PostMapResponseDto> getUserPosts(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "0") int page,

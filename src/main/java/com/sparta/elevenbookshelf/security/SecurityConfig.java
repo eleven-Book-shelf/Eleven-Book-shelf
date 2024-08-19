@@ -104,6 +104,7 @@ public class SecurityConfig {
                                                    .requestMatchers("/api/content/**").permitAll()
                                                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                    .requestMatchers("/api/user/signup").permitAll()
+                                                   .requestMatchers("/api/user/**").permitAll()
                                                    .requestMatchers("/api/auth/login").permitAll()
                                                    .requestMatchers("/api/contents/**").permitAll()
                                                    .requestMatchers("/api/hashtag/**").permitAll()
