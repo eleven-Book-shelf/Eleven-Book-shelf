@@ -61,7 +61,7 @@ public class Post extends Timestamp {
 
     @Builder
     public Post (PostType type,String title, String body, User user, Double rating, Content content) {
-        this.type = type;
+        this.type = (type != null) ? type : PostType.NORMAL;
         this.title = title;
         this.body = body;
         this.user = user;
