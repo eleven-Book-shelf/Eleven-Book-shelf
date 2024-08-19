@@ -49,5 +49,12 @@ Authorization:{{access_token}}
 }
 
 ### readPost
+GET localhost:8080/api/post/1
+
+
+### readPosts
 GET localhost:8080/api/post
+Content-Type: application/json
 Authorization:{{access_token}}
+
+

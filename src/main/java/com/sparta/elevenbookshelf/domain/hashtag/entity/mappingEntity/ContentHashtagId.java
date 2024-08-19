@@ -15,10 +15,10 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class ContentHashtagId implements Serializable {
 
-    @Column(name = "content")
+    @Column(name = "content_id")
     private Long contentId;
 
-    @Column(name = "hashtag")
+    @Column(name = "hashtag_id")
     private Long hashtagId;
 
     protected ContentHashtagId (Long contentId, Long hashtagId) {

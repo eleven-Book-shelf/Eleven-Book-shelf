@@ -405,19 +405,13 @@ public class HashtagService {
 
         // 비교군 : 사용자 해시태그
         List<UserHashtag> userHashtags = new ArrayList<>(user.getUserHashtags());
+        List<Hashtag> xTags = new ArrayList<>(userHashtags.stream()
+                .map(UserHashtag::getHashtag)
+                .toList());
 
         for(Content content : contents) {
 
-            List<Hashtag> xTags = new ArrayList<>(userHashtags.stream()
-                    .map(UserHashtag::getHashtag)
-                    .toList());
-
             List<ContentHashtag> contentHashtags = content.getContentHashtags().stream().toList();
-            List<Hashtag> yTags = new ArrayList<>(contentHashtags.stream()
-                    .map(ContentHashtag::getHashtag)
-                    .toList());
-
-            xTags.retainAll(yTags);
 
             // 각 해시태그끼리의 거리 계산을 위한 리스트
             List<Double> aList = new ArrayList<>();
@@ -426,18 +420,19 @@ public class HashtagService {
             // 각 객체-해시태그에 할당된 점수값을 해당 해시태그의 티어로 나눠 개인맞춤을 가중
             for (Hashtag tag : xTags) {
 
-                UserHashtag aTag = userHashtags.stream()
+                aList.add(userHashtags.stream()
                         .filter(userHashtag -> userHashtag.getHashtag().equals(tag))
+                        .map(userHashtag -> userHashtag.getScore()/tag.getTier())
                         .findAny()
-                        .get();
+                        .orElse(0.0)
+                );
 
-                ContentHashtag bTag = contentHashtags.stream()
+                bList.add(contentHashtags.stream()
                         .filter(contentHashtag -> contentHashtag.getHashtag().equals(tag))
+                        .map(contentHashtag -> contentHashtag.getScore()/tag.getTier())
                         .findAny()
-                        .get();
-
-                aList.add(aTag.getScore()/aTag.getHashtag().getTier());
-                bList.add(bTag.getScore()/bTag.getHashtag().getTier());
+                        .orElse(0.0)
+                );
             }
 
             // 단순 유클리안 거리 계산으로 유사도 측정 | 값이 작을 수록 유사도 높음

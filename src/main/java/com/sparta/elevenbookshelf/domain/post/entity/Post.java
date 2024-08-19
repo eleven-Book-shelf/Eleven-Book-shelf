@@ -59,7 +59,7 @@ public class Post extends Timestamp {
     private Content content;
 
     @Builder
-    public Post (PostType type,String title, String body, User user, Double rating, Content content) {
+    public Post (PostType type, String title, String body, User user, Double rating, Content content) {
         this.type = type;
         this.title = title;
         this.body = body;

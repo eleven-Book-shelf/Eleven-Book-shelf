@@ -18,7 +18,7 @@ public class PostResponseDto {
     private Long contentId;
     private Double rating;
     private String title;
-    private List<String> tags = new ArrayList<>();
+    private List<String> tags;
     private String body;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
